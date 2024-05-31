@@ -1,4 +1,4 @@
-import Renderer from "@lib/components/notion/Renderer";
+import Renderer from "../../../../features/notion/Renderer";
 import { NotionAPI } from "notion-client";
 
 interface fetchEachPagesProps {

@@ -1,10 +1,19 @@
-import Renderer from "@lib/components/notion/Renderer";
+import Renderer from "../../../features/notion/Renderer";
 import { NotionAPI } from "notion-client";
+import { WindowResizeHeader, WindowBody, Window } from "../../../features/window/components";
 
 export default async function Blog() {
   const notion = new NotionAPI();
-  const recordMap = await notion.getPage("devloper-88d3fb4a1ab64838a9d755b69d7cb80e");
+  const recordMap = await notion.getPage("study-react-732f1b8600004f14bae67e6d115df05c");
   return (
-    <Renderer recordMap={recordMap} rootPageId={"devloper-88d3fb4a1ab64838a9d755b69d7cb80e"} />
+    <Window>
+      <WindowResizeHeader title="notion" type="resize"></WindowResizeHeader>
+      <WindowBody>
+        <Renderer
+          recordMap={recordMap}
+          rootPageId={"study-react-732f1b8600004f14bae67e6d115df05c"}
+        />
+      </WindowBody>
+    </Window>
   );
 }
