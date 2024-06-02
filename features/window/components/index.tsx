@@ -1,6 +1,6 @@
 "use client";
-import { ReactNode, createContext, useContext, useState } from "react";
-import Draggable from "react-draggable";
+import { ReactNode, createContext, useContext, useRef, useState } from "react";
+import { useWindow } from "../hooks/useWindow";
 
 interface Props {
   children: ReactNode;
@@ -20,13 +20,22 @@ const windowDefaultContext = {
   position: defaultPosition,
   prevSize: defaultSize,
   prevPosition: defaultPosition,
+  isFull: false,
+  onFullSizeToggle: () => {},
 };
 const WindowContext = createContext<{
   context: typeof windowDefaultContext;
   setContext: (data: Partial<typeof windowDefaultContext>) => void;
-}>({ context: windowDefaultContext, setContext: () => {} });
+  onFullSizeToggle: any;
+}>({
+  context: windowDefaultContext,
+  setContext: () => {},
+  onFullSizeToggle: () => {},
+});
 
 const Window = ({ children }: Props) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { onMouseDown, isFull, onFullSizeToggle } = useWindow({ ref });
   const [windowContext, setWindowContext] =
     useState<typeof windowDefaultContext>(windowDefaultContext);
   const setData = (data: Partial<typeof windowDefaultContext>) => {
@@ -36,72 +45,40 @@ const Window = ({ children }: Props) => {
   };
 
   return (
-    <WindowContext.Provider value={{ context: windowContext, setContext: setData }}>
-      <Draggable handle=".title-bar">
-        <div
-          style={{ position: "absolute", ...windowContext.size, ...windowContext.position }}
-          className="window"
-        >
-          {children}
-        </div>
-      </Draggable>
+    <WindowContext.Provider
+      value={{ context: windowContext, setContext: setData, onFullSizeToggle }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          ...windowContext.size,
+        }}
+        ref={ref}
+        onMouseDown={!isFull ? onMouseDown : (e) => {}}
+        className="window"
+      >
+        {children}
+      </div>
     </WindowContext.Provider>
   );
 };
 
 interface HeaderProps {
   title: string;
-  type: keyof typeof headerType;
 }
-const headerType = {
-  resize: {
-    normal: ["Minimize", "Maximize", "Close"],
-    full: ["Minimize", "Restore", "Close"],
-  },
-  question: {
-    normal: ["Minimize", "Close"],
-  },
-};
-const Header = (props: HeaderProps) => {
-  type headerType = typeof headerType;
-  const [detailType, setDetailType] = useState<keyof headerType[keyof headerType]>("normal");
-  const buttonList = headerType[props.type][detailType];
-
-  <div className="title-bar">
-    <div className="title-bar-text">{props.title}</div>
-    <div className="title-bar-controls">
-      {buttonList.map((type) => {
-        return <button aria-label={type}></button>;
-      })}
-    </div>
-  </div>;
-};
 const WindowResizeHeader = (props: HeaderProps) => {
   const [isFull, setIsFull] = useState<boolean>(false);
-  const { context, setContext } = useContext(WindowContext);
-  const fullSizeHanlder = () => {
-    if (isFull) {
-      setIsFull(false);
-      const prevSize = context.prevSize;
-      setContext({
-        size: { width: prevSize.width, height: prevSize.height },
-      });
-    } else {
-      setIsFull(true);
-      const currentSize = context.size;
-      setContext({
-        prevSize: { width: currentSize.width, height: currentSize.height },
-        size: { width: "100%", height: "100%" },
-      });
-    }
-  };
+  const { context, setContext, onFullSizeToggle } = useContext(WindowContext);
 
   return (
-    <div className="title-bar" onDoubleClick={fullSizeHanlder}>
+    <div className="title-bar" onDoubleClick={onFullSizeToggle}>
       <div className="title-bar-text">{props.title}</div>
       <div className="title-bar-controls">
         <button aria-label="Minimize" />
-        <button aria-label={isFull ? "Restore" : "Maximize"} onClick={fullSizeHanlder} />
+        <button
+          aria-label={isFull ? "Restore" : "Maximize"}
+          onClick={onFullSizeToggle}
+        />
         <button aria-label="Close" />
       </div>
     </div>
@@ -109,7 +86,11 @@ const WindowResizeHeader = (props: HeaderProps) => {
 };
 const WindowBody = (props: { children: ReactNode }) => {
   const { context } = useContext(WindowContext);
-  return <div style={{ height: context.size.height, overflowY: "scroll" }}>{props.children}</div>;
+  return (
+    <div style={{ height: context.size.height, overflowY: "scroll" }}>
+      {props.children}
+    </div>
+  );
 };
 
 export { Window, WindowResizeHeader, WindowBody };

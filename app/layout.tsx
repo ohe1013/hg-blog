@@ -9,14 +9,16 @@ type PageProps = {
     lang: string;
   };
   blog: ReactNode;
+  about: ReactNode;
 };
 export default async function RootLayout({
   children,
   params: { lang },
   blog,
+  about,
 }: PageProps) {
   const Cookies = cookies();
-
+  console.log(about);
   return (
     <html lang="ko" id={lang}>
       <head>
@@ -29,7 +31,8 @@ export default async function RootLayout({
         />
       </head>
       <body className={cookies().get("your-mode")?.value || "light"}>
-        {blog} {children}
+        {blog} {about}
+        {children}
       </body>
     </html>
   );

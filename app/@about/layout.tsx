@@ -7,7 +7,7 @@ import { ReactNode } from "react";
 export default async function Blog({ children }: { children: ReactNode }) {
   return (
     <Window>
-      <WindowResizeHeader title="notion"></WindowResizeHeader>
+      <WindowResizeHeader title="about"></WindowResizeHeader>
       <WindowBody>{children}</WindowBody>
     </Window>
   );
