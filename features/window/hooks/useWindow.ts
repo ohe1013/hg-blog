@@ -11,6 +11,7 @@ interface UseDragProvided {
   /**
    * Attach as a onMouseDown handler to the element that would be dragged
    */
+  state: State;
   onMouseDown: (e: React.MouseEvent<HTMLElement>) => void;
   onFullSizeToggle: () => void;
   isFull: boolean;
@@ -32,11 +33,11 @@ const PointZero: Point = {
 };
 
 const DefaultSize: Size = {
-  width: "500",
-  height: "500",
+  width: "500px",
+  height: "500px",
 };
 
-interface State {
+export interface State {
   dragStart: Point;
   translation: Point;
   lastTranslation: Point;
@@ -96,8 +97,8 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
       setState((prev) => ({
         ...prev,
         size: {
-          width: prev.lastSize.width + "px",
-          height: prev.lastSize.height + "px",
+          width: prev.lastSize.width,
+          height: prev.lastSize.height,
         },
         translation: {
           x: prev.lastTranslation.x,
@@ -113,8 +114,8 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
           height: "100%",
         },
         lastSize: {
-          width: prev.size.width + "px",
-          height: prev.size.height + "px",
+          width: prev.size.width,
+          height: prev.size.height,
         },
         translation: {
           x: 0,
@@ -142,6 +143,7 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
   }, [ref, state.size.width, state.size.height]);
 
   return {
+    state,
     onMouseDown,
     onFullSizeToggle,
     isFull,

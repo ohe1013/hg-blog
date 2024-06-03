@@ -1,6 +1,6 @@
 "use client";
 import { ReactNode, createContext, useContext, useRef, useState } from "react";
-import { useWindow } from "../hooks/useWindow";
+import { State, useWindow } from "../hooks/useWindow";
 
 interface Props {
   children: ReactNode;
@@ -24,34 +24,25 @@ const windowDefaultContext = {
   onFullSizeToggle: () => {},
 };
 const WindowContext = createContext<{
-  context: typeof windowDefaultContext;
-  setContext: (data: Partial<typeof windowDefaultContext>) => void;
+  context?: State;
+  isFull: boolean;
   onFullSizeToggle: any;
 }>({
-  context: windowDefaultContext,
-  setContext: () => {},
+  isFull: false,
   onFullSizeToggle: () => {},
 });
 
 const Window = ({ children }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const { onMouseDown, isFull, onFullSizeToggle } = useWindow({ ref });
-  const [windowContext, setWindowContext] =
-    useState<typeof windowDefaultContext>(windowDefaultContext);
-  const setData = (data: Partial<typeof windowDefaultContext>) => {
-    setWindowContext((prev) => {
-      return { ...prev, ...data };
-    });
-  };
+  const { state, onMouseDown, isFull, onFullSizeToggle } = useWindow({ ref });
 
   return (
     <WindowContext.Provider
-      value={{ context: windowContext, setContext: setData, onFullSizeToggle }}
+      value={{ context: state, isFull, onFullSizeToggle }}
     >
       <div
         style={{
           position: "absolute",
-          ...windowContext.size,
         }}
         ref={ref}
         onMouseDown={!isFull ? onMouseDown : (e) => {}}
@@ -67,8 +58,7 @@ interface HeaderProps {
   title: string;
 }
 const WindowResizeHeader = (props: HeaderProps) => {
-  const [isFull, setIsFull] = useState<boolean>(false);
-  const { context, setContext, onFullSizeToggle } = useContext(WindowContext);
+  const { isFull, onFullSizeToggle } = useContext(WindowContext);
 
   return (
     <div className="title-bar" onDoubleClick={onFullSizeToggle}>
@@ -87,7 +77,7 @@ const WindowResizeHeader = (props: HeaderProps) => {
 const WindowBody = (props: { children: ReactNode }) => {
   const { context } = useContext(WindowContext);
   return (
-    <div style={{ height: context.size.height, overflowY: "scroll" }}>
+    <div style={{ height: context?.size.height, overflowY: "scroll" }}>
       {props.children}
     </div>
   );
