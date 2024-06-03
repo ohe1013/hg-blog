@@ -11,12 +11,7 @@ type PageProps = {
   blog: ReactNode;
   about: ReactNode;
 };
-export default async function RootLayout({
-  children,
-  params: { lang },
-  blog,
-  about,
-}: PageProps) {
+export default async function RootLayout({ children, params: { lang }, blog, about }: PageProps) {
   const Cookies = cookies();
   console.log(about);
   return (
@@ -24,16 +19,9 @@ export default async function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <title>hg-blog</title>
-        <link
-          rel="icon"
-          href="https://win98icons.alexmeub.com/icons/png/msie1-0.png"
-          sizes="any"
-        />
+        <link rel="icon" href="https://win98icons.alexmeub.com/icons/png/msie1-0.png" sizes="any" />
       </head>
-      <body className={cookies().get("your-mode")?.value || "light"}>
-        {blog} {about}
-        {children}
-      </body>
+      <body className={cookies().get("your-mode")?.value || "light"}>{children}</body>
     </html>
   );
 }

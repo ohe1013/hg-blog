@@ -14,6 +14,7 @@ interface UseDragProvided {
   state: State;
   onMouseDown: (e: React.MouseEvent<HTMLElement>) => void;
   onFullSizeToggle: () => void;
+  borderMouseMove: (e: React.MouseEvent<HTMLElement>) => void;
   isFull: boolean;
 }
 
@@ -43,6 +44,7 @@ export interface State {
   lastTranslation: Point;
   size: Size;
   lastSize: Size;
+  resizeDirection: string | null;
 }
 
 export function useWindow({ ref }: UseDragProps): UseDragProvided {
@@ -52,19 +54,177 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     lastTranslation: PointZero,
     size: DefaultSize,
     lastSize: DefaultSize,
+    resizeDirection: null,
   });
 
   const [isFull, setIsFull] = useState<boolean>(false);
 
-  const onMouseMove = useCallback((e: MouseEvent) => {
-    setState((prev) => ({
-      ...prev,
-      translation: {
-        x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
-        y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
-      },
-    }));
-  }, []);
+  const onMouseMove = useCallback(
+    (e: MouseEvent) => {
+      const { resizeDirection } = state;
+      if (resizeDirection) {
+        switch (resizeDirection) {
+          case "n":
+            setState((prev) => {
+              return {
+                ...prev,
+                size: {
+                  ...prev.size,
+                  height:
+                    Number(prev.lastSize.height.slice(0, -2)) -
+                    (e.clientY - prev.dragStart.y) +
+                    "px",
+                },
+                translation: {
+                  x: prev.translation.x,
+                  y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+                },
+              };
+            });
+            break;
+          case "s":
+            setState((prev) => {
+              return {
+                ...prev,
+                size: {
+                  ...prev.size,
+                  height:
+                    Number(prev.lastSize.width.slice(0, -2)) +
+                    (e.clientY - prev.dragStart.y) +
+                    "px",
+                },
+              };
+            });
+            break;
+          case "e":
+            setState((prev) => {
+              return {
+                ...prev,
+                size: {
+                  ...prev.size,
+                  width:
+                    Number(prev.lastSize.width.slice(0, -2)) +
+                    (e.clientX - prev.dragStart.x) +
+                    "px",
+                },
+              };
+            });
+            break;
+          case "w":
+            setState((prev) => {
+              return {
+                ...prev,
+                size: {
+                  ...prev.size,
+                  width:
+                    Number(prev.lastSize.width.slice(0, -2)) -
+                    (e.clientX - prev.dragStart.x) +
+                    "px",
+                },
+                translation: {
+                  x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+                  y: prev.translation.y,
+                },
+              };
+            });
+            break;
+          case "nw":
+            setState((prev) => {
+              return {
+                ...prev,
+                size: {
+                  ...prev.size,
+                  width:
+                    Number(prev.lastSize.width.slice(0, -2)) -
+                    (e.clientX - prev.dragStart.x) +
+                    "px",
+                  height:
+                    Number(prev.lastSize.width.slice(0, -2)) -
+                    (e.clientY - prev.dragStart.y) +
+                    "px",
+                },
+                translation: {
+                  x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+                  y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+                },
+              };
+            });
+            break;
+          case "ne":
+            setState((prev) => {
+              return {
+                ...prev,
+                size: {
+                  ...prev.size,
+                  width:
+                    Number(prev.lastSize.width.slice(0, -2)) +
+                    (e.clientX - prev.dragStart.x) +
+                    "px",
+                  height:
+                    Number(prev.lastSize.width.slice(0, -2)) -
+                    (e.clientY - prev.dragStart.y) +
+                    "px",
+                },
+                translation: {
+                  x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+                  y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+                },
+              };
+            });
+            break;
+          case "sw":
+            setState((prev) => {
+              return {
+                ...prev,
+                size: {
+                  ...prev.size,
+                  width:
+                    Number(prev.lastSize.width.slice(0, -2)) -
+                    (e.clientX - prev.dragStart.x) +
+                    "px",
+                  height:
+                    Number(prev.lastSize.width.slice(0, -2)) +
+                    (e.clientY - prev.dragStart.y) +
+                    "px",
+                },
+                translation: {
+                  x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+                  y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+                },
+              };
+            });
+            break;
+          case "se":
+            setState((prev) => {
+              return {
+                ...prev,
+                size: {
+                  ...prev.size,
+                  width:
+                    Number(prev.lastSize.width.slice(0, -2)) +
+                    (e.clientX - prev.dragStart.x) +
+                    "px",
+                  height:
+                    Number(prev.lastSize.width.slice(0, -2)) +
+                    (e.clientY - prev.dragStart.y) +
+                    "px",
+                },
+              };
+            });
+            break;
+        }
+      } else {
+        setState((prev) => ({
+          ...prev,
+          translation: {
+            x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+            y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+          },
+        }));
+      }
+    },
+    [state.resizeDirection]
+  );
 
   const onMouseUp = useCallback(() => {
     window.removeEventListener("mousemove", onMouseMove);
@@ -72,11 +232,30 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     setState((prev) => ({
       ...prev,
       lastTranslation: prev.translation,
+      lastSize: prev.size,
     }));
   }, [onMouseMove]);
 
+  const borderMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    let resizeDirection = "";
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    if (y < 10 && y > -10) resizeDirection = "n" + resizeDirection;
+    if (y < rect.height + 10 && y > rect.height - 10) resizeDirection = "s" + resizeDirection;
+    if (x < 10 && x > -10) resizeDirection = resizeDirection + "w";
+    if (x < rect.width + 10 && x > rect.width - 10) resizeDirection = resizeDirection + "e";
+
+    setState((prev) => ({
+      ...prev,
+      resizeDirection: resizeDirection === "" ? null : resizeDirection,
+    }));
+  }, []);
+
   const onMouseDown = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
+      e.preventDefault();
+
       window.addEventListener("mousemove", onMouseMove);
       window.addEventListener("mouseup", onMouseUp);
       setState((prev) => ({
@@ -91,7 +270,6 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
   );
 
   const onFullSizeToggle = () => {
-    console.log(isFull);
     if (isFull) {
       setIsFull(false);
       setState((prev) => ({
@@ -128,6 +306,13 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
       }));
     }
   };
+  useEffect(() => {
+    if (state.resizeDirection === null) {
+      ref.current!.style.cursor = "auto";
+    } else {
+      ref.current!.style.cursor = state.resizeDirection + "-resize";
+    }
+  }, [state.resizeDirection]);
 
   useEffect(() => {
     if (ref.current) {
@@ -136,7 +321,6 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
   }, [ref, state.translation.x, state.translation.y]);
   useEffect(() => {
     if (ref.current) {
-      console.log(ref.current);
       ref.current.style.width = state.size.width;
       ref.current.style.height = state.size.height;
     }
@@ -146,6 +330,7 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     state,
     onMouseDown,
     onFullSizeToggle,
+    borderMouseMove,
     isFull,
   };
 }

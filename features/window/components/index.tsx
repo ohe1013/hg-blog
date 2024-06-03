@@ -1,28 +1,11 @@
 "use client";
-import { ReactNode, createContext, useContext, useRef, useState } from "react";
+import { ReactNode, createContext, useContext, useRef } from "react";
 import { State, useWindow } from "../hooks/useWindow";
 
 interface Props {
   children: ReactNode;
 }
 
-const defaultSize = {
-  width: "500px",
-  height: "500px",
-};
-const defaultPosition = {
-  left: "200px",
-  top: "200px",
-};
-
-const windowDefaultContext = {
-  size: defaultSize,
-  position: defaultPosition,
-  prevSize: defaultSize,
-  prevPosition: defaultPosition,
-  isFull: false,
-  onFullSizeToggle: () => {},
-};
 const WindowContext = createContext<{
   context?: State;
   isFull: boolean;
@@ -34,17 +17,16 @@ const WindowContext = createContext<{
 
 const Window = ({ children }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const { state, onMouseDown, isFull, onFullSizeToggle } = useWindow({ ref });
+  const { state, onMouseDown, borderMouseMove, isFull, onFullSizeToggle } = useWindow({ ref });
 
   return (
-    <WindowContext.Provider
-      value={{ context: state, isFull, onFullSizeToggle }}
-    >
+    <WindowContext.Provider value={{ context: state, isFull, onFullSizeToggle }}>
       <div
         style={{
           position: "absolute",
         }}
         ref={ref}
+        onMouseMove={borderMouseMove}
         onMouseDown={!isFull ? onMouseDown : (e) => {}}
         className="window"
       >
@@ -65,10 +47,7 @@ const WindowResizeHeader = (props: HeaderProps) => {
       <div className="title-bar-text">{props.title}</div>
       <div className="title-bar-controls">
         <button aria-label="Minimize" />
-        <button
-          aria-label={isFull ? "Restore" : "Maximize"}
-          onClick={onFullSizeToggle}
-        />
+        <button aria-label={isFull ? "Restore" : "Maximize"} onClick={onFullSizeToggle} />
         <button aria-label="Close" />
       </div>
     </div>
@@ -76,11 +55,18 @@ const WindowResizeHeader = (props: HeaderProps) => {
 };
 const WindowBody = (props: { children: ReactNode }) => {
   const { context } = useContext(WindowContext);
+  const height = Number(context?.size.height.slice(0, -2)) - 50 + "px";
+  return <div style={{ height: height, overflowY: "scroll" }}>{props.children}</div>;
+};
+
+const WindowStatus = () => {
   return (
-    <div style={{ height: context?.size.height, overflowY: "scroll" }}>
-      {props.children}
+    <div className="status-bar">
+      <p className="status-bar-field">Press F1 for help</p>
+      <p className="status-bar-field">Slide 1</p>
+      <p className="status-bar-field">CPU Usage: 14%</p>
     </div>
   );
 };
 
-export { Window, WindowResizeHeader, WindowBody };
+export { Window, WindowResizeHeader, WindowBody, WindowStatus };
