@@ -1,5 +1,6 @@
+"use client";
 import { NotionAPI } from "notion-client";
-import Renderer from "../../../features/notion/Renderer";
+import Renderer from "../../../../features/notion/Renderer";
 
 interface fetchEachPagesProps {
   params: {

@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
 import "../styles/globals.css";
 import "98.css";
 import { ReactNode } from "react";
+import { Desktop } from "../features/desktop/components";
 
 type PageProps = {
   children: React.ReactNode;
@@ -12,8 +12,6 @@ type PageProps = {
   about: ReactNode;
 };
 export default async function RootLayout({ children, params: { lang }, blog, about }: PageProps) {
-  const Cookies = cookies();
-  console.log(about);
   return (
     <html lang="ko" id={lang}>
       <head>
@@ -21,7 +19,13 @@ export default async function RootLayout({ children, params: { lang }, blog, abo
         <title>hg-blog</title>
         <link rel="icon" href="https://win98icons.alexmeub.com/icons/png/msie1-0.png" sizes="any" />
       </head>
-      <body className={cookies().get("your-mode")?.value || "light"}>{children}</body>
+      <body>
+        <Desktop>
+          {children}
+          {about}
+          {blog}
+        </Desktop>
+      </body>
     </html>
   );
 }
