@@ -19,7 +19,7 @@ importers:
         version: 1.7.2
       next:
         specifier: ^14.2.3
-        version: 14.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.3)
+        version: 14.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.4)
       notion-client:
         specifier: ^6.16.0
         version: 6.16.0
@@ -66,6 +66,9 @@ importers:
       postcss:
         specifier: ^8.4.38
         version: 8.4.38
+      sass:
+        specifier: ^1.77.4
+        version: 1.77.4
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1965,8 +1968,8 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  sass@1.77.3:
-    resolution: {integrity: sha512-WJHo+jmFp0dwRuymPmIovuxHaBntcCyja5hCB0yYY9wWrViEp4kF5Cdai98P72v6FzroPuABqu+ddLMbQWmwzA==}
+  sass@1.77.4:
+    resolution: {integrity: sha512-vcF3Ckow6g939GMA4PeU7b2K/9FALXk2KF9J87txdHzXbUF9XRQRwSxcAs/fGaTnJeBFd7UoV22j3lzMLdM0Pw==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -3940,7 +3943,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next@14.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.3):
+  next@14.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.77.4):
     dependencies:
       '@next/env': 14.2.3
       '@swc/helpers': 0.5.5
@@ -3961,7 +3964,7 @@ snapshots:
       '@next/swc-win32-arm64-msvc': 14.2.3
       '@next/swc-win32-ia32-msvc': 14.2.3
       '@next/swc-win32-x64-msvc': 14.2.3
-      sass: 1.77.3
+      sass: 1.77.4
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
@@ -4418,7 +4421,7 @@ snapshots:
   safer-buffer@2.1.2:
     optional: true
 
-  sass@1.77.3:
+  sass@1.77.4:
     dependencies:
       chokidar: 3.6.0
       immutable: 4.3.6
@@ -4754,7 +4757,7 @@ snapshots:
       postcss-modules-local-by-default: 4.0.5(postcss@8.4.38)
       postcss-modules-scope: 3.2.0(postcss@8.4.38)
       reserved-words: 0.1.2
-      sass: 1.77.3
+      sass: 1.77.4
       source-map-js: 1.2.0
       stylus: 0.62.0
       tsconfig-paths: 4.2.0

@@ -1,6 +1,7 @@
 "use client";
-import { ReactNode, createContext, useContext, useRef } from "react";
+import { ReactNode, createContext, useRef } from "react";
 import { useWindow } from "../../window/hooks/useWindow";
+import "../styles/TaskBar.scss";
 
 interface Props {
   children: ReactNode;
@@ -8,19 +9,17 @@ interface Props {
 
 const TaskBarContext = createContext<{}>({});
 
-const TaskBar = ({ children }: Props) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { state, onMouseDown, borderMouseMove, isFull, onFullSizeToggle } = useWindow({ ref });
-
+const TaskBar = () => {
   return (
-    <TaskBarContext.Provider value={{ context: state, isFull, onFullSizeToggle }}>
-      <div
-        ref={ref}
-        onMouseMove={borderMouseMove}
-        onMouseDown={!isFull ? onMouseDown : (e) => {}}
-        className="window"
-      >
-        {children}
+    <TaskBarContext.Provider value={{}}>
+      <div className="TaskBar">
+        <div className="TaskBar__start" />
+        <div className="TaskBar__quick-launch"></div>
+        <div className="TaskBar__programs"></div>
+        <div className="TaskBar__notifications">
+          <button className="btn Notifier TaskBar__notifications__notifier" />
+          <div className="TaskBar__notifications__time"></div>
+        </div>
       </div>
     </TaskBarContext.Provider>
   );
