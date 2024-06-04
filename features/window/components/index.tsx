@@ -1,6 +1,7 @@
 "use client";
 import { ReactNode, createContext, useContext, useRef } from "react";
 import { State, useWindow } from "../hooks/useWindow";
+import tw from "twin.macro";
 
 interface Props {
   children: ReactNode;
@@ -17,14 +18,16 @@ const WindowContext = createContext<{
 
 const Window = ({ children }: Props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const { state, onMouseDown, borderMouseMove, isFull, onFullSizeToggle } = useWindow({ ref });
+  const { state, onMouseDown, borderMouseMove, isFull, onFullSizeToggle } =
+    useWindow({ ref });
 
   return (
-    <WindowContext.Provider value={{ context: state, isFull, onFullSizeToggle }}>
+    <WindowContext.Provider
+      value={{ context: state, isFull, onFullSizeToggle }}
+    >
       <div
-        style={{
-          position: "absolute",
-        }}
+        css={tw`absolute`}
+        style={{}}
         ref={ref}
         onMouseMove={borderMouseMove}
         onMouseDown={!isFull ? onMouseDown : (e) => {}}
@@ -47,7 +50,10 @@ const WindowResizeHeader = (props: HeaderProps) => {
       <div className="title-bar-text">{props.title}</div>
       <div className="title-bar-controls">
         <button aria-label="Minimize" />
-        <button aria-label={isFull ? "Restore" : "Maximize"} onClick={onFullSizeToggle} />
+        <button
+          aria-label={isFull ? "Restore" : "Maximize"}
+          onClick={onFullSizeToggle}
+        />
         <button aria-label="Close" />
       </div>
     </div>
@@ -56,7 +62,9 @@ const WindowResizeHeader = (props: HeaderProps) => {
 const WindowBody = (props: { children: ReactNode }) => {
   const { context } = useContext(WindowContext);
   const height = Number(context?.size.height.slice(0, -2)) - 50 + "px";
-  return <div style={{ height: height, overflowY: "scroll" }}>{props.children}</div>;
+  return (
+    <div style={{ height: height, overflowY: "scroll" }}>{props.children}</div>
+  );
 };
 
 const WindowStatus = () => {
