@@ -1,0 +1,9 @@
+@import "./StartBar.scss";
+@import "./StartButton.scss";
+
+.StartBar {
+  @include start-bar;
+}
+.StartButton {
+  @include start-button;
+}

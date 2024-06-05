@@ -7,6 +7,13 @@ module.exports = {
     "./features/**/*.{js,jsx,ts,tsx}",
   ],
   darkMode: "class",
-  theme: {},
+  theme: {
+    extend: {
+      backgroundImage: {
+        computer: "https://win98icons.alexmeub.com/images/computer_explorer-2.png",
+        document: "https://win98icons.alexmeub.com/images/directory_closed-3.png",
+      },
+    },
+  },
   plugins: [],
 };

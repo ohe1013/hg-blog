@@ -3,7 +3,7 @@
 
 $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmcjOz8fNzsfOz8fOzv///wAAAAAAAAAAAAAAACH5BAEAAAsALAAAAAAOAGQAAAT/cMk5SUo06CO179wSGEowgEOQBcRUEuqkUaIRd/cCwyvFzyJNS3JQ2Tyt0QLBklgwEqZGQasShr4DQhuilDxgRCWAINgIAkIxFoB2DDJWbmGb2Oq0nJx2dqoCXUEuKl8GMCZRSjpgWAdYEydVkhMJQlVkQR8UTFRgQDhiHkc9QRyfRwRSV5+ZH1KbnodzjEGPCAYFcBIJj5mOk61IkgZSnpKVxpSeYCuegTjCw8Uev1bLPkfXccuY29SSGgmRky2p4b2Jnm5+3LrQ3CsY5Wuk9ZlwcJrv2uzLvWthJgH0cWVAKkMGBjhKws1YQ4cPP1wxUETclUPuBOXRY4mOvmDJafaFFMmKwoEDCspIgnGSC0pYDZvB88YvE7Bd3YABrBlRJs+HN73MiPgq4heQYJAhlYiOhqyUwLhVo7TTWcYlyEZOmAbEYM+I4hape4b0Cg0tDXlVyapVR9UY5h7KaogAg9R1c82ubEohAgA7";
 
-@mixin task-bar($classname: "task-bar") {
+@mixin start-bar {
   position: fixed;
   background-color: $grey;
   bottom: 0px;
@@ -89,8 +89,7 @@ $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmc
           width: 20px;
           background: $blue;
           background: linear-gradient($blue, #126fc2);
-          background: url($w98-text) no-repeat bottom 3px center,
-            linear-gradient($blue, #126fc2);
+          background: url($w98-text) no-repeat bottom 3px center, linear-gradient($blue, #126fc2);
         }
         > div {
           display: flex;
@@ -166,7 +165,4 @@ $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmc
       }
     }
   }
-}
-.TaskBar {
-  @include task-bar(".TaskBar");
 }

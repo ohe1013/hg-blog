@@ -1,0 +1,31 @@
+@import "/styles/var/colors";
+@import "/styles/functions/box-shadows";
+$start: "https://win98icons.alexmeub.com/images/start-button.png";
+
+@mixin start-button {
+  height: 14px;
+  display: flex;
+  align-content: center;
+  width: 44px;
+  min-width: 60px;
+  padding-right: 6px;
+  box-sizing: border-box;
+  background-image: url($start);
+  background-repeat: no-repeat;
+  background-position: 6px 4px;
+  box-shadow: dualShadow(#ffffff, $black), dualShadow($grey, $darkgrey, 2);
+
+  &__text {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+
+  &.active,
+  &.clicked {
+    box-shadow: dualShadow($black, #ffffff), shadow($black, 0, 1), dualShadow($darkgrey, $grey, 2),
+      0px -1px 0px $black;
+    background-position: 3px 2px;
+    outline: 1px dotted $black;
+    outline-offset: -4px;
+  }
+}
