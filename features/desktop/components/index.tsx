@@ -2,7 +2,9 @@
 import { ReactNode } from "react";
 
 const Desktop = ({ children }: { children: ReactNode }) => {
-  return <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>;
+  return (
+    <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>
+  );
 };
 
 const computerIcon = {
@@ -23,7 +25,7 @@ const DesktopIcon = (props: DesktopIconProps) => {
   return (
     <div
       className={
-        "text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] cursor-pointer active:"
+        "absolute text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] cursor-pointer active:"
       }
     >
       <div className={"relative box-border"}>
