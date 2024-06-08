@@ -1,8 +1,9 @@
 import "../styles/globals.css";
 import "98.css";
 import { ReactNode } from "react";
-import { Desktop, DesktopIcon } from "../features/desktop/components";
+import { Desktop, DesktopIcon, DesktopIconGrid } from "../features/desktop/components";
 import { StartBar } from "../features/startBar/components";
+import { ApplicationStoreProvider } from "../zustand/application/applicationProvider";
 
 type PageProps = {
   children: React.ReactNode;
@@ -21,14 +22,15 @@ export default async function RootLayout({ children, params: { lang }, blog, abo
         <link rel="icon" href="https://win98icons.alexmeub.com/icons/png/msie1-0.png" sizes="any" />
       </head>
       <body>
-        <Desktop>
-          <DesktopIcon type="computer" />
-          <DesktopIcon type="document" />
-          {children}
-          {about}
-          {blog}
-          <StartBar />
-        </Desktop>
+        <ApplicationStoreProvider>
+          <Desktop>
+            <DesktopIconGrid></DesktopIconGrid>
+            {children}
+            {about}
+            {blog}
+            <StartBar />
+          </Desktop>
+        </ApplicationStoreProvider>
       </body>
     </html>
   );

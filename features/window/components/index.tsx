@@ -1,6 +1,7 @@
 "use client";
 import { ReactNode, createContext, useContext, useRef } from "react";
 import { State, useWindow } from "../hooks/useWindow";
+import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 
 interface Props {
   children: ReactNode;
@@ -38,14 +39,14 @@ interface HeaderProps {
 }
 const WindowResizeHeader = (props: HeaderProps) => {
   const { isFull, onFullSizeToggle } = useContext(WindowContext);
-
+  const { closeApplication } = useApplicationStore((state) => state);
   return (
     <div className="title-bar" onDoubleClick={onFullSizeToggle}>
       <div className="title-bar-text">{props.title}</div>
       <div className="title-bar-controls">
         <button aria-label="Minimize" />
         <button aria-label={isFull ? "Restore" : "Maximize"} onClick={onFullSizeToggle} />
-        <button aria-label="Close" />
+        <button aria-label="Close" onClick={() => closeApplication(props.title)} />
       </div>
     </div>
   );
