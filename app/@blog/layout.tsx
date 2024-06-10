@@ -6,7 +6,11 @@ import {
 } from "../../features/window/components";
 import { ReactNode } from "react";
 import BlogWrapper from "./BlogWrapper";
-export default async function BlogLayout({ children }: { children: ReactNode }) {
+export default async function BlogLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <BlogWrapper>
       <Window>

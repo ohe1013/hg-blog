@@ -1,5 +1,5 @@
+import Renderer from "@features/notion/Renderer";
 import { NotionAPI } from "notion-client";
-import Renderer from "../../../../features/notion/Renderer";
 
 interface fetchEachPagesProps {
   params: {
@@ -8,6 +8,7 @@ interface fetchEachPagesProps {
 }
 
 const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
+  console.log(params);
   const notion = new NotionAPI();
   const recordMap = await notion.getPage(params.pageId);
   return <Renderer recordMap={recordMap} rootPageId={params.pageId} />;

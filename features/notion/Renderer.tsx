@@ -5,6 +5,7 @@ import "katex/dist/katex.min.css";
 import Link from "next/link";
 import { NotionRenderer } from "react-notion-x";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 interface RendererProps {
   recordMap: any; // 임의로 any
@@ -20,14 +21,19 @@ export const Renderer = ({ recordMap, rootPageId }: RendererProps) => {
     })
   );
   const Collection = dynamic(() =>
-    import("react-notion-x/build/third-party/collection").then((m) => m.Collection)
+    import("react-notion-x/build/third-party/collection").then(
+      (m) => m.Collection
+    )
   );
   const Equation = dynamic(() =>
     import("react-notion-x/build/third-party/equation").then((m) => m.Equation)
   );
-  const Pdf = dynamic(() => import("react-notion-x/build/third-party/pdf").then((m) => m.Pdf), {
-    ssr: false,
-  });
+  const Pdf = dynamic(
+    () => import("react-notion-x/build/third-party/pdf").then((m) => m.Pdf),
+    {
+      ssr: false,
+    }
+  );
   const Modal = dynamic(
     () => import("react-notion-x/build/third-party/modal").then((m) => m.Modal),
     {
@@ -50,6 +56,8 @@ export const Renderer = ({ recordMap, rootPageId }: RendererProps) => {
           Equation,
           Modal,
           Pdf,
+          PageLink: Link,
+          nextImage: Image,
           nextLink: Link,
         }}
       />
