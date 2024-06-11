@@ -21,19 +21,14 @@ export const Renderer = ({ recordMap, rootPageId }: RendererProps) => {
     })
   );
   const Collection = dynamic(() =>
-    import("react-notion-x/build/third-party/collection").then(
-      (m) => m.Collection
-    )
+    import("react-notion-x/build/third-party/collection").then((m) => m.Collection)
   );
   const Equation = dynamic(() =>
     import("react-notion-x/build/third-party/equation").then((m) => m.Equation)
   );
-  const Pdf = dynamic(
-    () => import("react-notion-x/build/third-party/pdf").then((m) => m.Pdf),
-    {
-      ssr: false,
-    }
-  );
+  const Pdf = dynamic(() => import("react-notion-x/build/third-party/pdf").then((m) => m.Pdf), {
+    ssr: false,
+  });
   const Modal = dynamic(
     () => import("react-notion-x/build/third-party/modal").then((m) => m.Modal),
     {
@@ -48,7 +43,7 @@ export const Renderer = ({ recordMap, rootPageId }: RendererProps) => {
         darkMode={false}
         rootPageId={rootPageId}
         rootDomain="blog"
-        mapPageUrl={(pageId) => `/blog-detail/${pageId}`}
+        mapPageUrl={(pageId) => `/ttest/blog-detail/${pageId}`}
         previewImages
         components={{
           Code,

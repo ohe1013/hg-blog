@@ -26,8 +26,7 @@ export default async function RootLayout({ children, params: { lang }, blog, abo
           <Desktop>
             <DesktopIconGrid></DesktopIconGrid>
             {children}
-            {about}
-            {blog}
+            {/* {blog} */}
             <StartBar />
           </Desktop>
         </ApplicationStoreProvider>

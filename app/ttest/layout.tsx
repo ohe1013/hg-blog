@@ -9,12 +9,10 @@ import BlogWrapper from "./BlogWrapper";
 export default async function BlogLayout({ children }: { children: ReactNode }) {
   console.log("layout rerender");
   return (
-    <BlogWrapper>
-      <Window>
-        <WindowResizeHeader title="blog"></WindowResizeHeader>
-        <WindowBody>{children}</WindowBody>
-        <WindowStatus></WindowStatus>
-      </Window>
-    </BlogWrapper>
+    <Window>
+      <WindowResizeHeader title="blog"></WindowResizeHeader>
+      <WindowBody>{children}</WindowBody>
+      <WindowStatus></WindowStatus>
+    </Window>
   );
 }

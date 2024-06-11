@@ -2,6 +2,8 @@
 import { ReactNode, createContext, useContext, useRef } from "react";
 import { State, useWindow } from "../hooks/useWindow";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
+import { DefaultApplication } from "../../../zustand/application/applicationStore";
+import { useRouter } from "next/navigation";
 
 interface Props {
   children: ReactNode;
@@ -35,18 +37,25 @@ const Window = ({ children }: Props) => {
 };
 
 interface HeaderProps {
-  title: string;
+  title: DefaultApplication;
 }
 const WindowResizeHeader = (props: HeaderProps) => {
   const { isFull, onFullSizeToggle } = useContext(WindowContext);
   const { closeApplication } = useApplicationStore((state) => state);
+  const router = useRouter();
   return (
     <div className="title-bar" onDoubleClick={onFullSizeToggle}>
       <div className="title-bar-text">{props.title}</div>
       <div className="title-bar-controls">
         <button aria-label="Minimize" />
         <button aria-label={isFull ? "Restore" : "Maximize"} onClick={onFullSizeToggle} />
-        <button aria-label="Close" onClick={() => closeApplication(props.title)} />
+        <button
+          aria-label="Close"
+          onClick={() => {
+            closeApplication(props.title);
+            router.push("/");
+          }}
+        />
       </div>
     </div>
   );
