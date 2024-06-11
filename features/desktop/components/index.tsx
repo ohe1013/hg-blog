@@ -1,9 +1,12 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
+import "../styles/index.scss";
 
 const Desktop = ({ children }: { children: ReactNode }) => {
-  return <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>;
+  return (
+    <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>
+  );
 };
 
 // const computerIcon = {
@@ -38,21 +41,36 @@ type DesktopIconProps = { label: string; iconUrl: string; onDoubleClick: any };
 
 const DesktopIcon = (props: DesktopIconProps) => {
   const { label, iconUrl, onDoubleClick } = props;
+  const [isFoucs, setIsFocus] = useState(false);
   return (
     <div
+      tabIndex={0}
+      onClick={() => setIsFocus(true)}
+      onBlur={() => {
+        setIsFocus(false);
+      }}
       onDoubleClick={onDoubleClick}
       className={
         "text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] cursor-pointer active:"
       }
     >
-      <div className={"relative box-border"}>
-        <div
-          style={{ backgroundImage: `url(${iconUrl})` }}
-          className={`w-8 h-8 m-auto 
-        selection:bg-blue-500}`}
-        ></div>
+      <div className={" box-border"}>
+        <div className="DesktopIcon__wrapper">
+          <div
+            style={{ backgroundImage: `url(${iconUrl})` }}
+            className={`absolute w-8 h-8 m-auto DesktopIcon__item `}
+          ></div>
+          <div
+            style={{ maskImage: `url(${iconUrl})`, maskSize: "cover" }}
+            className={`absolute w-8 h-8 m-auto DesktopIcon__item ${
+              isFoucs ? "active" : ""
+            }`}
+          ></div>
+        </div>
         {/* <img className={"m-auto selection:bg-gray-900"} width={32} height={32} src={iconUrl} /> */}
-        <span className={"text-white select-none"}>{label}</span>
+        <span className={"DesktopIcon__text relative select-none"}>
+          {label}
+        </span>
       </div>
     </div>
   );

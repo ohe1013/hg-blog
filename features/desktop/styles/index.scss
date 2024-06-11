@@ -1,0 +1,5 @@
+@import "./DesktopIcon.scss";
+
+.DesktopIcon {
+  @include desktop-icon;
+}

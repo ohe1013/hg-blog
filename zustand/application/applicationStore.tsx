@@ -11,11 +11,11 @@ const defaultApplicationState = {
     iconUrl: "https://win98icons.alexmeub.com/images/directory_closed-3.png",
   },
   blog: {
-    label: "blog",
+    label: "Blog",
     iconUrl: "/assets/img/notion.png",
   },
   about: {
-    label: "about",
+    label: "About",
     iconUrl: "/assets/img/notion.png",
   },
 };
@@ -32,13 +32,19 @@ export type ApplicationState = {
   };
 };
 
+export type ApplicationSelector = {
+  stackList: DefaultApplication[];
+};
+
 export type ApplicationActions = {
   getApplications: () => DefaultApplication[];
   openApplication: (key: DefaultApplication) => void;
   closeApplication: (key: DefaultApplication) => void;
 };
 
-export type ApplicationStore = ApplicationState & ApplicationActions;
+export type ApplicationStore = ApplicationState &
+  ApplicationSelector &
+  ApplicationActions;
 
 export const defaultInitState: ApplicationState = {
   computer: {
@@ -71,23 +77,34 @@ export const defaultInitState: ApplicationState = {
   },
 };
 
-export const createApplicationStore = (initState: ApplicationState = defaultInitState) => {
+export const createApplicationStore = (
+  initState: ApplicationState = defaultInitState
+) => {
   return create<ApplicationStore>()((set) => ({
     ...initState,
-    openApplication: (key: DefaultApplication) =>
+    stackList: [],
+    openApplication: (key: DefaultApplication) => {
       set((state) => ({
         [key]: {
           ...state[key],
           useApplication: true,
         },
-      })),
-    closeApplication: (key: DefaultApplication) =>
+      }));
+      set((state) => ({ ...state, stackList: [...state.stackList, key] }));
+    },
+    closeApplication: (key: DefaultApplication) => {
       set((state) => ({
         [key]: {
           ...state[key],
           useApplication: false,
         },
-      })),
-    getApplications: () => Object.keys(defaultApplicationState) as DefaultApplication[],
+      }));
+      set((state) => ({
+        ...state,
+        stackList: [...state.stackList].filter((stack) => stack !== key),
+      }));
+    },
+    getApplications: () =>
+      Object.keys(defaultApplicationState) as DefaultApplication[],
   }));
 };

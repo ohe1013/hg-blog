@@ -1,0 +1,33 @@
+@import "/styles/var/colors";
+@import "/styles/functions/box-shadows";
+
+@mixin desktop-icon {
+  &__wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    vertical-align: bottom;
+  }
+  &__item.active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 255, 0.5);
+    pointer-events: none;
+  }
+
+  &__item {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+  }
+
+  &__text {
+    display: block;
+    font-family: "Pixelated MS Sans Serif", Arial;
+  }
+}

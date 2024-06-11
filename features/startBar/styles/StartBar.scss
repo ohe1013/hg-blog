@@ -49,7 +49,7 @@ $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmc
     }
   }
 
-  &__programs {
+  &__applications {
     display: flex;
     flex-grow: 1;
     flex-shrink: 1;
@@ -89,7 +89,8 @@ $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmc
           width: 20px;
           background: $blue;
           background: linear-gradient($blue, #126fc2);
-          background: url($w98-text) no-repeat bottom 3px center, linear-gradient($blue, #126fc2);
+          background: url($w98-text) no-repeat bottom 3px center,
+            linear-gradient($blue, #126fc2);
         }
         > div {
           display: flex;
