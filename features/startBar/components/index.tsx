@@ -52,7 +52,7 @@ const StartBarApplications = () => {
       {applicationList.map((application) => (
         <Fragment key={application.label}>
           <button
-            style={{ backgroundImage: `url(${application?.startBarUrl})` }}
+            style={{ backgroundImage: `url(${application?.miniIconUrl})` }}
             className={"btn StartBar__icon " + (application.zIndex === maxZIndex ? "actived" : "")}
           >
             {application?.label}

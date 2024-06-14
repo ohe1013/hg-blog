@@ -1,0 +1,22 @@
+@import "/styles/var/colors";
+@import "/styles/functions/box-shadows";
+
+@mixin window-header {
+  &__icon {
+    position: relative;
+    flex: 1;
+    max-width: 140px;
+    height: 16px;
+    min-width: 40px;
+    display: inline;
+    width: 100%;
+    padding-left: 16px;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: -2px -2px;
+  }
+}

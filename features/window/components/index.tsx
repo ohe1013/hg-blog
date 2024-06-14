@@ -4,6 +4,7 @@ import { State, useWindow } from "../hooks/useWindow";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
 import { useRouter } from "next/navigation";
+import "../style/index.scss";
 
 interface Props {
   children: ReactNode;
@@ -15,10 +16,10 @@ const WindowContext = createContext<{
   onFullSizeToggle: any;
   closeApplication: any;
   touchUsedApplication: any;
-  title: string;
+  title: DefaultApplicationKey;
 }>({
   isFull: false,
-  title: "",
+  title: "computer",
   onFullSizeToggle: () => {},
   closeApplication: () => {},
   touchUsedApplication: () => {},
@@ -63,11 +64,21 @@ const Window = ({ children, title }: WindowProps) => {
 
 const WindowResizeHeader = () => {
   const { isFull, onFullSizeToggle, closeApplication, title } = useContext(WindowContext);
-
+  const { application } = useApplicationStore((state) => state);
+  const maxZIndex = Math.max(...Object.values(application).map((item) => item.zIndex));
   const router = useRouter();
   return (
-    <div className="title-bar" onDoubleClick={onFullSizeToggle}>
-      <div className="title-bar-text">{title}</div>
+    <div
+      className={"title-bar " + (maxZIndex !== application[title].zIndex ? "inactive" : "")}
+      onDoubleClick={onFullSizeToggle}
+    >
+      <div className="title-bar-text">
+        <div
+          style={{ backgroundImage: `url(${application[title].miniIconUrl})` }}
+          className="WindowHeader__icon"
+        ></div>
+        {title}
+      </div>
       <div className="title-bar-controls">
         <button aria-label="Minimize" />
         <button aria-label={isFull ? "Restore" : "Maximize"} onClick={onFullSizeToggle} />

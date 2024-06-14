@@ -1,11 +1,7 @@
 import "../styles/globals.css";
 import "98.css";
 import { ReactNode } from "react";
-import {
-  Desktop,
-  DesktopIcon,
-  DesktopIconGrid,
-} from "../features/desktop/components";
+import { Desktop, DesktopIconGrid } from "../features/desktop/components";
 import { StartBar } from "../features/startBar/components";
 import { ApplicationStoreProvider } from "../zustand/application/applicationProvider";
 
@@ -16,23 +12,21 @@ type PageProps = {
   };
   blog: ReactNode;
   about: ReactNode;
+  computer: ReactNode;
 };
 export default async function RootLayout({
   children,
   params: { lang },
   blog,
   about,
+  computer,
 }: PageProps) {
   return (
     <html lang="ko" id={lang}>
       <head>
         <meta charSet="utf-8" />
         <title>hg-blog</title>
-        <link
-          rel="icon"
-          href="https://win98icons.alexmeub.com/icons/png/msie1-0.png"
-          sizes="any"
-        />
+        <link rel="icon" href="https://win98icons.alexmeub.com/icons/png/msie1-0.png" sizes="any" />
       </head>
       <body>
         <ApplicationStoreProvider>
@@ -41,6 +35,7 @@ export default async function RootLayout({
             {children}
             {blog}
             {about}
+            {computer}
             <StartBar />
           </Desktop>
         </ApplicationStoreProvider>

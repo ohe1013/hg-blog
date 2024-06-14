@@ -1,0 +1,5 @@
+@import "./WindowHeader.scss";
+
+.WindowHeader {
+  @include window-header;
+}
