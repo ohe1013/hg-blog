@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, createContext, useRef } from "react";
+import { Fragment, ReactNode, createContext, useRef } from "react";
 import { useWindow } from "../../window/hooks/useWindow";
 import "../styles/index.scss";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
@@ -37,11 +37,27 @@ const StartBarStart = () => {
 
 const StartBarApplications = () => {
   const applicationStore = useApplicationStore((state) => state);
+  const applicationList = applicationStore
+    .getApplications()
+    .filter((key) => applicationStore.application[key].useApplication === true)
+    .map((key) => applicationStore.application[key])
+    .slice()
+    .sort((a, b) => a.startBarIndex - b.startBarIndex);
 
+  const maxZIndex = Math.max(
+    ...Object.values(applicationStore.application).map((item) => item.zIndex)
+  );
   return (
     <div className="StartBar__applications">
-      {applicationStore.stackList.map((stack) => (
-        <button className="btn ButtonProgram">{stack}</button>
+      {applicationList.map((application) => (
+        <Fragment key={application.label}>
+          <button
+            style={{ backgroundImage: `url(${application?.startBarUrl})` }}
+            className={"btn StartBar__icon " + (application.zIndex === maxZIndex ? "actived" : "")}
+          >
+            {application?.label}
+          </button>
+        </Fragment>
       ))}
     </div>
   );

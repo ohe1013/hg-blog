@@ -2,7 +2,7 @@
 import { ReactNode, createContext, useContext, useRef } from "react";
 import { State, useWindow } from "../hooks/useWindow";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
-import { DefaultApplication } from "../../../zustand/application/applicationStore";
+import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -13,22 +13,47 @@ const WindowContext = createContext<{
   context?: State;
   isFull: boolean;
   onFullSizeToggle: any;
+  closeApplication: any;
+  touchUsedApplication: any;
+  title: string;
 }>({
   isFull: false,
+  title: "",
   onFullSizeToggle: () => {},
+  closeApplication: () => {},
+  touchUsedApplication: () => {},
 });
 
-const Window = ({ children }: Props) => {
+interface WindowProps {
+  title: DefaultApplicationKey;
+  children: ReactNode;
+}
+
+const Window = ({ children, title }: WindowProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const { closeApplication, touchUsedApplication, application } = useApplicationStore(
+    (state) => state
+  );
   const { state, onMouseDown, borderMouseMove, isFull, onFullSizeToggle } = useWindow({ ref });
 
   return (
-    <WindowContext.Provider value={{ context: state, isFull, onFullSizeToggle }}>
+    <WindowContext.Provider
+      value={{
+        context: state,
+        isFull,
+        onFullSizeToggle,
+        title,
+        closeApplication: () => closeApplication(title),
+        touchUsedApplication: () => touchUsedApplication(title),
+      }}
+    >
       <div
         ref={ref}
+        onClick={() => touchUsedApplication(title)}
         onMouseMove={borderMouseMove}
         onMouseDown={!isFull ? onMouseDown : (e) => {}}
         className={"window absolute"}
+        style={{ zIndex: application[title]?.zIndex }}
       >
         {children}
       </div>
@@ -36,23 +61,20 @@ const Window = ({ children }: Props) => {
   );
 };
 
-interface HeaderProps {
-  title: DefaultApplication;
-}
-const WindowResizeHeader = (props: HeaderProps) => {
-  const { isFull, onFullSizeToggle } = useContext(WindowContext);
-  const { closeApplication } = useApplicationStore((state) => state);
+const WindowResizeHeader = () => {
+  const { isFull, onFullSizeToggle, closeApplication, title } = useContext(WindowContext);
+
   const router = useRouter();
   return (
     <div className="title-bar" onDoubleClick={onFullSizeToggle}>
-      <div className="title-bar-text">{props.title}</div>
+      <div className="title-bar-text">{title}</div>
       <div className="title-bar-controls">
         <button aria-label="Minimize" />
         <button aria-label={isFull ? "Restore" : "Maximize"} onClick={onFullSizeToggle} />
         <button
           aria-label="Close"
           onClick={() => {
-            closeApplication(props.title);
+            closeApplication();
             router.push("/");
           }}
         />

@@ -4,9 +4,7 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import "../styles/index.scss";
 
 const Desktop = ({ children }: { children: ReactNode }) => {
-  return (
-    <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>
-  );
+  return <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>;
 };
 
 // const computerIcon = {
@@ -22,15 +20,15 @@ const Desktop = ({ children }: { children: ReactNode }) => {
 
 const DesktopIconGrid = () => {
   const applicationStore = useApplicationStore((state) => state);
-  const applications = applicationStore.getApplications();
+  const applicationKeyList = applicationStore.getApplications();
   return (
     <div className="absolute">
-      {applications.map((application) => (
+      {applicationKeyList.map((key) => (
         <DesktopIcon
-          key={applicationStore[application].label}
-          label={applicationStore[application].label}
-          iconUrl={applicationStore[application].iconUrl}
-          onDoubleClick={() => applicationStore.openApplication(application)}
+          key={applicationStore.application[key].label}
+          label={applicationStore.application[key].label}
+          iconUrl={applicationStore.application[key].iconUrl}
+          onDoubleClick={() => applicationStore.openApplication(key)}
         />
       ))}
     </div>
@@ -50,27 +48,21 @@ const DesktopIcon = (props: DesktopIconProps) => {
         setIsFocus(false);
       }}
       onDoubleClick={onDoubleClick}
-      className={
-        "text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] cursor-pointer active:"
-      }
+      className={"text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] active:"}
     >
       <div className={" box-border"}>
         <div className="DesktopIcon__wrapper">
           <div
             style={{ backgroundImage: `url(${iconUrl})` }}
-            className={`absolute w-8 h-8 m-auto DesktopIcon__item `}
+            className={`DesktopIcon__item `}
           ></div>
           <div
-            style={{ maskImage: `url(${iconUrl})`, maskSize: "cover" }}
-            className={`absolute w-8 h-8 m-auto DesktopIcon__item ${
-              isFoucs ? "active" : ""
-            }`}
+            style={{ maskImage: `url(${iconUrl})`, maskSize: "contain" }}
+            className={`DesktopIcon__item ${isFoucs ? "active" : ""}`}
           ></div>
         </div>
         {/* <img className={"m-auto selection:bg-gray-900"} width={32} height={32} src={iconUrl} /> */}
-        <span className={"DesktopIcon__text relative select-none"}>
-          {label}
-        </span>
+        <span className={"DesktopIcon__text relative select-none"}>{label}</span>
       </div>
     </div>
   );

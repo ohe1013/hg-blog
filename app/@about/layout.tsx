@@ -4,8 +4,8 @@ import AboutWrapper from "./AboutWrapper";
 export default async function Blog({ children }: { children: ReactNode }) {
   return (
     <AboutWrapper>
-      <Window>
-        <WindowResizeHeader title="about"></WindowResizeHeader>
+      <Window title="about">
+        <WindowResizeHeader></WindowResizeHeader>
         <WindowBody>{children}</WindowBody>
       </Window>
     </AboutWrapper>
