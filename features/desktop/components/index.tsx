@@ -4,7 +4,9 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import "../styles/index.scss";
 
 const Desktop = ({ children }: { children: ReactNode }) => {
-  return <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>;
+  return (
+    <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>
+  );
 };
 
 // const computerIcon = {
@@ -48,7 +50,9 @@ const DesktopIcon = (props: DesktopIconProps) => {
         setIsFocus(false);
       }}
       onDoubleClick={onDoubleClick}
-      className={"text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] active:"}
+      className={
+        "text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] active:"
+      }
     >
       <div className={" box-border"}>
         <div className="DesktopIcon__wrapper">
@@ -58,11 +62,13 @@ const DesktopIcon = (props: DesktopIconProps) => {
           ></div>
           <div
             style={{ maskImage: `url(${iconUrl})`, maskSize: "contain" }}
-            className={`DesktopIcon__item ${isFoucs ? "active" : ""}`}
+            className={`DesktopIcon__item ${isFoucs ? "actived" : ""}`}
           ></div>
         </div>
         {/* <img className={"m-auto selection:bg-gray-900"} width={32} height={32} src={iconUrl} /> */}
-        <span className={"DesktopIcon__text relative select-none"}>{label}</span>
+        <span className={`DesktopIcon__text ${isFoucs ? "actived" : ""}`}>
+          {label}
+        </span>
       </div>
     </div>
   );

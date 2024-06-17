@@ -37,28 +37,39 @@ const StartBarStart = () => {
 
 const StartBarApplications = () => {
   const applicationStore = useApplicationStore((state) => state);
-  const applicationList = applicationStore
-    .getApplications()
-    .filter((key) => applicationStore.application[key].useApplication === true)
-    .map((key) => applicationStore.application[key])
-    .slice()
-    .sort((a, b) => a.startBarIndex - b.startBarIndex);
-
   const maxZIndex = Math.max(
     ...Object.values(applicationStore.application).map((item) => item.zIndex)
   );
+  const applicationList = (
+    applicationStore
+      .getApplications()
+      .filter(
+        (key) => applicationStore.application[key].useApplication === true
+      )
+      .map((key) => {
+        const application = applicationStore.application[key];
+        return [
+          application.startBarIndex,
+          <Fragment key={application.label}>
+            <button
+              onClick={() => applicationStore.touchUsedApplication(key)}
+              style={{ backgroundImage: `url(${application?.miniIconUrl})` }}
+              className={
+                "btn StartBar__icon " +
+                (application.zIndex === maxZIndex ? "actived" : "")
+              }
+            >
+              {application?.label}
+            </button>
+          </Fragment>,
+        ];
+      })
+      .slice() as [number, JSX.Element][]
+  ).sort((a, b) => a[0] - b[0]);
+
   return (
     <div className="StartBar__applications">
-      {applicationList.map((application) => (
-        <Fragment key={application.label}>
-          <button
-            style={{ backgroundImage: `url(${application?.miniIconUrl})` }}
-            className={"btn StartBar__icon " + (application.zIndex === maxZIndex ? "actived" : "")}
-          >
-            {application?.label}
-          </button>
-        </Fragment>
-      ))}
+      {applicationList.map((item) => item[1])}
     </div>
   );
 };

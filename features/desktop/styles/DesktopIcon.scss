@@ -9,14 +9,15 @@
     display: inline-block;
     vertical-align: bottom;
   }
-  &__item.active::before {
+  &__item.actived::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 255, 0.6);
+    background-color: #000080;
+    opacity: 0.5;
     pointer-events: none;
   }
 
@@ -30,7 +31,25 @@
   }
 
   &__text {
+    margin-top: 2px;
     display: block;
     font-family: "Pixelated MS Sans Serif", Arial;
+    color: #ffffff;
+    position: relative;
+    user-select: none;
+  }
+  &__text.actived {
+    background-color: #000080;
+    opacity: 0.5;
+  }
+  &__text.actived::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    border: 1px dotted #ffffff;
+    mix-blend-mode: exclusion;
   }
 }
