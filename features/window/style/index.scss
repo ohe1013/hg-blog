@@ -1,5 +1,18 @@
 @import "./WindowHeader.scss";
+@import "./WindowSideBar.scss";
+@import "./WindowMenuBar.scss";
 
 .WindowHeader {
   @include window-header;
+}
+.WindowSideBar {
+  @include window-sidebar;
+}
+.WindowMenuBar {
+  @include window-menubar;
+}
+.StandardMenu {
+  @include standard-menu(".standard-menu");
+
+  @include standard-menu-css(".standard-menu");
 }

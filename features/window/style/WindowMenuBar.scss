@@ -1,0 +1,307 @@
+@import "/styles//var/colors.scss";
+$arrow-up: "data:image/gif;base64,R0lGODlhBwAEAJEAAAAAAP///////wAAACH5BAEAAAIALAAAAAAHAAQAAAIHlGEJq8sOCwA7";
+$arrow-down: "data:image/gif;base64,R0lGODlhBwAEAJEAAAAAAP///////wAAACH5BAEAAAIALAAAAAAHAAQAAAIIhA+CKWoNmSgAOw==";
+$arrow-left: "data:image/gif;base64,R0lGODlhBAAHAJEAAAAAAP///////wAAACH5BAEAAAIALAAAAAAEAAcAAAIIlHEIy7ppBCgAOw==";
+$arrow-right: "data:image/gif;base64,R0lGODlhBAAHAJEAAAAAAP///////wAAACH5BAEAAAIALAAAAAAEAAcAAAIIhA4maeyrlCgAOw==";
+$arrow-right-inverted: "data:image/gif;base64,R0lGODlhBAAHAJEAAAAAAP///////wAAACH5BAEAAAIALAAAAAAEAAcAAAIIjB4maeyrlCgAOw==";
+$arrow-down-disabled: "data:image/gif;base64,R0lGODlhCAAFAJEAAAAAAP///5mZmf///yH5BAEAAAMALAAAAAAIAAUAAAIMlC8zKBF6nIJyqqcKADs=";
+$menu-checked: "data:image/gif;base64,R0lGODlhBwAHAJEAAAAAAP///////wAAACH5BAEAAAIALAAAAAAHAAcAAAIMlA9nwMj9xGuLIlUAADs=";
+$menu-checked-disabled: "data:image/gif;base64,R0lGODlhBwAHAJEAAAAAAP///5mZmf///yH5BAEAAAMALAAAAAAHAAcAAAIMnC9nwsj9xmuLIlUAADs=";
+$menu-radio: "data:image/gif;base64,R0lGODlhBgAGAJEAAAAAAP///////wAAACH5BAEAAAIALAAAAAAGAAYAAAIIFA6Gy816RAEAOw==";
+$radio-off: "data:image/gif;base64,R0lGODlhDAAMAKIAAAAAAP///8zMzJmZmf///wAAAAAAAAAAACH5BAEAAAQALAAAAAAMAAwAAAMqSErTs6uBCVqcIQesBtCaEDAfGAaeeaZqILKqyLQyI4hhTWT3nUEKECQBADs=";
+$radio-on: "data:image/gif;base64,R0lGODlhDAAMAKIAAAAAAP///8zMzJmZmf///wAAAAAAAAAAACH5BAEAAAQALAAAAAAMAAwAAAMtSErTs6uBCVqcIQesBtCaEDBfhmWiZ1JooG5skJZwOA6g3QliKC4oXg+iAEESADs=";
+$radio-off-disabled: "data:image/gif;base64,R0lGODlhDAAMAKIAAAAAAP///8zMzJmZmf///wAAAAAAAAAAACH5BAEAAAQALAAAAAAMAAwAAAMpSErTs6uBCVqccAY1AFTC1n1LOJKE6aEqmorsxggCRMtEENA3vug6SAIAOw==";
+$radio-on-disabled: "data:image/gif;base64,R0lGODlhDAAMAKIAAAAAAP///8zMzJmZmf///wAAAAAAAAAAACH5BAEAAAQALAAAAAAMAAwAAAMtSErTs6uBCVqccAY1AFTC1i0YGIwE5REhqppourLiZ3KCAOWbEgQ5Xg/y+0ESADs=";
+
+$grey-checkered: "data:image/gif;base64,R0lGODlhAgACAJEAAAAAAP///8zMzP///yH5BAEAAAMALAAAAAACAAIAAAID1CYFADs=";
+$blue-checkered: "data:image/gif;base64,R0lGODlhAgACAJEAAAAAAP///wAAt////yH5BAEAAAMALAAAAAACAAIAAAID1CYFADs=";
+$blue-checkered-lighter: "data:image/gif;base64,R0lGODlhAgACAJEAAAAAAP///0ZGtP///yH5BAEAAAMALAAAAAACAAIAAAID1CYFADs=";
+$windowPadding: 3px;
+@mixin onDisplay($direction: "right") {
+  > .window,
+  > .Frame {
+    position: absolute;
+    visibility: hidden;
+    width: auto;
+    @media (min-height: 720px) and (min-width: 960px) {
+      transition: max-width cubic-bezier(0.38, 0.01, 0, 1) 200ms,
+        max-height cubic-bezier(0.38, 0.01, 0, 1) 200ms;
+    }
+  }
+  &.active {
+    > .window,
+    > .Frame {
+      width: auto;
+      visibility: visible;
+    }
+  }
+  @if $direction == "right" {
+    > .window,
+    > .Frame {
+      left: calc(100% - 3px);
+      top: -$windowPadding;
+      max-width: 0%;
+    }
+    &:hover,
+    &.active {
+      > .window,
+      > .Frame {
+        max-width: 400%;
+      }
+    }
+  } @else if $direction == "left" {
+    > .window,
+    > .Frame {
+      left: -100%;
+      top: -$windowPadding;
+      max-width: 0%;
+    }
+    &:hover,
+    &.active {
+      > .window,
+      > .Frame {
+        max-width: 100%;
+      }
+    }
+  } @else if $direction == "top" {
+    > .window,
+    > .Frame {
+      bottom: calc(100% + $windowPadding);
+      left: 0px;
+      height: 0px;
+      max-height: 0%;
+      max-width: 100%;
+    }
+    &:hover,
+    &.active {
+      > .window,
+      > .Frame {
+        height: initial;
+        max-height: 100%;
+      }
+    }
+  } @else if $direction == "bottom" {
+    > .window,
+    > .Frame {
+      top: calc(100% + $windowPadding);
+      left: 0px;
+      max-height: 0%;
+      max-width: 100%;
+    }
+    &:hover,
+    &.active {
+      > .window,
+      > .Frame {
+        height: initial;
+        max-height: 100%;
+      }
+    }
+  }
+}
+@mixin window-menubar {
+  display: flex;
+  padding: 0px;
+  font-size: 1rem;
+  position: relative;
+  overflow-y: visible;
+  z-index: 20;
+
+  > div {
+    position: relative;
+
+    > button {
+      padding: 0px 4px;
+      outline: none;
+      border: none;
+      user-select: none;
+      color: $black;
+      display: inline-block;
+      background-color: rgba(0, 0, 0, 0);
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-align: left;
+      padding: 3px 6px;
+      text-transform: capitalize;
+
+      + div {
+        z-index: 20;
+        visibility: hidden;
+        position: absolute;
+        max-height: 0px;
+        top: 100%;
+        left: 0px;
+        @media (min-height: 720px) and (min-width: 960px) {
+          transition: max-height linear 750ms;
+        }
+      }
+
+      &:hover {
+        box-shadow: dualShadow($white, $darkgrey);
+      }
+
+      &:active,
+      &:focus,
+      &:active:focus,
+      &.active,
+      &.clicked {
+        box-shadow: dualShadow($darkgrey, $white);
+        padding: 4px 5px 2px 7px;
+
+        + div {
+          visibility: visible;
+          max-height: 480px;
+        }
+      }
+    }
+  }
+}
+
+@mixin standard-menu($menu-name: "div") {
+  display: inline-flex;
+  flex-direction: column;
+  word-wrap: none;
+  white-space: nowrap;
+  text-overflow: clip;
+  > div {
+    position: relative;
+    > button {
+      user-select: none;
+      position: relative;
+      display: block;
+      width: 100%;
+      padding: 0px 20px 0px 28px;
+      text-align: left;
+      background-repeat: no-repeat;
+      background-size: 16px;
+      background-position: 3px center;
+      background-color: rgba(0, 0, 0, 0);
+      border: none;
+      outline: none;
+      height: 20px;
+      &:before {
+        content: "";
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        height: 16px;
+        width: 16px;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      #{$menu-name}__item__text {
+        padding: 0px 20px 0px 0px;
+      }
+
+      &:disabled,
+      &.disabled {
+        color: $darkgrey;
+      }
+
+      &:not(:only-child) {
+        &:after {
+          content: "";
+          position: absolute;
+          background-image: url($arrow-right);
+          top: 0px;
+          left: 0px;
+          height: 100%;
+          width: calc(100% - 8px);
+          background-position: right center;
+          background-repeat: no-repeat;
+        }
+      }
+    }
+    &.radio-selected {
+      > button {
+        &:before {
+          background-image: url($menu-radio);
+        }
+      }
+    }
+    &.checked {
+      > button:before {
+        background-image: url($menu-checked);
+      }
+      &.disabled {
+        > button:before {
+          background-image: url($menu-checked-disabled);
+        }
+      }
+    }
+    &.active,
+    &.clicked {
+      color: #ffffff;
+      > button:not(.disabled) {
+        color: #ffffff;
+        background-color: $blue;
+        &:not(:only-child) {
+          // stylelint-disable-next-line
+          &:after {
+            background-image: url($arrow-right-inverted);
+          }
+        }
+      }
+    }
+    @include onDisplay("right");
+  }
+
+  // hack divider handling
+  > div:empty:not(:only-child) {
+    position: relative;
+    width: 95%;
+    margin: 2px auto;
+    border-top: 1px solid $darkgrey;
+    border-bottom: 1px solid #ffffff;
+    display: none;
+  }
+  > div:not(:empty) + div:empty {
+    // stylelint-disable-next-line
+    &:not(:last-child):not(:first-child) {
+      display: block;
+    }
+  }
+}
+
+@mixin standard-menu-css($menu-name: "div") {
+  &.css {
+    div {
+      &__sub-menu--top {
+        @include onDisplay("top");
+      }
+      &__sub-menu--bottom {
+        @include onDisplay("bottom");
+      }
+      &__sub-menu--left {
+        @include onDisplay("left");
+      }
+
+      &:active,
+      .active {
+        display: none;
+      }
+
+      &:hover {
+        > .window,
+        > .Frame {
+          width: auto;
+          visibility: visible;
+          display: block;
+        }
+        > button {
+          background-color: $blue;
+          color: #ffffff;
+          &:after {
+            background-image: url($arrow-right-inverted);
+          }
+        }
+        &.checked {
+          > *:before {
+            background-image: url($menu-checked-disabled);
+          }
+        }
+      }
+    }
+  }
+}

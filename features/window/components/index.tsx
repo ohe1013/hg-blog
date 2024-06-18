@@ -6,10 +6,6 @@ import { DefaultApplicationKey } from "../../../zustand/application/applicationS
 import { useRouter } from "next/navigation";
 import "../style/index.scss";
 
-interface Props {
-  children: ReactNode;
-}
-
 const WindowContext = createContext<{
   context?: State;
   isFull: boolean;
@@ -93,6 +89,51 @@ const WindowResizeHeader = () => {
     </div>
   );
 };
+
+const WindowMenuBar = () => {
+  return (
+    <menu className="WindowMenuBar">
+      <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
+        <button className="btn">File</button>
+        <div className="Frame StandardMenu renderedMenu">
+          <div className="divider divider--group-0-start"></div>
+          <div className="divider divider--group-0-end"></div>
+          <div className="divider divider--group-1-start"></div>
+          <div className="StandardMenuItem">
+            <button className="StandardMenuItem__button" value="Close">
+              Close
+            </button>
+          </div>
+          <div className="divider divider--group-1-end"></div>
+        </div>
+      </div>
+      <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
+        <button className="btn">Help</button>
+        <div className="Frame StandardMenu renderedMenu">
+          <div className="divider divider--group-0-start"></div>
+          <div className="StandardMenuItem">
+            <button className="StandardMenuItem__button disabled" value="Help Topics">
+              Help Topics
+            </button>
+          </div>
+          <div className="divider divider--group-0-end"></div>
+          <div className="StandardMenuItem">
+            <button className="StandardMenuItem__button disabled" value="About My Computer">
+              About My Computer
+            </button>
+          </div>
+        </div>
+      </div>
+    </menu>
+  );
+};
+const WindowToolBar = () => {
+  return;
+};
+const WindowAddressBar = () => {
+  return;
+};
+
 const WindowBody = (props: { children: ReactNode }) => {
   const { context } = useContext(WindowContext);
   const height =
@@ -102,6 +143,31 @@ const WindowBody = (props: { children: ReactNode }) => {
   return (
     <div className="overflow-y-auto" style={{ height: height }}>
       {props.children}
+    </div>
+  );
+};
+
+const WindowSideBar = () => {
+  return (
+    <div
+      className="WindowSideBar"
+      style={{
+        background: "url(https://98.js.org/src/WEB//wvleft.bmp) no-repeat white",
+        visibility: "visible",
+      }}
+    >
+      <p>
+        <img draggable="false" src="https://98.js.org/images/icons/hard-disk-drive-32x32.png" />
+      </p>
+      <p className="Title">(C:)</p>
+      <p className="LogoLine">
+        <img src="https://98.js.org/src/WEB//wvline.gif" width="100%" height="1px" />
+      </p>
+
+      <p>
+        <span id="Info">Select an item to view its description.</span>
+      </p>
+      <div id="Media"></div>
     </div>
   );
 };
@@ -116,4 +182,4 @@ const WindowStatus = () => {
   );
 };
 
-export { Window, WindowResizeHeader, WindowBody, WindowStatus };
+export { Window, WindowResizeHeader, WindowBody, WindowMenuBar, WindowSideBar, WindowStatus };
