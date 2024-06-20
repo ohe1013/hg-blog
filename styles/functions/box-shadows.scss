@@ -11,3 +11,8 @@
 @function dualShadow($color1, $color2, $px: 1) {
   @return shadow($color2, -$px), shadow($color1, $px);
 }
+
+@function navBoxShadow() {
+  @return inset 0px -1px 0px $darkgrey, inset -1px 0px 0px $darkgrey, inset 0px 0px 0px 1px #ffffff,
+    -1px 0px 0px $darkgrey, 1px 0px 0px #ffffff, -1px 1px 0px 0px #ffffff, 1px 1px 0px 0px #ffffff;
+}

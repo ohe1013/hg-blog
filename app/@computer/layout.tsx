@@ -7,10 +7,10 @@ import {
   WindowStatus,
 } from "../../features/window/components";
 import { ReactNode } from "react";
-import BlogWrapper from "./ComputerWrapper";
+import ComputerWrapper from "./ComputerWrapper";
 export default async function ComputerLayout({ children }: { children: ReactNode }) {
   return (
-    <BlogWrapper>
+    <ComputerWrapper>
       <Window title="computer">
         <WindowResizeHeader />
         <WindowMenuBar />
@@ -20,6 +20,6 @@ export default async function ComputerLayout({ children }: { children: ReactNode
         </WindowBody>
         <WindowStatus></WindowStatus>
       </Window>
-    </BlogWrapper>
+    </ComputerWrapper>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, createContext, useContext, useRef } from "react";
+import { ReactNode, createContext, useContext, useRef, useState } from "react";
 import { State, useWindow } from "../hooks/useWindow";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
@@ -91,16 +91,25 @@ const WindowResizeHeader = () => {
 };
 
 const WindowMenuBar = () => {
+  const { closeApplication } = useContext(WindowContext);
+  const [active, setActive] = useState(false);
   return (
     <menu className="WindowMenuBar">
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
-        <button className="btn">File</button>
+        <button
+          tabIndex={0}
+          className={`btn ${active ? "active" : ""}`}
+          onClick={() => setActive((active) => (active = !active))}
+          onBlur={() => setActive(false)}
+        >
+          File
+        </button>
         <div className="Frame StandardMenu renderedMenu">
           <div className="divider divider--group-0-start"></div>
           <div className="divider divider--group-0-end"></div>
           <div className="divider divider--group-1-start"></div>
           <div className="StandardMenuItem">
-            <button className="StandardMenuItem__button" value="Close">
+            <button className="StandardMenuItem__button" onClick={closeApplication}>
               Close
             </button>
           </div>
