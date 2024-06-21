@@ -5,6 +5,7 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
 import { useRouter } from "next/navigation";
 import "../style/index.scss";
+import Button from "@lib/components/Button";
 
 const WindowContext = createContext<{
   context?: State;
@@ -93,23 +94,31 @@ const WindowResizeHeader = () => {
 const WindowMenuBar = () => {
   const { closeApplication } = useContext(WindowContext);
   const [active, setActive] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   return (
     <menu className="WindowMenuBar">
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
-        <button
+        <Button
+          ref={buttonRef}
           tabIndex={0}
-          className={`btn ${active ? "active" : ""}`}
-          onClick={() => setActive((active) => (active = !active))}
-          onBlur={() => setActive(false)}
+          className={active ? "active" : ""}
+          onClick={() => {
+            buttonRef.current?.focus();
+            setActive((active) => (active = !active));
+          }}
+          onBlur={() => {
+            buttonRef.current?.blur();
+            setActive(false);
+          }}
         >
           File
-        </button>
+        </Button>
         <div className="Frame StandardMenu renderedMenu">
           <div className="divider divider--group-0-start"></div>
           <div className="divider divider--group-0-end"></div>
           <div className="divider divider--group-1-start"></div>
           <div className="StandardMenuItem">
-            <button className="StandardMenuItem__button" onClick={closeApplication}>
+            <button className="StandardMenuItem__button" onClick={() => closeApplication()}>
               Close
             </button>
           </div>
