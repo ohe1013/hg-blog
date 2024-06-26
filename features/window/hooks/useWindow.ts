@@ -12,9 +12,10 @@ interface UseDragProvided {
    * Attach as a onMouseDown handler to the element that would be dragged
    */
   state: State;
-  onMouseDown: (e: React.MouseEvent<HTMLElement>) => void;
-  onFullSizeToggle: () => void;
-  borderMouseMove: (e: React.MouseEvent<HTMLElement>) => void;
+  onMouseDownBorder: (e: React.MouseEvent<HTMLElement>) => void;
+  onMouseDownHeader: (e: React.MouseEvent<HTMLElement>) => void;
+  onFullSizeToggle: (e: MouseEvent) => void;
+  setMouseCursor: (e: React.MouseEvent<HTMLElement>) => void;
   isFull: boolean;
 }
 
@@ -59,184 +60,169 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
 
   const [isFull, setIsFull] = useState<boolean>(false);
 
-  const onMouseMove = useCallback(
+  const onMouseMoveBorder = useCallback(
     (e: MouseEvent) => {
       const { resizeDirection } = state;
-      if (resizeDirection) {
-        switch (resizeDirection) {
-          case "n":
-            setState((prev) => {
-              return {
-                ...prev,
-                size: {
-                  ...prev.size,
-                  height:
-                    Number(prev.lastSize.height.slice(0, -2)) -
-                    (e.clientY - prev.dragStart.y) +
-                    "px",
-                },
-                translation: {
-                  x: prev.translation.x,
-                  y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
-                },
-              };
-            });
-            break;
-          case "s":
-            setState((prev) => {
-              return {
-                ...prev,
-                size: {
-                  ...prev.size,
-                  height:
-                    Number(prev.lastSize.width.slice(0, -2)) +
-                    (e.clientY - prev.dragStart.y) +
-                    "px",
-                },
-              };
-            });
-            break;
-          case "e":
-            setState((prev) => {
-              return {
-                ...prev,
-                size: {
-                  ...prev.size,
-                  width:
-                    Number(prev.lastSize.width.slice(0, -2)) +
-                    (e.clientX - prev.dragStart.x) +
-                    "px",
-                },
-              };
-            });
-            break;
-          case "w":
-            setState((prev) => {
-              return {
-                ...prev,
-                size: {
-                  ...prev.size,
-                  width:
-                    Number(prev.lastSize.width.slice(0, -2)) -
-                    (e.clientX - prev.dragStart.x) +
-                    "px",
-                },
-                translation: {
-                  x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
-                  y: prev.translation.y,
-                },
-              };
-            });
-            break;
-          case "nw":
-            setState((prev) => {
-              return {
-                ...prev,
-                size: {
-                  ...prev.size,
-                  width:
-                    Number(prev.lastSize.width.slice(0, -2)) -
-                    (e.clientX - prev.dragStart.x) +
-                    "px",
-                  height:
-                    Number(prev.lastSize.width.slice(0, -2)) -
-                    (e.clientY - prev.dragStart.y) +
-                    "px",
-                },
-                translation: {
-                  x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
-                  y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
-                },
-              };
-            });
-            break;
-          case "ne":
-            setState((prev) => {
-              return {
-                ...prev,
-                size: {
-                  ...prev.size,
-                  width:
-                    Number(prev.lastSize.width.slice(0, -2)) +
-                    (e.clientX - prev.dragStart.x) +
-                    "px",
-                  height:
-                    Number(prev.lastSize.width.slice(0, -2)) -
-                    (e.clientY - prev.dragStart.y) +
-                    "px",
-                },
-                translation: {
-                  x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
-                  y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
-                },
-              };
-            });
-            break;
-          case "sw":
-            setState((prev) => {
-              return {
-                ...prev,
-                size: {
-                  ...prev.size,
-                  width:
-                    Number(prev.lastSize.width.slice(0, -2)) -
-                    (e.clientX - prev.dragStart.x) +
-                    "px",
-                  height:
-                    Number(prev.lastSize.width.slice(0, -2)) +
-                    (e.clientY - prev.dragStart.y) +
-                    "px",
-                },
-                translation: {
-                  x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
-                  y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
-                },
-              };
-            });
-            break;
-          case "se":
-            setState((prev) => {
-              return {
-                ...prev,
-                size: {
-                  ...prev.size,
-                  width:
-                    Number(prev.lastSize.width.slice(0, -2)) +
-                    (e.clientX - prev.dragStart.x) +
-                    "px",
-                  height:
-                    Number(prev.lastSize.width.slice(0, -2)) +
-                    (e.clientY - prev.dragStart.y) +
-                    "px",
-                },
-              };
-            });
-            break;
-        }
-      } else {
-        setState((prev) => ({
-          ...prev,
-          translation: {
-            x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
-            y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
-          },
-        }));
+      switch (resizeDirection) {
+        case "n":
+          setState((prev) => {
+            return {
+              ...prev,
+              size: {
+                ...prev.size,
+                height:
+                  Number(prev.lastSize.height.slice(0, -2)) - (e.clientY - prev.dragStart.y) + "px",
+              },
+              translation: {
+                x: prev.translation.x,
+                y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+              },
+            };
+          });
+          break;
+        case "s":
+          setState((prev) => {
+            return {
+              ...prev,
+              size: {
+                ...prev.size,
+                height:
+                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientY - prev.dragStart.y) + "px",
+              },
+            };
+          });
+          break;
+        case "e":
+          setState((prev) => {
+            return {
+              ...prev,
+              size: {
+                ...prev.size,
+                width:
+                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientX - prev.dragStart.x) + "px",
+              },
+            };
+          });
+          break;
+        case "w":
+          setState((prev) => {
+            return {
+              ...prev,
+              size: {
+                ...prev.size,
+                width:
+                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientX - prev.dragStart.x) + "px",
+              },
+              translation: {
+                x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+                y: prev.translation.y,
+              },
+            };
+          });
+          break;
+        case "nw":
+          setState((prev) => {
+            return {
+              ...prev,
+              size: {
+                ...prev.size,
+                width:
+                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientX - prev.dragStart.x) + "px",
+                height:
+                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientY - prev.dragStart.y) + "px",
+              },
+              translation: {
+                x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+                y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+              },
+            };
+          });
+          break;
+        case "ne":
+          setState((prev) => {
+            return {
+              ...prev,
+              size: {
+                ...prev.size,
+                width:
+                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientX - prev.dragStart.x) + "px",
+                height:
+                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientY - prev.dragStart.y) + "px",
+              },
+              translation: {
+                x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+                y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+              },
+            };
+          });
+          break;
+        case "sw":
+          setState((prev) => {
+            return {
+              ...prev,
+              size: {
+                ...prev.size,
+                width:
+                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientX - prev.dragStart.x) + "px",
+                height:
+                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientY - prev.dragStart.y) + "px",
+              },
+              translation: {
+                x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+                y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+              },
+            };
+          });
+          break;
+        case "se":
+          setState((prev) => {
+            return {
+              ...prev,
+              size: {
+                ...prev.size,
+                width:
+                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientX - prev.dragStart.x) + "px",
+                height:
+                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientY - prev.dragStart.y) + "px",
+              },
+            };
+          });
+          break;
       }
     },
     [state.resizeDirection]
   );
 
-  const onMouseUp = useCallback(() => {
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
+  const onMouseUpBorder = useCallback(() => {
+    window.removeEventListener("mousemove", onMouseMoveBorder);
+    window.removeEventListener("mouseup", onMouseUpBorder);
     setState((prev) => ({
       ...prev,
       lastTranslation: prev.translation,
       lastSize: prev.size,
     }));
-  }, [onMouseMove]);
+  }, [onMouseMoveBorder]);
 
-  const borderMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+  const onMouseMoveHeader = useCallback((e: MouseEvent) => {
+    setState((prev) => ({
+      ...prev,
+      translation: {
+        x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
+        y: prev.lastTranslation.y + e.clientY - prev.dragStart.y,
+      },
+    }));
+  }, []);
+  const onMouseUpHeader = useCallback(() => {
+    window.removeEventListener("mousemove", onMouseMoveHeader);
+    window.removeEventListener("mouseup", onMouseUpHeader);
+    setState((prev) => ({
+      ...prev,
+      lastTranslation: prev.translation,
+      lastSize: prev.size,
+    }));
+  }, [onMouseMoveHeader]);
+
+  const setMouseCursor = useCallback((e: React.MouseEvent<HTMLElement>) => {
     let resizeDirection = "";
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -252,12 +238,12 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     }));
   }, []);
 
-  const onMouseDown = useCallback(
+  const onMouseDownBorder = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
+      if (!state.resizeDirection) return;
       e.preventDefault();
-
-      window.addEventListener("mousemove", onMouseMove);
-      window.addEventListener("mouseup", onMouseUp);
+      window.addEventListener("mousemove", onMouseMoveBorder);
+      window.addEventListener("mouseup", onMouseUpBorder);
       setState((prev) => ({
         ...prev,
         dragStart: {
@@ -266,12 +252,29 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
         },
       }));
     },
-    [onMouseMove, onMouseUp]
+    [onMouseMoveBorder, onMouseUpBorder, state.resizeDirection]
+  );
+  const onMouseDownHeader = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      e.preventDefault();
+      window.addEventListener("mousemove", onMouseMoveHeader);
+      window.addEventListener("mouseup", onMouseUpHeader);
+      setState((prev) => ({
+        ...prev,
+        dragStart: {
+          x: e.clientX,
+          y: e.clientY,
+        },
+      }));
+    },
+    [onMouseMoveBorder, onMouseUpHeader]
   );
 
-  const onFullSizeToggle = () => {
+  const onFullSizeToggle = (e: MouseEvent) => {
+    e.stopPropagation();
     if (isFull) {
       setIsFull(false);
+      console.log(state);
       setState((prev) => ({
         ...prev,
         size: {
@@ -328,9 +331,10 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
 
   return {
     state,
-    onMouseDown,
+    onMouseDownBorder,
+    onMouseDownHeader,
     onFullSizeToggle,
-    borderMouseMove,
+    setMouseCursor,
     isFull,
   };
 }

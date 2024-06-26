@@ -13,12 +13,14 @@ const WindowContext = createContext<{
   onFullSizeToggle: any;
   closeApplication: any;
   touchUsedApplication: any;
+  moveHeader: any;
   title: DefaultApplicationKey;
 }>({
   isFull: false,
   title: "computer",
   onFullSizeToggle: () => {},
   closeApplication: () => {},
+  moveHeader: () => {},
   touchUsedApplication: () => {},
 });
 
@@ -29,10 +31,11 @@ interface WindowProps {
 
 const Window = ({ children, title }: WindowProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const { state, onMouseDownBorder, onMouseDownHeader, setMouseCursor, isFull, onFullSizeToggle } =
+    useWindow({ ref });
   const { closeApplication, touchUsedApplication, application } = useApplicationStore(
     (state) => state
   );
-  const { state, onMouseDown, borderMouseMove, isFull, onFullSizeToggle } = useWindow({ ref });
 
   return (
     <WindowContext.Provider
@@ -43,13 +46,14 @@ const Window = ({ children, title }: WindowProps) => {
         title,
         closeApplication: () => closeApplication(title),
         touchUsedApplication: () => touchUsedApplication(title),
+        moveHeader: onMouseDownHeader,
       }}
     >
       <div
         ref={ref}
         onClick={() => touchUsedApplication(title)}
-        onMouseMove={borderMouseMove}
-        onMouseDown={!isFull ? onMouseDown : (e) => {}}
+        onMouseMove={!isFull ? setMouseCursor : (e) => {}}
+        onMouseDown={!isFull ? onMouseDownBorder : (e) => {}}
         className={"window absolute"}
         style={{ zIndex: application[title]?.zIndex }}
       >
@@ -60,13 +64,15 @@ const Window = ({ children, title }: WindowProps) => {
 };
 
 const WindowResizeHeader = () => {
-  const { isFull, onFullSizeToggle, closeApplication, title } = useContext(WindowContext);
+  const { isFull, onFullSizeToggle, closeApplication, title, moveHeader } =
+    useContext(WindowContext);
   const { application } = useApplicationStore((state) => state);
   const maxZIndex = Math.max(...Object.values(application).map((item) => item.zIndex));
   const router = useRouter();
   return (
     <div
       className={"title-bar " + (maxZIndex !== application[title].zIndex ? "inactive" : "")}
+      onMouseDown={!isFull ? moveHeader : () => {}}
       onDoubleClick={onFullSizeToggle}
     >
       <div className="title-bar-text">
@@ -95,21 +101,31 @@ const WindowMenuBar = () => {
   const { closeApplication } = useContext(WindowContext);
   const [active, setActive] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const blurEvtHandler = (e: MouseEvent) => {
+    if (e.target instanceof HTMLElement) {
+      if (e.target.id !== buttonRef.current!.id) {
+        buttonRef.current?.blur();
+        document.body.removeEventListener("click", blurEvtHandler);
+      }
+    }
+  };
+  const focusHandler = () => {
+    setActive((active) => (active = !active));
+    document.body.addEventListener("click", blurEvtHandler);
+    buttonRef.current?.focus();
+  };
+  const blurHandler = () => {
+    setActive(false);
+  };
   return (
     <menu className="WindowMenuBar">
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
+          id={"focusHandler"}
           ref={buttonRef}
-          tabIndex={0}
           className={active ? "active" : ""}
-          onClick={() => {
-            buttonRef.current?.focus();
-            setActive((active) => (active = !active));
-          }}
-          onBlur={() => {
-            buttonRef.current?.blur();
-            setActive(false);
-          }}
+          onClick={focusHandler}
+          onBlur={blurHandler}
         >
           File
         </Button>
