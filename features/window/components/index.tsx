@@ -100,41 +100,33 @@ const WindowResizeHeader = () => {
 const WindowMenuBar = () => {
   const { closeApplication } = useContext(WindowContext);
   const [active, setActive] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const blurEvtHandler = (e: MouseEvent) => {
-    if (e.target instanceof HTMLElement) {
-      if (e.target.id !== buttonRef.current!.id) {
-        buttonRef.current?.blur();
-        document.body.removeEventListener("click", blurEvtHandler);
-      }
-    }
-  };
-  const focusHandler = () => {
+  const onClickHandler = () => {
     setActive((active) => (active = !active));
-    document.body.addEventListener("click", blurEvtHandler);
-    buttonRef.current?.focus();
-  };
-  const blurHandler = () => {
-    setActive(false);
   };
   return (
     <menu className="WindowMenuBar">
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
-          id={"focusHandler"}
-          ref={buttonRef}
+          onClick={onClickHandler}
+          onMouseEnter={(e) => {
+            if (active) {
+              e.currentTarget.focus();
+            }
+          }}
           className={active ? "active" : ""}
-          onClick={focusHandler}
-          onBlur={blurHandler}
         >
           File
         </Button>
-        <div className="Frame StandardMenu renderedMenu">
+        <div className="StandardMenu">
           <div className="divider divider--group-0-start"></div>
           <div className="divider divider--group-0-end"></div>
           <div className="divider divider--group-1-start"></div>
           <div className="StandardMenuItem">
-            <button className="StandardMenuItem__button" onClick={() => closeApplication()}>
+            <button
+              className="StandardMenuItem__button btn"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={closeApplication}
+            >
               Close
             </button>
           </div>
@@ -142,8 +134,18 @@ const WindowMenuBar = () => {
         </div>
       </div>
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
-        <button className="btn">Help</button>
-        <div className="Frame StandardMenu renderedMenu">
+        <Button
+          onClick={onClickHandler}
+          onMouseEnter={(e) => {
+            if (active) {
+              e.currentTarget.focus();
+            }
+          }}
+          className={active ? "active" : ""}
+        >
+          Help
+        </Button>
+        <div className="StandardMenu">
           <div className="divider divider--group-0-start"></div>
           <div className="StandardMenuItem">
             <button className="StandardMenuItem__button disabled" value="Help Topics">

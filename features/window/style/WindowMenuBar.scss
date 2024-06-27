@@ -150,10 +150,10 @@ $windowPadding: 3px;
         box-shadow: dualShadow($white, $darkgrey);
       }
 
-      &:active,
-      &:focus,
-      &:active:focus,
-      &.active,
+      // &:active,
+      // &:focus,
+      // &:active:focus,
+      &.active:focus,
       &.clicked {
         box-shadow: dualShadow($darkgrey, $white);
         padding: 4px 5px 2px 7px;
@@ -173,6 +173,8 @@ $windowPadding: 3px;
   word-wrap: none;
   white-space: nowrap;
   text-overflow: clip;
+  background-color: $grey;
+  color: black;
   > div {
     position: relative;
     > button {
