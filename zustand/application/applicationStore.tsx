@@ -5,12 +5,14 @@ const defaultApplicationState = {
   computer: {
     label: "Computer",
     iconUrl: "https://win98icons.alexmeub.com/images/computer_explorer-2.png",
-    miniIconUrl: "https://win98icons.alexmeub.com/icons/png/computer_explorer-0.png",
+    miniIconUrl:
+      "https://win98icons.alexmeub.com/icons/png/computer_explorer-0.png",
   },
   document: {
     label: "Documents",
     iconUrl: "https://win98icons.alexmeub.com/images/directory_closed-3.png",
-    miniIconUrl: "https://win98icons.alexmeub.com/icons/png/directory_closed-1.png",
+    miniIconUrl:
+      "https://win98icons.alexmeub.com/icons/png/directory_closed-1.png",
   },
   blog: {
     label: "Blog",
@@ -31,6 +33,7 @@ type ApplicationValue = {
   iconUrl: string;
   useIconInDesktop: boolean;
   useApplication: boolean;
+  isMini: boolean;
   zIndex: number;
   startBarIndex: number;
   miniIconUrl: string;
@@ -61,6 +64,7 @@ const initDefault = (key: DefaultApplicationKey) => {
     iconUrl: defaultApplicationState[key].iconUrl,
     useIconInDesktop: true,
     useApplication: false,
+    isMini: false,
     zIndex: 0,
     startBarIndex: Infinity,
     miniIconUrl: defaultApplicationState[key].miniIconUrl,
@@ -79,7 +83,9 @@ export const defaultInitState: ApplicationState = {
 let zIndex = 0;
 let startBarIndex = 0;
 
-export const createApplicationStore = (initState: ApplicationState = defaultInitState) => {
+export const createApplicationStore = (
+  initState: ApplicationState = defaultInitState
+) => {
   return create<ApplicationStore>()((set) => ({
     ...initState,
 
@@ -90,6 +96,7 @@ export const createApplicationStore = (initState: ApplicationState = defaultInit
           [key]: {
             ...state.application[key],
             zIndex: zIndex,
+            isMini: true,
           },
         },
       }));
@@ -124,6 +131,7 @@ export const createApplicationStore = (initState: ApplicationState = defaultInit
         },
       }));
     },
-    getApplications: () => Object.keys(defaultApplicationState) as DefaultApplicationKey[],
+    getApplications: () =>
+      Object.keys(defaultApplicationState) as DefaultApplicationKey[],
   }));
 };

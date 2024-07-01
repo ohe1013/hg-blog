@@ -15,6 +15,7 @@ interface UseDragProvided {
   onMouseDownBorder: (e: React.MouseEvent<HTMLElement>) => void;
   onMouseDownHeader: (e: React.MouseEvent<HTMLElement>) => void;
   onFullSizeToggle: (e: MouseEvent) => void;
+  onMiniToggle: (e: MouseEvent) => void;
   setMouseCursor: (e: React.MouseEvent<HTMLElement>) => void;
   isFull: boolean;
 }
@@ -59,6 +60,7 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
   });
 
   const [isFull, setIsFull] = useState<boolean>(false);
+  const [isMini, setIsMini] = useState<boolean>(false);
 
   const onMouseMoveBorder = useCallback(
     (e: MouseEvent) => {
@@ -71,7 +73,9 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 height:
-                  Number(prev.lastSize.height.slice(0, -2)) - (e.clientY - prev.dragStart.y) + "px",
+                  Number(prev.lastSize.height.slice(0, -2)) -
+                  (e.clientY - prev.dragStart.y) +
+                  "px",
               },
               translation: {
                 x: prev.translation.x,
@@ -87,7 +91,9 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 height:
-                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientY - prev.dragStart.y) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) +
+                  (e.clientY - prev.dragStart.y) +
+                  "px",
               },
             };
           });
@@ -99,7 +105,9 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 width:
-                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientX - prev.dragStart.x) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) +
+                  (e.clientX - prev.dragStart.x) +
+                  "px",
               },
             };
           });
@@ -111,7 +119,9 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 width:
-                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientX - prev.dragStart.x) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) -
+                  (e.clientX - prev.dragStart.x) +
+                  "px",
               },
               translation: {
                 x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
@@ -127,9 +137,13 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 width:
-                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientX - prev.dragStart.x) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) -
+                  (e.clientX - prev.dragStart.x) +
+                  "px",
                 height:
-                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientY - prev.dragStart.y) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) -
+                  (e.clientY - prev.dragStart.y) +
+                  "px",
               },
               translation: {
                 x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
@@ -145,9 +159,13 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 width:
-                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientX - prev.dragStart.x) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) +
+                  (e.clientX - prev.dragStart.x) +
+                  "px",
                 height:
-                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientY - prev.dragStart.y) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) -
+                  (e.clientY - prev.dragStart.y) +
+                  "px",
               },
               translation: {
                 x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
@@ -163,9 +181,13 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 width:
-                  Number(prev.lastSize.width.slice(0, -2)) - (e.clientX - prev.dragStart.x) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) -
+                  (e.clientX - prev.dragStart.x) +
+                  "px",
                 height:
-                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientY - prev.dragStart.y) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) +
+                  (e.clientY - prev.dragStart.y) +
+                  "px",
               },
               translation: {
                 x: prev.lastTranslation.x + e.clientX - prev.dragStart.x,
@@ -181,9 +203,13 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 width:
-                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientX - prev.dragStart.x) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) +
+                  (e.clientX - prev.dragStart.x) +
+                  "px",
                 height:
-                  Number(prev.lastSize.width.slice(0, -2)) + (e.clientY - prev.dragStart.y) + "px",
+                  Number(prev.lastSize.width.slice(0, -2)) +
+                  (e.clientY - prev.dragStart.y) +
+                  "px",
               },
             };
           });
@@ -228,9 +254,11 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     if (y < 10 && y > -10) resizeDirection = "n" + resizeDirection;
-    if (y < rect.height + 10 && y > rect.height - 10) resizeDirection = "s" + resizeDirection;
+    if (y < rect.height + 10 && y > rect.height - 10)
+      resizeDirection = "s" + resizeDirection;
     if (x < 10 && x > -10) resizeDirection = resizeDirection + "w";
-    if (x < rect.width + 10 && x > rect.width - 10) resizeDirection = resizeDirection + "e";
+    if (x < rect.width + 10 && x > rect.width - 10)
+      resizeDirection = resizeDirection + "e";
 
     setState((prev) => ({
       ...prev,
@@ -269,6 +297,20 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     },
     [onMouseMoveBorder, onMouseUpHeader]
   );
+
+  const onMiniToggle = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (isMini) {
+      ref.current?.style.setProperty("visibility", "hidden");
+      ref.current?.style.setProperty("opacity", "0");
+      ref.current?.style.setProperty("pointer-events", "none");
+    } else {
+      ref.current?.style.setProperty("visibility", null);
+      ref.current?.style.setProperty("opacity", null);
+      ref.current?.style.setProperty("pointer-events", null);
+    }
+    setIsMini((mini) => (mini = !mini));
+  };
 
   const onFullSizeToggle = (e: MouseEvent) => {
     e.stopPropagation();
@@ -335,6 +377,7 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     onMouseDownHeader,
     onFullSizeToggle,
     setMouseCursor,
+    onMiniToggle,
     isFull,
   };
 }
