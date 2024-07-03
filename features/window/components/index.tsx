@@ -1,16 +1,8 @@
 "use client";
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
 import { State, useWindow } from "../hooks/useWindow";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
-import { useRouter } from "next/navigation";
 import "../style/index.scss";
 import Button from "@lib/components/Button";
 
@@ -23,6 +15,7 @@ const WindowContext = createContext<{
   minimizeApplication: any;
   moveHeader: any;
   title: DefaultApplicationKey;
+  ref: any;
 }>({
   isFull: false,
   title: "computer",
@@ -31,6 +24,7 @@ const WindowContext = createContext<{
   moveHeader: () => {},
   minimizeApplication: () => {},
   touchUsedApplication: () => {},
+  ref: null,
 });
 
 interface WindowProps {
@@ -49,8 +43,9 @@ const Window = ({ children, title }: WindowProps) => {
     isFull,
     onFullSizeToggle,
   } = useWindow({ ref });
-  const { closeApplication, touchUsedApplication, application } =
-    useApplicationStore((state) => state);
+  const { closeApplication, touchUsedApplication, application } = useApplicationStore(
+    (state) => state
+  );
 
   return (
     <WindowContext.Provider
@@ -61,9 +56,9 @@ const Window = ({ children, title }: WindowProps) => {
         title,
         closeApplication: () => closeApplication(title),
         minimizeApplication: onMiniToggle,
-
         touchUsedApplication: () => touchUsedApplication(title),
         moveHeader: onMouseDownHeader,
+        ref,
       }}
     >
       <div
@@ -81,25 +76,13 @@ const Window = ({ children, title }: WindowProps) => {
 };
 
 const WindowResizeHeader = () => {
-  const {
-    isFull,
-    onFullSizeToggle,
-    closeApplication,
-    minimizeApplication,
-    title,
-    moveHeader,
-  } = useContext(WindowContext);
+  const { isFull, onFullSizeToggle, closeApplication, minimizeApplication, title, moveHeader } =
+    useContext(WindowContext);
   const { application } = useApplicationStore((state) => state);
-  const maxZIndex = Math.max(
-    ...Object.values(application).map((item) => item.zIndex)
-  );
-  const router = useRouter();
+  const maxZIndex = Math.max(...Object.values(application).map((item) => item.zIndex));
   return (
     <div
-      className={
-        "title-bar " +
-        (maxZIndex !== application[title].zIndex ? "inactive" : "")
-      }
+      className={"title-bar " + (maxZIndex !== application[title].zIndex ? "inactive" : "")}
       onMouseDown={!isFull ? moveHeader : () => {}}
       onDoubleClick={onFullSizeToggle}
     >
@@ -112,10 +95,7 @@ const WindowResizeHeader = () => {
       </div>
       <div className="title-bar-controls">
         <button aria-label="Minimize" onClick={minimizeApplication} />
-        <button
-          aria-label={isFull ? "Restore" : "Maximize"}
-          onClick={onFullSizeToggle}
-        />
+        <button aria-label={isFull ? "Restore" : "Maximize"} onClick={onFullSizeToggle} />
         <button
           aria-label="Close"
           onClick={() => {
@@ -128,18 +108,35 @@ const WindowResizeHeader = () => {
 };
 
 const WindowMenuBar = () => {
-  const { closeApplication } = useContext(WindowContext);
+  const { closeApplication, ref } = useContext(WindowContext);
   const [active, setActive] = useState(false);
   const menuRef = useRef<HTMLMenuElement>(null);
+  const fileButtonRef = useRef<HTMLButtonElement>(null);
+  const helpButtonRef = useRef<HTMLButtonElement>(null);
   const onClickHandler = () => {
     setActive((active) => (active = !active));
   };
+  const keydownHandler = (e: any) => {
+    console.log(e);
+    switch (e.code) {
+      case "KeyF":
+      case "Keyf": {
+        fileButtonRef.current!.focus();
+        setActive(true);
+        break;
+      }
+      case "KeyH":
+      case "Keyh": {
+        helpButtonRef.current!.focus();
+        setActive(true);
+        break;
+      }
+    }
+  };
 
   useEffect(() => {
-    menuRef.current?.addEventListener("keydown", (e) => {
-      if (e.code === "KeyF" || e.code === "Keyf") {
-      }
-    });
+    console.log(menuRef.current?.parentElement);
+    ref.current?.addEventListener("keydown", keydownHandler);
   }, []);
 
   return (
@@ -152,6 +149,7 @@ const WindowMenuBar = () => {
               e.currentTarget.focus();
             }
           }}
+          ref={fileButtonRef}
           className={active ? "active" : ""}
         >
           <span style={{ textDecoration: "underline" }}>F</span>
@@ -181,6 +179,7 @@ const WindowMenuBar = () => {
               e.currentTarget.focus();
             }
           }}
+          ref={helpButtonRef}
           className={active ? "active" : ""}
         >
           <span style={{ textDecoration: "underline" }}>H</span>
@@ -189,19 +188,13 @@ const WindowMenuBar = () => {
         <div className="StandardMenu">
           <div className="divider divider--group-0-start"></div>
           <div className="StandardMenuItem">
-            <button
-              className="StandardMenuItem__button disabled"
-              value="Help Topics"
-            >
+            <button className="StandardMenuItem__button disabled" value="Help Topics">
               Help Topics
             </button>
           </div>
           <div className="divider divider--group-0-end"></div>
           <div className="StandardMenuItem">
-            <button
-              className="StandardMenuItem__button disabled"
-              value="About My Computer"
-            >
+            <button className="StandardMenuItem__button disabled" value="About My Computer">
               About My Computer
             </button>
           </div>
@@ -235,24 +228,16 @@ const WindowSideBar = () => {
     <div
       className="WindowSideBar"
       style={{
-        background:
-          "url(https://98.js.org/src/WEB//wvleft.bmp) no-repeat white",
+        background: "url(https://98.js.org/src/WEB//wvleft.bmp) no-repeat white",
         visibility: "visible",
       }}
     >
       <p>
-        <img
-          draggable="false"
-          src="https://98.js.org/images/icons/hard-disk-drive-32x32.png"
-        />
+        <img draggable="false" src="https://98.js.org/images/icons/hard-disk-drive-32x32.png" />
       </p>
       <p className="Title">(C:)</p>
       <p className="LogoLine">
-        <img
-          src="https://98.js.org/src/WEB//wvline.gif"
-          width="100%"
-          height="1px"
-        />
+        <img src="https://98.js.org/src/WEB//wvline.gif" width="100%" height="1px" />
       </p>
 
       <p>
@@ -273,11 +258,4 @@ const WindowStatus = () => {
   );
 };
 
-export {
-  Window,
-  WindowResizeHeader,
-  WindowBody,
-  WindowMenuBar,
-  WindowSideBar,
-  WindowStatus,
-};
+export { Window, WindowResizeHeader, WindowBody, WindowMenuBar, WindowSideBar, WindowStatus };

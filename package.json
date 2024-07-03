@@ -4,6 +4,8 @@
   "description": "",
   "scripts": {
     "dev": "next dev",
+    "build": "next build",
+    "build:ssg": "next build && next export",
     "lint": "next lint",
     "test": "Write-Host 'this is only a test'",
     "load-nvmrc": "powershell -File load-nvmrc.ps1",
