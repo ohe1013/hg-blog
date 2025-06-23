@@ -1,6 +1,7 @@
 import {
   Window,
   WindowBody,
+  WindowMenuBar,
   WindowResizeHeader,
   WindowStatus,
 } from "../../features/window/components";
@@ -16,6 +17,7 @@ export default async function BlogLayout({
     <BlogWrapper>
       <Window title="blog">
         <WindowResizeHeader></WindowResizeHeader>
+        <WindowMenuBar />
         <WindowBody>{children}</WindowBody>
         <WindowStatus></WindowStatus>
       </Window>

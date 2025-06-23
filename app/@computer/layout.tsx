@@ -22,7 +22,7 @@ export default async function ComputerLayout({
           <WindowSideBar />
           {children}
         </WindowBody>
-        <WindowStatus></WindowStatus>
+        <WindowStatus />
       </Window>
     </ComputerWrapper>
   );

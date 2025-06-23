@@ -2,6 +2,7 @@
 import { ReactNode, useState } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
+import { useRouter } from "next/navigation";
 
 const Desktop = ({ children }: { children: ReactNode }) => {
   return (
@@ -20,23 +21,45 @@ const Desktop = ({ children }: { children: ReactNode }) => {
 //   },
 // };
 
-const DesktopIconGrid = () => {
-  const applicationStore = useApplicationStore((state) => state);
-  const applicationKeyList = applicationStore.getApplications();
+function DesktopIconGrid() {
+  const router = useRouter(); // ex) 'ko'
+  const appStore = useApplicationStore((s) => s);
+  const keys = appStore.getApplications(); // ['computer','document','blog','about']
+
+  const handleDoubleClick = async (key: string) => {
+    // 1) UI 토글
+    appStore.openApplication(key as any);
+
+    // 2) 클릭한 아이콘에 따라 URL 강제 이동
+    if (key === "blog") {
+      router.push(
+        `/blog-detail/study-react-732f1b8600004f14bae67e6d115df05c`,
+        undefined
+      );
+    } else if (key === "about") {
+      router.push(
+        `/about-detail/devloper-88d3fb4a1ab64838a9d755b69d7cb80e`,
+        undefined
+      );
+    } else if (key === "computer") {
+      router.push(``, undefined);
+    }
+    // document 같은 다른 아이콘도 동일하게 분기 처리...
+  };
+
   return (
     <div className="absolute">
-      {applicationKeyList.map((key) => (
+      {keys.map((key) => (
         <DesktopIcon
-          key={applicationStore.application[key].label}
-          label={applicationStore.application[key].label}
-          iconUrl={applicationStore.application[key].iconUrl}
-          onDoubleClick={() => applicationStore.openApplication(key)}
+          key={key}
+          label={appStore.application[key].label}
+          iconUrl={appStore.application[key].iconUrl}
+          onDoubleClick={() => void handleDoubleClick(key)}
         />
       ))}
     </div>
   );
-};
-
+}
 type DesktopIconProps = { label: string; iconUrl: string; onDoubleClick: any };
 
 const DesktopIcon = (props: DesktopIconProps) => {

@@ -167,7 +167,7 @@ const WindowMenuBar = () => {
   }, []);
 
   return (
-    <menu ref={menuRef} className="WindowMenuBar">
+    <menu ref={menuRef} className="WindowMenuBar" style={{ zIndex: 1000 }}>
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
           onClick={onClickHandler}

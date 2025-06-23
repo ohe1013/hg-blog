@@ -10,9 +10,10 @@ import Image from "next/image";
 interface RendererProps {
   recordMap: any; // 임의로 any
   rootPageId: string;
+  rootUrl: string;
 }
 
-export const Renderer = ({ recordMap, rootPageId }: RendererProps) => {
+export const Renderer = ({ recordMap, rootPageId, rootUrl }: RendererProps) => {
   const Code = dynamic(() =>
     import("react-notion-x/build/third-party/code").then(async (m) => {
       await Promise.all([]);
@@ -48,7 +49,7 @@ export const Renderer = ({ recordMap, rootPageId }: RendererProps) => {
         darkMode={false}
         rootPageId={rootPageId}
         rootDomain="blog"
-        mapPageUrl={(pageId) => `/blog-detail/${pageId}`}
+        mapPageUrl={(pageId) => `/${rootUrl}-detail/${pageId}`}
         previewImages
         components={{
           Code,
