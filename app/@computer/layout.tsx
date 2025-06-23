@@ -8,7 +8,11 @@ import {
 } from "../../features/window/components";
 import { ReactNode } from "react";
 import ComputerWrapper from "./ComputerWrapper";
-export default async function ComputerLayout({ children }: { children: ReactNode }) {
+export default async function ComputerLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
     <ComputerWrapper>
       <Window title="computer">

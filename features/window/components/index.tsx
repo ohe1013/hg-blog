@@ -250,7 +250,10 @@ const WindowBody = (props: { children: ReactNode }) => {
       ? context?.size.height
       : Number(context?.size.height.slice(0, -2)) - 50 + "px";
   return (
-    <div className="overflow-y-auto" style={{ height: height }}>
+    <div
+      className="overflow-y-auto"
+      style={{ height: height, paddingTop: "27px" }}
+    >
       {props.children}
     </div>
   );

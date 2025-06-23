@@ -3,7 +3,7 @@
 @mixin window-sidebar {
   position: absolute;
   width: 30%;
-  height: calc(100% - 50px);
+  height: calc(100% - 78px);
   overflow: auto;
   p {
     margin-left: 15px;
@@ -21,7 +21,7 @@
   }
   p.LogoLine {
     margin-left: 0;
-    margin-top: -5px;
+    margin-top: 28px;
     margin-right: 0;
     margin-bottom: 20px;
   }

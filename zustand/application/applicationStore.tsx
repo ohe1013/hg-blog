@@ -20,7 +20,7 @@ const defaultApplicationState = {
     miniIconUrl: "/assets/img/notion-logo-no-background.png",
   },
   about: {
-    label: "About",
+    label: "About Me",
     iconUrl: "/assets/img/notion-logo-no-background.png",
     miniIconUrl: "/assets/img/notion-logo-no-background.png",
   },
