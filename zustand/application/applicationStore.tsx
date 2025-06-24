@@ -50,10 +50,11 @@ export type ApplicationState = {
 // };
 
 export type ApplicationActions = {
-  getApplications: () => DefaultApplicationKey[];
+  getApplicationKeys: () => DefaultApplicationKey[];
   touchUsedApplication: (key: DefaultApplicationKey) => void;
   openApplication: (key: DefaultApplicationKey) => void;
   closeApplication: (key: DefaultApplicationKey) => void;
+  getApplication: (key: DefaultApplicationKey) => ApplicationValue;
 };
 
 export type ApplicationStore = ApplicationState & ApplicationActions;
@@ -86,7 +87,7 @@ let startBarIndex = 0;
 export const createApplicationStore = (
   initState: ApplicationState = defaultInitState
 ) => {
-  return create<ApplicationStore>()((set) => ({
+  return create<ApplicationStore>()((set, get) => ({
     ...initState,
 
     touchUsedApplication: (key: DefaultApplicationKey) => {
@@ -131,7 +132,11 @@ export const createApplicationStore = (
         },
       }));
     },
-    getApplications: () =>
+    getApplicationKeys: () =>
       Object.keys(defaultApplicationState) as DefaultApplicationKey[],
+    getApplication: (key: DefaultApplicationKey) => {
+      const state = get();
+      return state.application[key];
+    },
   }));
 };

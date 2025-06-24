@@ -3,6 +3,7 @@ import { ReactNode, useState } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
 import { useRouter } from "next/navigation";
+import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
 
 const Desktop = ({ children }: { children: ReactNode }) => {
   return (
@@ -10,41 +11,31 @@ const Desktop = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// const computerIcon = {
-//   computer: {
-//     label: "Computer",
-//     iconUrl: "https://win98icons.alexmeub.com/images/computer_explorer-2.png",
-//   },
-//   document: {
-//     label: "Documents",
-//     iconUrl: "https://win98icons.alexmeub.com/images/directory_closed-3.png",
-//   },
-// };
-
 function DesktopIconGrid() {
   const router = useRouter(); // ex) 'ko'
   const appStore = useApplicationStore((s) => s);
-  const keys = appStore.getApplications(); // ['computer','document','blog','about']
+  const keys = appStore.getApplicationKeys();
 
-  const handleDoubleClick = async (key: string) => {
-    // 1) UI 토글
-    appStore.openApplication(key as any);
-
-    // 2) 클릭한 아이콘에 따라 URL 강제 이동
-    if (key === "blog") {
+  const handleDoubleClick = async (key: DefaultApplicationKey) => {
+    appStore.openApplication(key);
+    if (key === "blog" && !appStore.getApplication(key).useApplication) {
       router.push(
         `/blog-detail/study-react-732f1b8600004f14bae67e6d115df05c`,
         undefined
       );
-    } else if (key === "about") {
+    } else if (
+      key === "about" &&
+      !appStore.getApplication(key).useApplication
+    ) {
       router.push(
         `/about-detail/devloper-88d3fb4a1ab64838a9d755b69d7cb80e`,
         undefined
       );
     } else if (key === "computer") {
       router.push(``, undefined);
+    } else if (key === "document") {
+      router.push(``, undefined);
     }
-    // document 같은 다른 아이콘도 동일하게 분기 처리...
   };
 
   return (
@@ -88,7 +79,6 @@ const DesktopIcon = (props: DesktopIconProps) => {
             className={`DesktopIcon__item ${isFoucs ? "actived" : ""}`}
           ></div>
         </div>
-        {/* <img className={"m-auto selection:bg-gray-900"} width={32} height={32} src={iconUrl} /> */}
         <span className={`DesktopIcon__text ${isFoucs ? "actived" : ""}`}>
           {label}
         </span>

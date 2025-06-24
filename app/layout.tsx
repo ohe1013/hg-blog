@@ -13,6 +13,7 @@ type PageProps = {
   blog: ReactNode;
   about: ReactNode;
   computer: ReactNode;
+  document: ReactNode;
 };
 export default async function RootLayout({
   children,
@@ -20,13 +21,18 @@ export default async function RootLayout({
   blog,
   about,
   computer,
+  document,
 }: PageProps) {
   return (
     <html lang="ko" id={lang}>
       <head>
         <meta charSet="utf-8" />
         <title>hg-blog</title>
-        <link rel="icon" href="https://win98icons.alexmeub.com/icons/png/msie1-0.png" sizes="any" />
+        <link
+          rel="icon"
+          href="https://win98icons.alexmeub.com/icons/png/msie1-0.png"
+          sizes="any"
+        />
       </head>
       <body>
         <ApplicationStoreProvider>
@@ -36,6 +42,7 @@ export default async function RootLayout({
             {blog}
             {about}
             {computer}
+            {document}
             <StartBar />
           </Desktop>
         </ApplicationStoreProvider>

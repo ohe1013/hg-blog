@@ -4,5 +4,7 @@ import { useApplicationStore } from "../../zustand/application/applicationProvid
 
 export default function ComputerWrapper({ children }: { children: ReactNode }) {
   const { computer } = useApplicationStore((state) => state.application);
-  return <Fragment>{computer.useApplication === true ? children : null}</Fragment>;
+  return (
+    <Fragment>{computer.useApplication === true ? children : null}</Fragment>
+  );
 }

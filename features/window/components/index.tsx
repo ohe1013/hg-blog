@@ -247,7 +247,7 @@ const WindowBody = (props: { children: ReactNode }) => {
   const { context } = useContext(WindowContext);
   const height =
     context!.size.height.indexOf("%") > -1
-      ? context?.size.height
+      ? `calc( ${context?.size.height} - 51px)`
       : Number(context?.size.height.slice(0, -2)) - 50 + "px";
   return (
     <div

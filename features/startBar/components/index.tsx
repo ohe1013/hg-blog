@@ -51,7 +51,7 @@ const StartBarApplications = () => {
   );
   const applicationList = (
     applicationStore
-      .getApplications()
+      .getApplicationKeys()
       .filter(
         (key) => applicationStore.application[key].useApplication === true
       )
@@ -88,10 +88,12 @@ const StartBarTime = memo(() => {
 
   useEffect(() => {
     setInterval(() => {
-      timeRef.current!.textContent = new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      if (timeRef.current) {
+        timeRef.current.textContent = new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
     }, 1000);
   }, []);
 
