@@ -45,10 +45,6 @@ export type ApplicationState = {
   };
 };
 
-// export type ApplicationSelector = {
-//   stackList: ApplicationValue[];
-// };
-
 export type ApplicationActions = {
   getApplicationKeys: () => DefaultApplicationKey[];
   touchUsedApplication: (key: DefaultApplicationKey) => void;

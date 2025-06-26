@@ -12,6 +12,7 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
 import "../style/index.scss";
 import Button from "@lib/components/Button";
+import { useDragSelect } from "@lib/hooks/useDrag";
 
 const WindowContext = createContext<{
   context?: State;
@@ -242,8 +243,11 @@ const WindowToolBar = () => {
 const WindowAddressBar = () => {
   return;
 };
-
-const WindowBody = (props: { children: ReactNode }) => {
+interface WindowBodyProps {
+  dragSelect?: boolean;
+  children: ReactNode;
+}
+const WindowBody = ({ dragSelect = false, children }: WindowBodyProps) => {
   const { context } = useContext(WindowContext);
   const height =
     context!.size.height.indexOf("%") > -1
@@ -254,7 +258,7 @@ const WindowBody = (props: { children: ReactNode }) => {
       className="overflow-y-auto"
       style={{ height: height, paddingTop: "27px" }}
     >
-      {props.children}
+      {children}
     </div>
   );
 };

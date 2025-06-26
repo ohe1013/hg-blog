@@ -1,90 +1,157 @@
 "use client";
-import { ReactNode, useState } from "react";
+import { ReactNode, Ref, useState } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
 import { useRouter } from "next/navigation";
 import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
+import { rootDir } from "@features/notion/data";
 
-const Desktop = ({ children }: { children: ReactNode }) => {
+const Desktop = ({
+  containerRef,
+  children,
+  onMouseDown,
+}: {
+  containerRef: Ref<HTMLDivElement>;
+  children: ReactNode;
+  onMouseDown: (e: React.MouseEvent) => void;
+}) => {
   return (
-    <div className={"bg-teal-600 h-dvh w-full overflow-hidden"}>{children}</div>
+    <div
+      ref={containerRef}
+      onMouseDown={onMouseDown}
+      className={"bg-teal-600 h-dvh w-full overflow-hidden"}
+    >
+      {children}
+    </div>
   );
 };
 
-function DesktopIconGrid() {
-  const router = useRouter(); // ex) 'ko'
-  const appStore = useApplicationStore((s) => s);
-  const keys = appStore.getApplicationKeys();
+type DesktopIconGridProps<T extends string> = {
+  itemRefs: React.MutableRefObject<Record<T, HTMLDivElement | null>>;
+  selectedIds: Set<T>;
+};
 
-  const handleDoubleClick = async (key: DefaultApplicationKey) => {
+function DesktopIconGrid<T extends DefaultApplicationKey>({
+  itemRefs,
+  selectedIds,
+}: DesktopIconGridProps<T>) {
+  const router = useRouter();
+  const appStore = useApplicationStore((s) => s);
+  const keys = appStore.getApplicationKeys() as T[];
+
+  const handleDoubleClick = async (key: T) => {
     appStore.openApplication(key);
     if (key === "blog" && !appStore.getApplication(key).useApplication) {
-      router.push(
-        `/blog-detail/study-react-732f1b8600004f14bae67e6d115df05c`,
-        undefined
-      );
+      router.push(`/blog-detail/${rootDir.blog}`);
     } else if (
       key === "about" &&
       !appStore.getApplication(key).useApplication
     ) {
-      router.push(
-        `/about-detail/devloper-88d3fb4a1ab64838a9d755b69d7cb80e`,
-        undefined
-      );
-    } else if (key === "computer") {
-      router.push(``, undefined);
-    } else if (key === "document") {
-      router.push(``, undefined);
+      router.push(`/about-detail/${rootDir.about}`);
     }
+    // computer / document 는 경로가 없다면 그냥 열기만
   };
 
   return (
     <div className="absolute">
       {keys.map((key) => (
-        <DesktopIcon
+        <div
           key={key}
-          label={appStore.application[key].label}
-          iconUrl={appStore.application[key].iconUrl}
-          onDoubleClick={() => void handleDoubleClick(key)}
-        />
+          data-key={key}
+          ref={(el) => {
+            // itemRefs.current[key]에 해당 DOM 노드 저장
+            itemRefs.current[key] = el;
+          }}
+        >
+          <DesktopIcon
+            label={appStore.application[key].label}
+            iconUrl={appStore.application[key].iconUrl}
+            isSelected={selectedIds.has(key)}
+            onDoubleClick={() => void handleDoubleClick(key)}
+          />
+        </div>
       ))}
     </div>
   );
 }
-type DesktopIconProps = { label: string; iconUrl: string; onDoubleClick: any };
+type DesktopIconProps = {
+  label: string;
+  iconUrl: string;
+  onDoubleClick: any;
+  isSelected: any;
+};
 
-const DesktopIcon = (props: DesktopIconProps) => {
-  const { label, iconUrl, onDoubleClick } = props;
-  const [isFoucs, setIsFocus] = useState(false);
+// const DesktopIcon = (props: DesktopIconProps) => {
+//   const { label, iconUrl, onDoubleClick } = props;
+//   const [isFoucs, setIsFocus] = useState(false);
+//   return (
+//     <div
+//       tabIndex={0}
+//       onClick={() => setIsFocus(true)}
+//       onBlur={() => {
+//         setIsFocus(false);
+//       }}
+//       onDoubleClick={onDoubleClick}
+//       className={
+//         "text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] active"
+//       }
+//     >
+//       <div className={" box-border"}>
+//         <div className="DesktopIcon__wrapper">
+//           <div
+//             style={{ backgroundImage: `url(${iconUrl})` }}
+//             className={`DesktopIcon__item `}
+//           ></div>
+//           <div
+//             style={{ maskImage: `url(${iconUrl})`, maskSize: "contain" }}
+//             className={`DesktopIcon__item ${isFoucs ? "actived" : ""}`}
+//           ></div>
+//         </div>
+//         <span className={`DesktopIcon__text ${isFoucs ? "actived" : ""}`}>
+//           {label}
+//         </span>
+//       </div>
+//     </div>
+//   );
+// };
+const DesktopIcon: React.FC<DesktopIconProps> = ({
+  label,
+  iconUrl,
+  onDoubleClick,
+  isSelected = false,
+}) => {
+  const [isFocus, setIsFocus] = useState(false);
+  const active = isFocus || isSelected;
+
   return (
     <div
       tabIndex={0}
       onClick={() => setIsFocus(true)}
-      onBlur={() => {
+      onBlur={() => setIsFocus(false)}
+      onDoubleClick={() => {
+        onDoubleClick();
         setIsFocus(false);
       }}
-      onDoubleClick={onDoubleClick}
-      className={
-        "text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] active:"
-      }
+      className={`text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] ${
+        active ? "active" : ""
+      }`}
     >
-      <div className={" box-border"}>
+      <div className="box-border">
         <div className="DesktopIcon__wrapper">
           <div
+            className="DesktopIcon__item"
             style={{ backgroundImage: `url(${iconUrl})` }}
-            className={`DesktopIcon__item `}
-          ></div>
+          />
           <div
+            className={`DesktopIcon__item ${active ? "actived" : ""}`}
             style={{ maskImage: `url(${iconUrl})`, maskSize: "contain" }}
-            className={`DesktopIcon__item ${isFoucs ? "actived" : ""}`}
-          ></div>
+          />
         </div>
-        <span className={`DesktopIcon__text ${isFoucs ? "actived" : ""}`}>
+        <span className={`DesktopIcon__text ${active ? "actived" : ""}`}>
           {label}
         </span>
       </div>
     </div>
   );
 };
-
 export { Desktop, DesktopIconGrid, DesktopIcon };

@@ -318,7 +318,6 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     e.stopPropagation();
     if (isFull) {
       setIsFull(false);
-      console.log(state);
       setState((prev) => ({
         ...prev,
         size: {

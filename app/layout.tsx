@@ -1,9 +1,8 @@
 import "../styles/globals.css";
 import "98.css";
 import { ReactNode } from "react";
-import { Desktop, DesktopIconGrid } from "../features/desktop/components";
-import { StartBar } from "../features/startBar/components";
 import { ApplicationStoreProvider } from "../zustand/application/applicationProvider";
+import ClientDesktopWrapper from "@features/desktop/components/ClientDesktopWrapper";
 
 type PageProps = {
   children: React.ReactNode;
@@ -15,16 +14,9 @@ type PageProps = {
   computer: ReactNode;
   document: ReactNode;
 };
-export default async function RootLayout({
-  children,
-  params: { lang },
-  blog,
-  about,
-  computer,
-  document,
-}: PageProps) {
+export default async function RootLayout(props: PageProps) {
   return (
-    <html lang="ko" id={lang}>
+    <html lang="ko" id={props.params.lang}>
       <head>
         <meta charSet="utf-8" />
         <title>hg-blog</title>
@@ -36,15 +28,7 @@ export default async function RootLayout({
       </head>
       <body>
         <ApplicationStoreProvider>
-          <Desktop>
-            <DesktopIconGrid></DesktopIconGrid>
-            {children}
-            {blog}
-            {about}
-            {computer}
-            {document}
-            <StartBar />
-          </Desktop>
+          <ClientDesktopWrapper {...props} />
         </ApplicationStoreProvider>
       </body>
     </html>
