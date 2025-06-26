@@ -1,5 +1,6 @@
 import {
   Window,
+  WindowAddressBar,
   WindowBody,
   WindowMenuBar,
   WindowResizeHeader,
@@ -8,6 +9,7 @@ import {
 } from "../../features/window/components";
 import { ReactNode } from "react";
 import ComputerWrapper from "./ComputerWrapper";
+import ExplorerLayout from "@features/explorer/components/ExplorerLayout";
 export default async function ComputerLayout({
   children,
 }: {
@@ -18,6 +20,7 @@ export default async function ComputerLayout({
       <Window title="computer">
         <WindowResizeHeader />
         <WindowMenuBar />
+        {/* <WindowAddressBar /> */}
         <WindowBody>
           <WindowSideBar />
           {children}

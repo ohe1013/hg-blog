@@ -1,5 +1,6 @@
 "use client";
 import {
+  Fragment,
   ReactNode,
   createContext,
   useContext,
@@ -13,6 +14,7 @@ import { DefaultApplicationKey } from "../../../zustand/application/applicationS
 import "../style/index.scss";
 import Button from "@lib/components/Button";
 import { useDragSelect } from "@lib/hooks/useDrag";
+import { useFileExplorerStore } from "../../../zustand/file/fileExplore";
 
 const WindowContext = createContext<{
   context?: State;
@@ -168,79 +170,97 @@ const WindowMenuBar = () => {
   }, []);
 
   return (
-    <menu ref={menuRef} className="WindowMenuBar" style={{ zIndex: 1000 }}>
-      <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
-        <Button
-          onClick={onClickHandler}
-          onMouseEnter={(e) => {
-            if (active) {
-              e.currentTarget.focus();
-            }
-          }}
-          ref={fileButtonRef}
-          className={active ? "active" : ""}
-        >
-          <span style={{ textDecoration: "underline" }}>F</span>
-          ile
-        </Button>
-        <div className="StandardMenu">
-          <div className="divider divider--group-0-start"></div>
-          <div className="divider divider--group-0-end"></div>
-          <div className="divider divider--group-1-start"></div>
-          <div className="StandardMenuItem">
-            <button
-              className="StandardMenuItem__button btn"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={closeApplication}
-            >
-              Close
-            </button>
-          </div>
-          <div className="divider divider--group-1-end"></div>
-        </div>
-      </div>
-      <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
-        <Button
-          onClick={onClickHandler}
-          onMouseEnter={(e) => {
-            if (active) {
-              e.currentTarget.focus();
-            }
-          }}
-          ref={helpButtonRef}
-          className={active ? "active" : ""}
-        >
-          <span style={{ textDecoration: "underline" }}>H</span>
-          elp
-        </Button>
-        <div className="StandardMenu">
-          <div className="divider divider--group-0-start"></div>
-          <div className="StandardMenuItem">
-            <button
-              className="StandardMenuItem__button disabled"
-              value="Help Topics"
-            >
-              Help Topics
-            </button>
-          </div>
-          <div className="divider divider--group-0-end"></div>
-          <div className="StandardMenuItem">
-            <button
-              className="StandardMenuItem__button disabled"
-              value="About My Computer"
-            >
-              About My Computer
-            </button>
+    <div>
+      <div ref={menuRef} className="WindowMenuBar" style={{ zIndex: 1000 }}>
+        <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
+          <Button
+            onClick={onClickHandler}
+            onMouseEnter={(e) => {
+              if (active) {
+                e.currentTarget.focus();
+              }
+            }}
+            ref={fileButtonRef}
+            className={active ? "active" : ""}
+          >
+            <span style={{ textDecoration: "underline" }}>F</span>
+            ile
+          </Button>
+          <div className="StandardMenu">
+            <div className="divider divider--group-0-start"></div>
+            <div className="divider divider--group-0-end"></div>
+            <div className="divider divider--group-1-start"></div>
+            <div className="StandardMenuItem">
+              <button
+                className="StandardMenuItem__button btn"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={closeApplication}
+              >
+                Close
+              </button>
+            </div>
+            <div className="divider divider--group-1-end"></div>
           </div>
         </div>
+        <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
+          <Button
+            onClick={onClickHandler}
+            onMouseEnter={(e) => {
+              if (active) {
+                e.currentTarget.focus();
+              }
+            }}
+            ref={helpButtonRef}
+            className={active ? "active" : ""}
+          >
+            <span style={{ textDecoration: "underline" }}>H</span>
+            elp
+          </Button>
+          <div className="StandardMenu">
+            <div className="divider divider--group-0-start"></div>
+            <div className="StandardMenuItem">
+              <button
+                className="StandardMenuItem__button disabled"
+                value="Help Topics"
+              >
+                Help Topics
+              </button>
+            </div>
+            <div className="divider divider--group-0-end"></div>
+            <div className="StandardMenuItem">
+              <button
+                className="StandardMenuItem__button disabled"
+                value="About My Computer"
+              >
+                About My Computer
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </menu>
+    </div>
   );
 };
 const WindowToolBar = () => {
   return;
 };
 const WindowAddressBar = () => {
+  const { currentPath, enterFolder, resetToRoot, goBack } =
+    useFileExplorerStore();
+  return (
+    <div className="">
+      <button onClick={goBack} disabled={currentPath.length === 0}>
+        ◀
+      </button>
+      {/* <button onClick={resetToRoot}>C:</button> */}
+      {currentPath.map((seg, i) => (
+        <Fragment key={i}>
+          <span> &gt; </span>
+          <button onClick={() => enterFolder(seg)}>{seg}</button>
+        </Fragment>
+      ))}
+    </div>
+  );
   return;
 };
 interface WindowBodyProps {
@@ -313,4 +333,5 @@ export {
   WindowMenuBar,
   WindowSideBar,
   WindowStatus,
+  WindowAddressBar,
 };

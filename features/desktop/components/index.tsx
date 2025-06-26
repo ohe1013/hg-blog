@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, Ref, useState } from "react";
+import { KeyboardEvent, ReactNode, Ref, useState } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
 import { useRouter } from "next/navigation";
@@ -123,6 +123,12 @@ const DesktopIcon: React.FC<DesktopIconProps> = ({
   const [isFocus, setIsFocus] = useState(false);
   const active = isFocus || isSelected;
 
+  const handleKeyEnter = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      onDoubleClick();
+    }
+  };
+
   return (
     <div
       tabIndex={0}
@@ -132,6 +138,7 @@ const DesktopIcon: React.FC<DesktopIconProps> = ({
         onDoubleClick();
         setIsFocus(false);
       }}
+      onKeyDown={handleKeyEnter}
       className={`text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] ${
         active ? "active" : ""
       }`}
