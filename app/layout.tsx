@@ -3,6 +3,7 @@ import "98.css";
 import { ReactNode } from "react";
 import { ApplicationStoreProvider } from "../zustand/application/applicationProvider";
 import ClientDesktopWrapper from "@features/desktop/components/ClientDesktopWrapper";
+import SvgDefs from "@lib/components/SvgDefs";
 
 type PageProps = {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ export default async function RootLayout(props: PageProps) {
         />
       </head>
       <body>
+        <SvgDefs />
         <ApplicationStoreProvider>
           <ClientDesktopWrapper {...props} />
         </ApplicationStoreProvider>

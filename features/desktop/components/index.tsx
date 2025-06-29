@@ -81,39 +81,6 @@ type DesktopIconProps = {
   isSelected: any;
 };
 
-// const DesktopIcon = (props: DesktopIconProps) => {
-//   const { label, iconUrl, onDoubleClick } = props;
-//   const [isFoucs, setIsFocus] = useState(false);
-//   return (
-//     <div
-//       tabIndex={0}
-//       onClick={() => setIsFocus(true)}
-//       onBlur={() => {
-//         setIsFocus(false);
-//       }}
-//       onDoubleClick={onDoubleClick}
-//       className={
-//         "text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] active"
-//       }
-//     >
-//       <div className={" box-border"}>
-//         <div className="DesktopIcon__wrapper">
-//           <div
-//             style={{ backgroundImage: `url(${iconUrl})` }}
-//             className={`DesktopIcon__item `}
-//           ></div>
-//           <div
-//             style={{ maskImage: `url(${iconUrl})`, maskSize: "contain" }}
-//             className={`DesktopIcon__item ${isFoucs ? "actived" : ""}`}
-//           ></div>
-//         </div>
-//         <span className={`DesktopIcon__text ${isFoucs ? "actived" : ""}`}>
-//           {label}
-//         </span>
-//       </div>
-//     </div>
-//   );
-// };
 const DesktopIcon: React.FC<DesktopIconProps> = ({
   label,
   iconUrl,

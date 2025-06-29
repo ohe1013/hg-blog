@@ -93,13 +93,15 @@ $windowPadding: 3px;
   z-index: 20;
   min-height: 22px;
   padding-left: 12px;
+  width: calc(100% - 8px);
   margin: 0px 1px;
-  box-shadow: nav-box-shadow();
   margin-top: 2px;
+  box-shadow: navBoxShadow();
   box-shadow: 0px 2px 0px -1px #ffffff, -1px 2px 0px -1px #ffffff,
-    -1px 1px 0px $darkgrey, 0px 1px 0px $darkgrey, nav-box-shadow(),
+    -1px 1px 0px $darkgrey, 0px 1px 0px $darkgrey, navBoxShadow(),
     -1px -1px 0px $darkgrey, 0px -1px 0px $darkgrey, inset 0px 1px 0px #ffffff,
     1px -1px 0px #ffffff;
+
   &:before {
     position: absolute;
     top: 3px;
@@ -116,6 +118,7 @@ $windowPadding: 3px;
   }
   > div {
     position: relative;
+    width: 40px;
 
     > button {
       padding: 0px 4px;

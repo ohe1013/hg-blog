@@ -1,6 +1,8 @@
 @import "./WindowHeader.scss";
 @import "./WindowSideBar.scss";
 @import "./WindowMenuBar.scss";
+@import "./WindowBody.scss";
+@import "./WindowAddressBar.scss";
 
 .WindowHeader {
   @include window-header;
@@ -10,6 +12,12 @@
 }
 .WindowMenuBar {
   @include window-menubar;
+}
+.WindowBody {
+  @include window-body;
+}
+.WindowAddressBar {
+  @include window-addressbar;
 }
 .StandardMenu {
   @include standard-menu(".standard-menu");

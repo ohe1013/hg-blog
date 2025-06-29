@@ -47,16 +47,6 @@ export default function ClientDesktopWrapper({
           />
         )}
       </Desktop>
-
-      {/* 드래그 박스 */}
-      {selection.visible && (
-        <SelectionRect
-          x={selection.x}
-          y={selection.y}
-          w={selection.w}
-          h={selection.h}
-        />
-      )}
     </>
   );
 }

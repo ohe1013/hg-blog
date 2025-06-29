@@ -2,6 +2,7 @@ import {
   Window,
   WindowAddressBar,
   WindowBody,
+  WindowMainBody,
   WindowMenuBar,
   WindowResizeHeader,
   WindowSideBar,
@@ -20,10 +21,10 @@ export default async function ComputerLayout({
       <Window title="computer">
         <WindowResizeHeader />
         <WindowMenuBar />
-        {/* <WindowAddressBar /> */}
+        <WindowAddressBar />
         <WindowBody>
           <WindowSideBar />
-          {children}
+          <WindowMainBody>{children}</WindowMainBody>
         </WindowBody>
         <WindowStatus />
       </Window>
