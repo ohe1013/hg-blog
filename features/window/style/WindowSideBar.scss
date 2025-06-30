@@ -7,6 +7,11 @@
   position: relative;
   height: 99%;
   overflow: hidden;
+
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+
   p {
     margin-left: 15px;
     margin-top: 15px;

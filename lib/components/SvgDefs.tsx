@@ -19,8 +19,8 @@ export default function SvgDefs() {
 						"
             result="dark-parts-isolated"
           />
-          <feFlood result="shadow-color" flood-color="var(--ButtonShadow)" />
-          <feFlood result="hilight-color" flood-color="var(--ButtonHilight)" />
+          <feFlood result="shadow-color" floodColor="#000000" />
+          <feFlood result="hilight-color" floodColor="#000000" />
           <feOffset in="dark-parts-isolated" dx="1" dy="1" result="offset" />
           <feComposite
             in="hilight-color"

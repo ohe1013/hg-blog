@@ -16,6 +16,9 @@
 .WindowBody {
   @include window-body;
 }
+.WindowMainBody {
+  @include window-main-body;
+}
 .WindowAddressBar {
   @include window-addressbar;
 }

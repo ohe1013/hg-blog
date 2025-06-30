@@ -37,12 +37,20 @@ export function useDragSelect<T extends string>() {
     function onMouseMove(e: MouseEvent) {
       if (!selection.visible) return;
       const { startX, startY } = selection;
-      const x = Math.min(startX, e.clientX);
-      const y = Math.min(startY, e.clientY);
-      const w = Math.abs(e.clientX - startX);
-      const h = Math.abs(e.clientY - startY);
+      console.log(startX, e.clientX);
+      const rawX = Math.min(startX, e.clientX);
+      const rawY = Math.min(startY, e.clientY);
+      const rawW = Math.abs(e.clientX - startX);
+      const rawH = Math.abs(e.clientY - startY);
+      console.log(containerRef.current);
+      const box = containerRef.current!.getBoundingClientRect();
 
-      // 선택 박스 업데이트
+      // clamp x,y 사이즈를 container 내부로 제한
+      const x = Math.max(box.left, rawX);
+      const y = Math.max(box.top, rawY);
+      const w = Math.min(rawW, box.right - x);
+      const h = Math.min(rawH, box.bottom - y);
+
       setSelection((sel) => ({ ...sel, x, y, w, h }));
 
       // 충돌 검사
@@ -79,6 +87,7 @@ export function useDragSelect<T extends string>() {
   // 드래그 시작 핸들러
   const bindMouseDown = (e: React.MouseEvent) => {
     // 바탕화면(컨테이너) 외부, 즉 아이콘 위에서 클릭하면 드래그를 시작하지 않는다
+
     if (e.target === containerRef.current) {
       // 빈 공간 클릭 → 기존 선택 초기화 후 드래그 시작
       setSelectedIds(new Set());
@@ -107,7 +116,7 @@ export function useDragSelect<T extends string>() {
       <div
         className="selection-rect"
         style={{
-          position: "fixed",
+          position: "absolute",
           left: x,
           top: y,
           width: w,

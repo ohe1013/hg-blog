@@ -2,6 +2,7 @@
 import {
   Fragment,
   ReactNode,
+  Ref,
   createContext,
   useContext,
   useEffect,
@@ -379,9 +380,30 @@ const WindowBody = ({ dragSelect = false, children }: WindowBodyProps) => {
     </div>
   );
 };
-
-const WindowMainBody = ({ children }: WindowBodyProps) => {
-  return <div>{children}</div>;
+interface WindowMainBodyProps {
+  dragSelect?: boolean;
+  containerRef?: Ref<HTMLDivElement>;
+  onMouseDown: (e: React.MouseEvent) => void;
+  children: ReactNode;
+}
+const WindowMainBody = ({
+  children,
+  onMouseDown,
+  containerRef,
+}: WindowMainBodyProps) => {
+  return (
+    <div
+      className="WindowMainBody"
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        onMouseDown(e);
+      }}
+      ref={containerRef}
+    >
+      {children}
+    </div>
+  );
 };
 
 const WindowSideBar = () => {

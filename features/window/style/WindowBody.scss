@@ -4,6 +4,7 @@
 $windowPadding: 3px;
 
 @mixin window-body {
+  display: flex;
   box-shadow: navBoxShadow();
   margin-top: 67px;
   margin-left: 1px;
@@ -13,4 +14,12 @@ $windowPadding: 3px;
     -1px 1px 0px $darkgrey, 0px 1px 0px $darkgrey, navBoxShadow(),
     -1px -1px 0px $darkgrey, 0px -1px 0px $darkgrey, inset 0px 1px 0px #ffffff,
     1px -1px 0px #ffffff;
+}
+
+@mixin window-main-body {
+  width: 70%;
+  // height: calc(100% - 118px);
+  position: relative;
+  height: 99%;
+  overflow: hidden;
 }
