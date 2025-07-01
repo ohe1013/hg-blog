@@ -42,14 +42,13 @@ export function useDragSelect<T extends string>() {
       const rawY = Math.min(startY, e.clientY);
       const rawW = Math.abs(e.clientX - startX);
       const rawH = Math.abs(e.clientY - startY);
-      console.log(containerRef.current);
       const box = containerRef.current!.getBoundingClientRect();
-
       // clamp x,y 사이즈를 container 내부로 제한
       const x = Math.max(box.left, rawX);
+      console.log("rawW", rawW, "w", box.right - x);
       const y = Math.max(box.top, rawY);
-      const w = Math.min(rawW, box.right - x);
-      const h = Math.min(rawH, box.bottom - y);
+      const w = Math.min(Math.abs(box.left - startX), rawW, box.right - x);
+      const h = Math.min(Math.abs(box.top - startY), rawH, box.bottom - y);
 
       setSelection((sel) => ({ ...sel, x, y, w, h }));
 
