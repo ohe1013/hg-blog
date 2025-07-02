@@ -37,18 +37,26 @@ export function useDragSelect<T extends string>() {
     function onMouseMove(e: MouseEvent) {
       if (!selection.visible) return;
       const { startX, startY } = selection;
-      console.log(startX, e.clientX);
       const rawX = Math.min(startX, e.clientX);
       const rawY = Math.min(startY, e.clientY);
       const rawW = Math.abs(e.clientX - startX);
       const rawH = Math.abs(e.clientY - startY);
       const box = containerRef.current!.getBoundingClientRect();
       // clamp x,y 사이즈를 container 내부로 제한
+      let w = 0;
+      let h = 0;
       const x = Math.max(box.left, rawX);
-      console.log("rawW", rawW, "w", box.right - x);
       const y = Math.max(box.top, rawY);
-      const w = Math.min(Math.abs(box.left - startX), rawW, box.right - x);
-      const h = Math.min(Math.abs(box.top - startY), rawH, box.bottom - y);
+      if (e.clientX < startX) {
+        w = Math.min(startX - box.left, rawW, box.right - x);
+      } else {
+        w = Math.min(rawW, box.right - x);
+      }
+      if (e.clientY < startY) {
+        h = Math.min(startY - box.top, rawH, box.bottom - y);
+      } else {
+        h = Math.min(rawH, box.bottom - y);
+      }
 
       setSelection((sel) => ({ ...sel, x, y, w, h }));
 

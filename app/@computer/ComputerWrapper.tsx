@@ -12,6 +12,7 @@ import {
   WindowStatus,
 } from "../../features/window/components";
 import { useDragSelect } from "@lib/hooks/useDrag";
+import { DesktopIconGrid } from "@features/desktop/components";
 export default function ComputerWrapper({ children }: { children: ReactNode }) {
   const { computer } = useApplicationStore((state) => state.application);
   const {
@@ -35,6 +36,7 @@ export default function ComputerWrapper({ children }: { children: ReactNode }) {
               containerRef={containerRef}
               onMouseDown={bindMouseDown}
             >
+              <DesktopIconGrid itemRefs={itemRefs} selectedIds={selectedIds} />
               {children}
             </WindowMainBody>
           </WindowBody>
