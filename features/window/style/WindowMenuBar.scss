@@ -6,7 +6,7 @@ $windowPadding: 3px;
 @mixin onDisplay($direction: "right") {
   > .window,
   > .Frame {
-    position: absolute;
+    // position: absolute;
     visibility: hidden;
     width: auto;
     @media (min-height: 720px) and (min-width: 960px) {
@@ -88,12 +88,12 @@ $windowPadding: 3px;
   display: flex;
   padding: 0px;
   font-size: 1rem;
-  position: absolute;
+  // position: absolute;
   overflow-y: visible;
   z-index: 20;
   min-height: 22px;
-  padding-left: 12px;
-  width: calc(100% - 8px);
+  // padding-left: 12px;
+  width: calc(100% - 2px);
   margin: 0px 1px;
   margin-top: 2px;
   box-shadow: navBoxShadow();
@@ -103,7 +103,7 @@ $windowPadding: 3px;
     1px -1px 0px #ffffff;
 
   &:before {
-    position: absolute;
+    position: relative;
     top: 3px;
     left: 5px;
     height: calc(100% - 6px);
@@ -117,8 +117,8 @@ $windowPadding: 3px;
     display: block;
   }
   > div {
+    left: 8px;
     position: relative;
-    width: 40px;
 
     > button {
       padding: 0px 4px;
@@ -136,6 +136,7 @@ $windowPadding: 3px;
       padding: 3px 6px;
       text-transform: capitalize;
       box-shadow: none;
+      min-width: 0px;
 
       + div {
         z-index: 20;

@@ -6,7 +6,6 @@ $windowPadding: 3px;
 @mixin window-body {
   display: flex;
   box-shadow: navBoxShadow();
-  margin-top: 67px;
   margin-left: 1px;
   background-color: #ffffff;
   width: calc(100% - 2px);
@@ -19,7 +18,6 @@ $windowPadding: 3px;
 @mixin window-main-body {
   width: 70%;
   // height: calc(100% - 118px);
-  position: relative;
-  height: 99%;
+  // position: relative;
   overflow: hidden;
 }

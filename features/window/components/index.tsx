@@ -76,9 +76,8 @@ const Window = ({ children, title }: WindowProps) => {
         onClick={() => touchUsedApplication(title)}
         onMouseMove={!isFull ? setMouseCursor : (e) => {}}
         onMouseDown={!isFull ? onMouseDownBorder : (e) => {}}
-        className={"window absolute"}
-        style={{ zIndex: application[title]?.zIndex }}
-      >
+        className={"window flex flex-col"}
+        style={{ zIndex: application[title]?.zIndex }}>
         {children}
       </div>
     </WindowContext.Provider>
@@ -282,10 +281,7 @@ const WindowAddressBar = () => {
   const { currentPath, enterFolder, resetToRoot, goBack } =
     useFileExplorerStore();
   return (
-    <div
-      className="WindowAddressBar"
-      style={{ marginTop: "27px", height: "40px" }}
-    >
+    <div className="WindowAddressBar" style={{ height: "40px" }}>
       <button
         className="toolbar-button "
         style={{ boxShadow: "none", background: "none" }}
@@ -369,13 +365,8 @@ interface WindowBodyProps {
   children: ReactNode;
 }
 const WindowBody = ({ dragSelect = false, children }: WindowBodyProps) => {
-  const { context } = useContext(WindowContext);
-  const height =
-    context!.size.height.indexOf("%") > -1
-      ? `calc( ${context?.size.height} - 51px)`
-      : Number(context?.size.height.slice(0, -2)) - (50 + 27 + 40) + "px";
   return (
-    <div className="WindowBody overflow-y-auto" style={{ height: height }}>
+    <div className="WindowBody overflow-y-auto" style={{ flexGrow: 1 }}>
       {children}
     </div>
   );
