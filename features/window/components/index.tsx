@@ -1,11 +1,13 @@
 "use client";
 import {
   Fragment,
+  MouseEventHandler,
   ReactNode,
   Ref,
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -14,20 +16,20 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
 import "../style/index.scss";
 import Button from "@lib/components/Button";
-import { useDragSelect } from "@lib/hooks/useDrag";
 import { useFileExplorerStore } from "../../../zustand/file/fileExplore";
-
-const WindowContext = createContext<{
+type WindowCtx = {
   context?: State;
   isFull: boolean;
-  onFullSizeToggle: any;
-  closeApplication: any;
-  touchUsedApplication: any;
-  minimizeApplication: any;
-  moveHeader: any;
+  onFullSizeToggle: MouseEventHandler<HTMLElement>;
+  closeApplication: () => void;
+  touchUsedApplication: () => void;
+  minimizeApplication: MouseEventHandler<HTMLElement>;
+  moveHeader: MouseEventHandler<HTMLElement>;
   title: DefaultApplicationKey;
-  ref: any;
-}>({
+  ref: React.RefObject<HTMLElement>;
+};
+
+const WindowContext = createContext<WindowCtx>({
   isFull: false,
   title: "computer",
   onFullSizeToggle: () => {},
@@ -35,13 +37,13 @@ const WindowContext = createContext<{
   moveHeader: () => {},
   minimizeApplication: () => {},
   touchUsedApplication: () => {},
-  ref: null,
+  ref: { current: null },
 });
-
 interface WindowProps {
   title: DefaultApplicationKey;
   children: ReactNode;
 }
+const noop = () => {};
 
 const Window = ({ children, title }: WindowProps) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -56,20 +58,33 @@ const Window = ({ children, title }: WindowProps) => {
   } = useWindow({ ref });
   const { closeApplication, touchUsedApplication, application } =
     useApplicationStore((state) => state);
+
+  const ctxValue = useMemo<WindowCtx>(
+    () => ({
+      context: state,
+      isFull,
+      onFullSizeToggle,
+      title,
+      closeApplication: () => closeApplication(title),
+      minimizeApplication: onMiniToggle,
+      touchUsedApplication: () => touchUsedApplication(title),
+      moveHeader: onMouseDownHeader,
+      ref,
+    }),
+    [
+      state,
+      isFull,
+      onFullSizeToggle,
+      title,
+      closeApplication,
+      onMiniToggle,
+      touchUsedApplication,
+      onMouseDownHeader,
+    ]
+  );
+  const zIndex = application[title]?.zIndex ?? 0;
   return (
-    <WindowContext.Provider
-      value={{
-        context: state,
-        isFull,
-        onFullSizeToggle,
-        title,
-        closeApplication: () => closeApplication(title),
-        minimizeApplication: onMiniToggle,
-        touchUsedApplication: () => touchUsedApplication(title),
-        moveHeader: onMouseDownHeader,
-        ref,
-      }}
-    >
+    <WindowContext.Provider value={ctxValue}>
       <div
         tabIndex={0}
         ref={ref}
@@ -77,7 +92,8 @@ const Window = ({ children, title }: WindowProps) => {
         onMouseMove={!isFull ? setMouseCursor : (e) => {}}
         onMouseDown={!isFull ? onMouseDownBorder : (e) => {}}
         className={"window flex flex-col"}
-        style={{ zIndex: application[title]?.zIndex }}>
+        style={{ zIndex }}
+      >
         {children}
       </div>
     </WindowContext.Provider>
@@ -94,16 +110,13 @@ const WindowResizeHeader = () => {
     moveHeader,
   } = useContext(WindowContext);
   const { application } = useApplicationStore((state) => state);
-  const maxZIndex = Math.max(
-    ...Object.values(application).map((item) => item.zIndex)
-  );
+  const zValues = Object.values(application).map((a) => a.zIndex ?? 0);
+  const maxZIndex = zValues.length ? Math.max(...zValues) : 0;
+  const myZ = application[title]?.zIndex ?? 0;
   return (
     <div
-      className={
-        "title-bar " +
-        (maxZIndex !== application[title].zIndex ? "inactive" : "")
-      }
-      onMouseDown={!isFull ? moveHeader : () => {}}
+      className={`title-bar ${maxZIndex !== myZ ? "inactive" : ""}`}
+      onMouseDown={!isFull ? moveHeader : undefined}
       onDoubleClick={onFullSizeToggle}
     >
       <div className="title-bar-text">
@@ -132,55 +145,64 @@ const WindowResizeHeader = () => {
 
 const WindowMenuBar = () => {
   const { closeApplication } = useContext(WindowContext);
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState<"file" | "help" | "view" | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const fileButtonRef = useRef<HTMLButtonElement>(null);
-  const helpButtonRef = useRef<HTMLButtonElement>(null);
-  const onClickHandler = () => {
-    setActive((active) => (active = !active));
-  };
-  const keydownHandler = (e: any) => {
-    switch (e.code) {
-      case "KeyF":
-      case "Keyf": {
-        fileButtonRef.current!.focus();
-        setActive(true);
-        break;
+  const fileBtnRef = useRef<HTMLButtonElement>(null);
+  const helpBtnRef = useRef<HTMLButtonElement>(null);
+  const viewBtnRef = useRef<HTMLButtonElement>(null);
+
+  const onToggle = (menu: typeof active) =>
+    setActive((prev) => (prev === menu ? null : menu));
+
+  // 키보드 단축키 & cleanup
+  useEffect(() => {
+    const parent = menuRef.current?.parentElement;
+    if (!parent) return;
+
+    const keydownHandler = (e: KeyboardEvent) => {
+      if (e.code === "KeyF") {
+        fileBtnRef.current?.focus();
+        setActive("file");
       }
-      case "KeyH":
-      case "Keyh": {
-        helpButtonRef.current!.focus();
-        setActive(true);
-        break;
+      if (e.code === "KeyH") {
+        helpBtnRef.current?.focus();
+        setActive("help");
       }
-    }
-    const handler = (e: MouseEvent) => {
-      if (
-        e.target !== fileButtonRef.current &&
-        e.target !== helpButtonRef.current
-      ) {
-        setActive(false);
-        document.removeEventListener("click", handler);
+      if (e.code === "KeyV") {
+        viewBtnRef.current?.focus();
+        setActive("view");
       }
     };
-    document.addEventListener("click", handler);
-  };
-  useEffect(() => {
-    menuRef.current?.parentElement?.addEventListener("keydown", keydownHandler);
+    parent.addEventListener("keydown", keydownHandler);
+
+    const clickAway = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setActive(null);
+    };
+    document.addEventListener("click", clickAway);
+
+    return () => {
+      parent.removeEventListener("keydown", keydownHandler);
+      document.removeEventListener("click", clickAway);
+    };
   }, []);
 
   return (
-    <div ref={menuRef} className="WindowMenuBar" style={{ zIndex: 1000 }}>
+    <div
+      ref={menuRef}
+      className="WindowMenuBar"
+      style={{ zIndex: 1000 }}
+      role="menubar"
+    >
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
-          onClick={onClickHandler}
-          onMouseEnter={(e) => {
-            if (active) {
-              e.currentTarget.focus();
-            }
-          }}
-          ref={fileButtonRef}
-          className={active ? "active" : ""}
+          onClick={() => onToggle("file")}
+          onMouseEnter={(e) =>
+            active && (e.currentTarget as HTMLButtonElement).focus()
+          }
+          ref={fileBtnRef}
+          className={active === "file" ? "active" : ""}
+          aria-haspopup="menu"
+          aria-expanded={active === "file"}
         >
           <span style={{ textDecoration: "underline" }}>F</span>
           ile
@@ -203,14 +225,14 @@ const WindowMenuBar = () => {
       </div>
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
-          onClick={onClickHandler}
-          onMouseEnter={(e) => {
-            if (active) {
-              e.currentTarget.focus();
-            }
-          }}
-          ref={helpButtonRef}
-          className={active ? "active" : ""}
+          onClick={() => onToggle("help")}
+          onMouseEnter={(e) =>
+            active && (e.currentTarget as HTMLButtonElement).focus()
+          }
+          ref={helpBtnRef}
+          className={active === "help" ? "active" : ""}
+          aria-haspopup="menu"
+          aria-expanded={active === "help"}
         >
           <span style={{ textDecoration: "underline" }}>H</span>
           elp
@@ -238,14 +260,14 @@ const WindowMenuBar = () => {
       </div>
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
-          onClick={onClickHandler}
-          onMouseEnter={(e) => {
-            if (active) {
-              e.currentTarget.focus();
-            }
-          }}
-          ref={helpButtonRef}
-          className={active ? "active" : ""}
+          onClick={() => onToggle("view")}
+          onMouseEnter={(e) =>
+            active && (e.currentTarget as HTMLButtonElement).focus()
+          }
+          ref={viewBtnRef}
+          className={active === "view" ? "active" : ""}
+          aria-haspopup="menu"
+          aria-expanded={active === "view"}
         >
           <span style={{ textDecoration: "underline" }}>V</span>
           iew
@@ -281,7 +303,7 @@ const WindowAddressBar = () => {
   const { currentPath, enterFolder, resetToRoot, goBack } =
     useFileExplorerStore();
   return (
-    <div className="WindowAddressBar" style={{ height: "40px" }}>
+    <div className="WindowAddressBar" style={{ minHeight: "40px" }}>
       <button
         className="toolbar-button "
         style={{ boxShadow: "none", background: "none" }}
@@ -358,7 +380,6 @@ const WindowAddressBar = () => {
       ))}
     </div>
   );
-  return;
 };
 interface WindowBodyProps {
   dragSelect?: boolean;

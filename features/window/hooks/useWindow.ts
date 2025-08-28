@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 interface UseDragProps {
   /**
@@ -12,11 +17,11 @@ interface UseDragProvided {
    * Attach as a onMouseDown handler to the element that would be dragged
    */
   state: State;
-  onMouseDownBorder: (e: React.MouseEvent<HTMLElement>) => void;
-  onMouseDownHeader: (e: React.MouseEvent<HTMLElement>) => void;
-  onFullSizeToggle: (e: MouseEvent) => void;
-  onMiniToggle: (e: MouseEvent) => void;
-  setMouseCursor: (e: React.MouseEvent<HTMLElement>) => void;
+  onMouseDownBorder: MouseEventHandler<HTMLElement>;
+  onMouseDownHeader: MouseEventHandler<HTMLElement>;
+  onFullSizeToggle: MouseEventHandler<HTMLElement>;
+  onMiniToggle: MouseEventHandler<HTMLElement>;
+  setMouseCursor: MouseEventHandler<HTMLElement>;
   isFull: boolean;
 }
 
@@ -300,7 +305,7 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     [onMouseMoveBorder, onMouseUpHeader]
   );
 
-  const onMiniToggle = (e: MouseEvent) => {
+  const onMiniToggle: MouseEventHandler<HTMLElement> = (e) => {
     e.stopPropagation();
     if (isMini) {
       ref.current?.style.setProperty("visibility", "hidden");
@@ -314,7 +319,7 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     setIsMini((mini) => (mini = !mini));
   };
 
-  const onFullSizeToggle = (e: MouseEvent) => {
+  const onFullSizeToggle: MouseEventHandler<HTMLElement> = (e) => {
     e.stopPropagation();
     if (isFull) {
       setIsFull(false);
