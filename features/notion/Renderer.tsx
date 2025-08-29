@@ -49,7 +49,7 @@ export const Renderer = ({ recordMap, rootPageId, rootUrl }: RendererProps) => {
         darkMode={false}
         rootPageId={rootPageId}
         rootDomain="blog"
-        mapPageUrl={(pageId) => `/${rootUrl}-detail/${pageId}`}
+        mapPageUrl={(pageId) => `/${rootUrl}/${pageId}`}
         previewImages
         components={{
           Code,

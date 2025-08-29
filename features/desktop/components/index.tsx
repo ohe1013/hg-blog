@@ -1,112 +1,148 @@
 "use client";
-import { KeyboardEvent, ReactNode, Ref, useState } from "react";
+import {
+  MouseEventHandler,
+  PropsWithChildren,
+  Ref,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
 import { useRouter } from "next/navigation";
 import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
 import { rootDir } from "@features/notion/data";
 
-const Desktop = ({
-  containerRef,
-  children,
-  onMouseDown,
-}: {
+type GridKey = string;
+
+type DesktopGridProps = {
   containerRef: Ref<HTMLDivElement>;
-  children: ReactNode;
   onMouseDown: (e: React.MouseEvent) => void;
-}) => {
+  children: React.ReactNode;
+  className?: string;
+  // 방향: row = 가로 우선, col = 세로 우선
+  flow?: "row" | "col";
+  // 타일 사이즈/간격(필요 시 조정)
+  tileWidth?: number; // 72
+  tileHeight?: number; // 80
+  gapX?: number; // 16 (Tailwind gap-x-4 기준)
+  gapY?: number; // 8  (Tailwind gap-y-2 기준)
+};
+
+function DesktopGrid({
+  containerRef,
+  onMouseDown,
+  children,
+  className,
+  flow = "col", // 기본: 세로 우선 (Windows 바탕화면 느낌)
+  tileWidth = 72,
+  tileHeight = 60,
+  gapX = 16,
+  gapY = 8,
+}: DesktopGridProps) {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [rows, setRows] = useState(1); // 세로 우선일 때 필요한 행 수
+
+  useLayoutEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+
+    // grid 컨테이너 높이 기반으로 "몇 행" 들어갈지 계산
+    const ro = new ResizeObserver(() => {
+      const h = el.clientHeight;
+      // 간격 포함해서 계산 (대략적으로 맞춤)
+      const perRow = tileHeight + gapY;
+      const count = Math.max(1, Math.floor((h + gapY) / perRow));
+      setRows(count);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [tileHeight, gapY]);
+
+  const flowStyles =
+    flow === "row"
+      ? {
+          // 가로 우선: 열은 auto-fill, 행은 자동 높이
+          gridAutoFlow: "row" as const,
+          gridTemplateColumns: `repeat(auto-fill, ${tileWidth}px)`,
+          gridAutoRows: `${tileHeight}px`,
+        }
+      : {
+          // 세로 우선: 필수!
+          gridAutoFlow: "column" as const,
+          gridAutoColumns: `${tileWidth}px`,
+          gridTemplateRows: `repeat(${rows}, ${tileHeight}px)`,
+        };
+
   return (
     <div
       ref={containerRef}
       onMouseDown={onMouseDown}
-      className={"bg-teal-600 h-dvh w-full overflow-hidden"}
+      className={
+        className ?? "absolute inset-0 h-dvh w-full overflow-hidden bg-teal-600"
+      }
     >
-      {children}
-    </div>
-  );
-};
-
-type DesktopIconGridProps<T extends string> = {
-  itemRefs: React.MutableRefObject<Record<T, HTMLDivElement | null>>;
-  selectedIds: Set<T>;
-};
-
-function DesktopIconGrid<T extends DefaultApplicationKey>({
-  itemRefs,
-  selectedIds,
-}: DesktopIconGridProps<T>) {
-  const router = useRouter();
-  const appStore = useApplicationStore((s) => s);
-  const keys = appStore.getApplicationKeys() as T[];
-
-  const handleDoubleClick = async (key: T) => {
-    appStore.openApplication(key);
-    if (key === "blog" && !appStore.getApplication(key).useApplication) {
-      router.push(`/blog-detail/${rootDir.blog}`);
-    } else if (
-      key === "about" &&
-      !appStore.getApplication(key).useApplication
-    ) {
-      router.push(`/about-detail/${rootDir.about}`);
-    }
-    // computer / document 는 경로가 없다면 그냥 열기만
-  };
-
-  return (
-    <div className="absolute">
-      {keys.map((key) => (
-        <div
-          key={key}
-          data-key={key}
-          ref={(el) => {
-            // itemRefs.current[key]에 해당 DOM 노드 저장
-            itemRefs.current[key] = el;
-          }}
-        >
-          <DesktopIcon
-            label={appStore.application[key].label}
-            iconUrl={appStore.application[key].iconUrl}
-            isSelected={selectedIds.has(key)}
-            onDoubleClick={() => void handleDoubleClick(key)}
-          />
-        </div>
-      ))}
+      {/* 내부 grid는 부모 높이를 꽉 채워야 높이 측정이 가능함 */}
+      <div
+        ref={gridRef}
+        className="h-full"
+        style={{
+          display: "grid",
+          gap: `${gapY}px ${gapX}px`,
+          padding: "8px",
+          ...flowStyles,
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
-type DesktopIconProps = {
+
+type ItemProps = {
   label: string;
   iconUrl: string;
-  onDoubleClick: any;
-  isSelected: any;
+  selected?: boolean;
+  onOpen?: () => void; // 더블클릭/Enter
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 
-const DesktopIcon: React.FC<DesktopIconProps> = ({
+function DesktopGridItem({
   label,
   iconUrl,
-  onDoubleClick,
-  isSelected = false,
-}) => {
+  selected = false,
+  onOpen,
+  onFocus,
+  onBlur,
+}: ItemProps) {
   const [isFocus, setIsFocus] = useState(false);
-  const active = isFocus || isSelected;
+  const active = isFocus || selected;
 
-  const handleKeyEnter = (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
-      onDoubleClick();
+  const handleEnterOrSpace = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onOpen?.();
     }
   };
 
   return (
     <div
+      role="button"
       tabIndex={0}
-      onClick={() => setIsFocus(true)}
-      onBlur={() => setIsFocus(false)}
-      onDoubleClick={() => {
-        onDoubleClick();
-        setIsFocus(false);
+      aria-selected={active}
+      aria-label={label}
+      onFocus={(e) => {
+        setIsFocus(true);
+        onFocus?.();
       }}
-      onKeyDown={handleKeyEnter}
-      className={`text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] ${
+      onBlur={(e) => {
+        setIsFocus(false);
+        onBlur?.();
+      }}
+      onDoubleClick={() => onOpen?.()}
+      onKeyDown={handleEnterOrSpace}
+      className={`text-center w-[72px] leading-3 py-2 px-[1px] ${
         active ? "active" : ""
       }`}
     >
@@ -127,5 +163,172 @@ const DesktopIcon: React.FC<DesktopIconProps> = ({
       </div>
     </div>
   );
+}
+type DesktopIconGridProps<T extends DefaultApplicationKey> = {
+  itemRefs: React.MutableRefObject<Record<T, HTMLDivElement | null>>;
+  selectedIds: Set<T>;
+  containerRef: React.Ref<HTMLDivElement>;
+  onMouseDown: (e: React.MouseEvent) => void;
 };
-export { Desktop, DesktopIconGrid, DesktopIcon };
+function DesktopIconGrid<T extends DefaultApplicationKey>({
+  itemRefs,
+  selectedIds,
+  containerRef,
+  onMouseDown,
+}: DesktopIconGridProps<T>) {
+  const router = useRouter();
+  const appStore = useApplicationStore((s) => s);
+  const keys = appStore.getApplicationKeys() as T[];
+
+  const onOpen = (key: T) => {
+    appStore.openApplication(key);
+    if (key === "blog") {
+      router.push(`/blog/${rootDir.blog}`);
+    } else if (key === "about") {
+      router.push(`/about/${rootDir.about}`);
+    }
+  };
+
+  return (
+    <DesktopGrid containerRef={containerRef} onMouseDown={onMouseDown}>
+      {keys.map((key) => (
+        <div
+          key={key}
+          ref={(el) => {
+            itemRefs.current[key] = el;
+          }}
+        >
+          <DesktopGridItem
+            label={appStore.application[key].label}
+            iconUrl={appStore.application[key].iconUrl}
+            selected={selectedIds.has(key)}
+            onOpen={() => onOpen(key)}
+          />
+        </div>
+      ))}
+    </DesktopGrid>
+  );
+}
+// const Desktop = ({
+//   containerRef,
+//   children,
+//   onMouseDown,
+// }: {
+//   containerRef: Ref<HTMLDivElement>;
+//   children: ReactNode;
+//   onMouseDown: MouseEventHandler;
+// }) => {
+//   return (
+//     <div
+//       ref={containerRef}
+//       onMouseDown={onMouseDown}
+//       className={"bg-teal-600 h-dvh w-full overflow-hidden"}
+//     >
+//       {children}
+//     </div>
+//   );
+// };
+
+// type DesktopIconGridProps<T extends string> = {
+//   itemRefs: React.MutableRefObject<Record<T, HTMLDivElement | null>>;
+//   selectedIds: Set<T>;
+// };
+
+// function DesktopIconGrid<T extends DefaultApplicationKey>({
+//   itemRefs,
+//   selectedIds,
+// }: DesktopIconGridProps<T>) {
+//   const router = useRouter();
+//   const appStore = useApplicationStore((s) => s);
+//   const keys = appStore.getApplicationKeys() as T[];
+
+//   const handleDoubleClick = async (key: T) => {
+//     appStore.openApplication(key);
+//     if (key === "blog" && !appStore.getApplication(key).useApplication) {
+//       router.push(`/blog-detail/${rootDir.blog}`);
+//     } else if (
+//       key === "about" &&
+//       !appStore.getApplication(key).useApplication
+//     ) {
+//       router.push(`/about-detail/${rootDir.about}`);
+//     }
+//     // computer / document 는 경로가 없다면 그냥 열기만
+//   };
+
+//   return (
+//     <div className="absolute">
+//       {keys.map((key) => (
+//         <div
+//           key={key}
+//           data-key={key}
+//           ref={(el) => {
+//             // itemRefs.current[key]에 해당 DOM 노드 저장
+//             itemRefs.current[key] = el;
+//           }}
+//         >
+//           <DesktopIcon
+//             label={appStore.application[key].label}
+//             iconUrl={appStore.application[key].iconUrl}
+//             isSelected={selectedIds.has(key)}
+//             onDoubleClick={() => void handleDoubleClick(key)}
+//           />
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
+// type DesktopIconProps = {
+//   label: string;
+//   iconUrl: string;
+//   onDoubleClick: any;
+//   isSelected: any;
+// };
+
+// const DesktopIcon: React.FC<DesktopIconProps> = ({
+//   label,
+//   iconUrl,
+//   onDoubleClick,
+//   isSelected = false,
+// }) => {
+//   const [isFocus, setIsFocus] = useState(false);
+//   const active = isFocus || isSelected;
+
+//   const handleKeyEnter = (e: KeyboardEvent) => {
+//     if (e.key === "Enter") {
+//       onDoubleClick();
+//     }
+//   };
+
+//   return (
+//     <div
+//       tabIndex={0}
+//       onClick={() => setIsFocus(true)}
+//       onBlur={() => setIsFocus(false)}
+//       onDoubleClick={() => {
+//         onDoubleClick();
+//         setIsFocus(false);
+//       }}
+//       onKeyDown={handleKeyEnter}
+//       className={`text-center align-top z-0 w-[72px] leading-3 m-0 py-[8px] px-[1px] ${
+//         active ? "active" : ""
+//       }`}
+//     >
+//       <div className="box-border">
+//         <div className="DesktopIcon__wrapper">
+//           <div
+//             className="DesktopIcon__item"
+//             style={{ backgroundImage: `url(${iconUrl})` }}
+//           />
+//           <div
+//             className={`DesktopIcon__item ${active ? "actived" : ""}`}
+//             style={{ maskImage: `url(${iconUrl})`, maskSize: "contain" }}
+//           />
+//         </div>
+//         <span className={`DesktopIcon__text ${active ? "actived" : ""}`}>
+//           {label}
+//         </span>
+//       </div>
+//     </div>
+//   );
+// };
+export { DesktopIconGrid, DesktopGrid, DesktopGridItem };

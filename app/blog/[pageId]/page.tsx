@@ -8,14 +8,13 @@ interface fetchEachPagesProps {
 }
 
 const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
-  console.log("about nest", params);
   const notion = new NotionAPI();
   const recordMap = await notion.getPage(params.pageId);
   return (
     <Renderer
       recordMap={recordMap}
       rootPageId={params.pageId}
-      rootUrl={"about"}
+      rootUrl={"blog"}
     />
   );
 };

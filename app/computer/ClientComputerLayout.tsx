@@ -1,6 +1,4 @@
 "use client";
-import { Fragment, ReactNode } from "react";
-import { useApplicationStore } from "../../zustand/application/applicationProvider";
 import {
   Window,
   WindowAddressBar,
@@ -11,18 +9,18 @@ import {
   WindowSideBar,
   WindowStatus,
 } from "../../features/window/components";
+import { Fragment, ReactNode } from "react";
 import { useDragSelect } from "@lib/hooks/useDrag";
-import { DesktopIconGrid } from "@features/desktop/components";
-export default function ComputerWrapper({ children }: { children: ReactNode }) {
+import { useApplicationStore } from "../../zustand/application/applicationProvider";
+import { useExplorer } from "@features/explorer/stores/fileExplorer";
+import { FolderGrid } from "@features/explorer/components/FolderGrid";
+import { FileViewer } from "@features/explorer/components/FileViewer";
+export default function ComputerClientLayout() {
   const { computer } = useApplicationStore((state) => state.application);
-  const {
-    containerRef,
-    itemRefs,
-    selection,
-    selectedIds,
-    bindMouseDown,
-    SelectionRect,
-  } = useDragSelect<"blog" | "about" | "computer" | "document">();
+  const { containerRef, selection, bindMouseDown, SelectionRect } =
+    useDragSelect<"blog" | "about" | "computer" | "document">();
+  const { fs, currentId } = useExplorer();
+  const current = fs.byId[currentId];
   return (
     <Fragment>
       {computer.useApplication === true ? (
@@ -36,8 +34,7 @@ export default function ComputerWrapper({ children }: { children: ReactNode }) {
               containerRef={containerRef}
               onMouseDown={bindMouseDown}
             >
-              <DesktopIconGrid itemRefs={itemRefs} selectedIds={selectedIds} />
-              {children}
+              {current?.kind === "folder" ? <FolderGrid /> : <FileViewer />}
             </WindowMainBody>
           </WindowBody>
           <WindowStatus />

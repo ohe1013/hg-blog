@@ -93,30 +93,27 @@ export function useDragSelect<T extends string>() {
 
   // 드래그 시작 핸들러
   const bindMouseDown = (e: React.MouseEvent) => {
-    // 바탕화면(컨테이너) 외부, 즉 아이콘 위에서 클릭하면 드래그를 시작하지 않는다
+    const targetEl = e.target as HTMLElement;
+    const iconEl = targetEl.closest("[data-key]") as HTMLElement | null;
 
-    if (e.target === containerRef.current) {
-      // 빈 공간 클릭 → 기존 선택 초기화 후 드래그 시작
-      setSelectedIds(new Set());
-      setSelection({
-        visible: true,
-        startX: e.clientX,
-        startY: e.clientY,
-        x: e.clientX,
-        y: e.clientY,
-        w: 0,
-        h: 0,
-      });
-    } else {
-      // 아이콘 위 클릭 → 드래그 로직을 막고, 그 아이콘만 선택
-      const iconDiv = (e.target as HTMLElement).closest(
-        "[data-key]"
-      ) as HTMLElement;
-      if (iconDiv) {
-        const key = iconDiv.dataset.key! as T;
-        setSelectedIds(new Set([key]));
-      }
+    if (iconEl) {
+      // 아이콘 클릭 → 드래그 시작하지 않고 선택만
+      const key = iconEl.dataset.key! as T;
+      setSelectedIds(new Set([key]));
+      return;
     }
+
+    // 아이콘이 아닌 빈 공간 클릭 → 기존 선택 초기화 + 드래그 시작
+    setSelectedIds(new Set());
+    setSelection({
+      visible: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      x: e.clientX,
+      y: e.clientY,
+      w: 0,
+      h: 0,
+    });
   };
   const SelectionRect: React.FC<SelectionRectProps> = ({ x, y, w, h }) => {
     return (
