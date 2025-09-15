@@ -96,7 +96,7 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
               size: {
                 ...prev.size,
                 height:
-                  Number(prev.lastSize.width.slice(0, -2)) +
+                  Number(prev.lastSize.height.slice(0, -2)) +
                   (e.clientY - prev.dragStart.y) +
                   "px",
               },

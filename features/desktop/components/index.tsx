@@ -10,8 +10,8 @@ import {
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
 import { useRouter } from "next/navigation";
-import { DefaultApplicationKey } from "../../../zustand/application/applicationStore";
 import { rootDir } from "@features/notion/data";
+import { AppsType } from "../../../zustand/application/applicationStore";
 
 type GridKey = string;
 
@@ -164,48 +164,51 @@ function DesktopGridItem({
     </div>
   );
 }
-type DesktopIconGridProps<T extends DefaultApplicationKey> = {
-  itemRefs: React.MutableRefObject<Record<T, HTMLDivElement | null>>;
-  selectedIds: Set<T>;
+type DesktopIconGridProps = {
+  itemRefs: React.MutableRefObject<Record<AppsType, HTMLDivElement | null>>;
+  selectedIds: Set<AppsType>;
   containerRef: React.Ref<HTMLDivElement>;
   onMouseDown: (e: React.MouseEvent) => void;
 };
-function DesktopIconGrid<T extends DefaultApplicationKey>({
+
+function DesktopIconGrid({
   itemRefs,
   selectedIds,
   containerRef,
   onMouseDown,
-}: DesktopIconGridProps<T>) {
-  const router = useRouter();
+}: DesktopIconGridProps) {
   const appStore = useApplicationStore((s) => s);
-  const keys = appStore.getApplicationKeys() as T[];
+  // 앱 키들 중 바탕화면에 표시할 것만
+  const keys = appStore
+    .getApplicationKeys()
+    .filter((k) => appStore.apps[k]?.showOnDesktop);
 
-  const onOpen = (key: T) => {
-    appStore.openApplication(key);
-    if (key === "blog") {
-      router.push(`/blog/${rootDir.blog}`);
-    } else if (key === "about") {
-      router.push(`/about/${rootDir.about}`);
-    }
+  const handleOpen = (key: AppsType) => {
+    // 필요하면 params 넘기기: appStore.open('blog', { pageId: '...' })
+    appStore.open(key);
   };
 
   return (
     <DesktopGrid containerRef={containerRef} onMouseDown={onMouseDown}>
-      {keys.map((key) => (
-        <div
-          key={key}
-          ref={(el) => {
-            itemRefs.current[key] = el;
-          }}
-        >
-          <DesktopGridItem
-            label={appStore.application[key].label}
-            iconUrl={appStore.application[key].iconUrl}
-            selected={selectedIds.has(key)}
-            onOpen={() => onOpen(key)}
-          />
-        </div>
-      ))}
+      {keys.map((key) => {
+        const app = appStore.apps[key];
+        return (
+          <div
+            key={key}
+            data-key={key}
+            ref={(el) => {
+              itemRefs.current[key] = el;
+            }}
+          >
+            <DesktopGridItem
+              label={app.label}
+              iconUrl={app.iconUrl}
+              selected={selectedIds.has(key)}
+              onOpen={() => handleOpen(key)}
+            />
+          </div>
+        );
+      })}
     </DesktopGrid>
   );
 }

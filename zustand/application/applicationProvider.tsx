@@ -1,35 +1,36 @@
 "use client";
-
 import { type ReactNode, createContext, useRef, useContext } from "react";
 import { type StoreApi, useStore } from "zustand";
+import { shallow } from "zustand/shallow"; // 선택
 
-import { type ApplicationStore, createApplicationStore } from "./applicationStore";
+import { ApplicationStore, createApplicationStore } from "./applicationStore";
 
-export const ApplicationStoreContext = createContext<StoreApi<ApplicationStore> | null>(null);
+export const ApplicationStoreContext =
+  createContext<StoreApi<ApplicationStore> | null>(null);
 
-export interface ApplicationStoreProviderProps {
+export function ApplicationStoreProvider({
+  children,
+}: {
   children: ReactNode;
-}
-
-export const ApplicationStoreProvider = ({ children }: ApplicationStoreProviderProps) => {
+}) {
   const storeRef = useRef<StoreApi<ApplicationStore>>();
-  if (!storeRef.current) {
-    storeRef.current = createApplicationStore();
-  }
-
+  if (!storeRef.current) storeRef.current = createApplicationStore();
   return (
     <ApplicationStoreContext.Provider value={storeRef.current}>
       {children}
     </ApplicationStoreContext.Provider>
   );
-};
+}
 
-export const useApplicationStore = <T,>(selector: (store: ApplicationStore) => T): T => {
-  const applicationStoreContext = useContext(ApplicationStoreContext);
-
-  if (!applicationStoreContext) {
-    throw new Error(`useApplicationStore must be use within ApplicationStoreProvider`);
-  }
-
-  return useStore(applicationStoreContext, selector);
-};
+// equalityFn을 옵션으로 받을 수 있게
+export function useApplicationStore<T>(
+  selector: (s: ApplicationStore) => T,
+  equalityFn?: (a: T, b: T) => boolean
+): T {
+  const ctx = useContext(ApplicationStoreContext);
+  if (!ctx)
+    throw new Error(
+      "useApplicationStore must be used within ApplicationStoreProvider"
+    );
+  return useStore(ctx, selector, equalityFn ?? shallow); // shallow는 선택
+}

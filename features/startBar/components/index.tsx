@@ -5,10 +5,8 @@ import {
   createContext,
   memo,
   useEffect,
-  useReducer,
   useRef,
 } from "react";
-import { useWindow } from "../../window/hooks/useWindow";
 import "../styles/index.scss";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 
@@ -44,41 +42,41 @@ const StartBarStart = () => {
   );
 };
 
-const StartBarApplications = () => {
-  const applicationStore = useApplicationStore((state) => state);
-  const maxZIndex = Math.max(
-    ...Object.values(applicationStore.application).map((item) => item.zIndex)
-  );
-  const applicationList = (
-    applicationStore
-      .getApplicationKeys()
-      .filter(
-        (key) => applicationStore.application[key].useApplication === true
-      )
-      .map((key) => {
-        const application = applicationStore.application[key];
-        return [
-          application.startBarIndex,
-          <Fragment key={application.label}>
-            <button
-              onClick={() => applicationStore.touchUsedApplication(key)}
-              style={{ backgroundImage: `url(${application?.miniIconUrl})` }}
-              className={
-                "btn StartBar__icon " +
-                (application.zIndex === maxZIndex ? "actived" : "")
-              }
-            >
-              {application?.label}
-            </button>
-          </Fragment>,
-        ];
-      })
-      .slice() as [number, JSX.Element][]
-  ).sort((a, b) => a[0] - b[0]);
+export const StartBarApplications = () => {
+  const { windows, apps } = useApplicationStore((s) => s);
+
+  // 최상단 창 zIndex
+  const topZ = windows.length ? Math.max(...windows.map((w) => w.zIndex)) : 0;
+
+  // 작업표시줄에 보일 창만(예: minimized도 보이게 둘지 정책에 따라 필터)
+  const taskWindows = windows
+    .map((w) => ({
+      ...w,
+      // 버튼 라벨/아이콘은 앱 메타에서 가져옴
+      label: apps[w.app]?.label ?? w.title ?? w.app,
+      icon: apps[w.app]?.miniIconUrl ?? "",
+    }))
+    // startBar 순서를 별도 관리하고 싶으면 createdAt/order 필드를 windows에 추가해서 정렬
+    .sort((a, b) => a.zIndex - b.zIndex);
+
+  const { focus /* minimize, */ } = useApplicationStore((s) => s);
 
   return (
     <div className="StartBar__applications">
-      {applicationList.map((item) => item[1])}
+      {taskWindows.map((w) => (
+        <Fragment key={w.id}>
+          <button
+            onClick={() => focus(w.id)}
+            style={{ backgroundImage: `url(${w.icon})` }}
+            className={`btn StartBar__icon ${
+              w.zIndex === topZ ? "actived" : ""
+            }`}
+            title={w.title}
+          >
+            {w.label}
+          </button>
+        </Fragment>
+      ))}
     </div>
   );
 };

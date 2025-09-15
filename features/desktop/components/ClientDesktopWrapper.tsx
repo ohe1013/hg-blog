@@ -2,7 +2,7 @@
 import React from "react";
 
 import { useDragSelect } from "@lib/hooks/useDrag";
-import { DesktopGrid, DesktopGridItem, DesktopIconGrid } from ".";
+import { DesktopIconGrid } from ".";
 import { StartBar } from "@features/startBar/components";
 
 type Props = {

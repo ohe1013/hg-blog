@@ -27,7 +27,6 @@ export default function RootLayout({
         <ApplicationStoreProvider>
           <GlobalDesktopShell />
           <GlobalWindowsHub />
-          {children}
         </ApplicationStoreProvider>
       </body>
     </html>

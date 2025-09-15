@@ -1,138 +1,147 @@
-// src/stores/counter-store.ts
 import { create } from "zustand";
 
-const defaultApplicationState = {
-  computer: {
-    label: "Computer",
-    iconUrl: "https://win98icons.alexmeub.com/images/computer_explorer-2.png",
-    miniIconUrl:
-      "https://win98icons.alexmeub.com/icons/png/computer_explorer-0.png",
-  },
-  document: {
-    label: "Documents",
-    iconUrl: "https://win98icons.alexmeub.com/images/directory_closed-3.png",
-    miniIconUrl:
-      "https://win98icons.alexmeub.com/icons/png/directory_closed-1.png",
-  },
-  blog: {
-    label: "Blog",
-    iconUrl: "/assets/img/notion-logo-no-background.png",
-    miniIconUrl: "/assets/img/notion-logo-no-background.png",
-  },
-  about: {
-    label: "About Me",
-    iconUrl: "/assets/img/notion-logo-no-background.png",
-    miniIconUrl: "/assets/img/notion-logo-no-background.png",
-  },
-};
+export type AppsType = "blog" | "about" | "computer" | "document" | "notepad";
 
-export type DefaultApplicationKey = keyof typeof defaultApplicationState;
-
-type ApplicationValue = {
+type AppCatalogItem = {
+  key: AppsType;
   label: string;
   iconUrl: string;
-  useIconInDesktop: boolean;
-  useApplication: boolean;
-  isMini: boolean;
-  zIndex: number;
-  startBarIndex: number;
   miniIconUrl: string;
+  showOnDesktop?: boolean;
+  singleton?: boolean; // 하나만 허용
 };
 
-export type ApplicationState = {
-  application: {
-    [key in DefaultApplicationKey]: ApplicationValue;
-  };
+export type WindowInstance = {
+  id: string;
+  app: AppsType;
+  title: string;
+  zIndex: number;
+  minimized: boolean;
+  maximized: boolean;
+  params?: Record<string, any>; // blog:{pageId}, about:{pageId} 등
 };
 
-export type ApplicationActions = {
-  getApplicationKeys: () => DefaultApplicationKey[];
-  touchUsedApplication: (key: DefaultApplicationKey) => void;
-  openApplication: (key: DefaultApplicationKey) => void;
-  closeApplication: (key: DefaultApplicationKey) => void;
-  getApplication: (key: DefaultApplicationKey) => ApplicationValue;
+type ApplicationState = {
+  apps: Record<AppsType, AppCatalogItem>;
+  windows: WindowInstance[];
+  topZ: number;
+
+  // actions
 };
 
-export type ApplicationStore = ApplicationState & ApplicationActions;
+type ApplicationMethod = {
+  open: (app: AppsType, params?: Record<string, any>) => string;
+  close: (id: string) => void;
+  focus: (id: string) => void;
 
-const initDefault = (key: DefaultApplicationKey) => {
-  return {
-    label: defaultApplicationState[key].label,
-    iconUrl: defaultApplicationState[key].iconUrl,
-    useIconInDesktop: true,
-    useApplication: false,
-    isMini: false,
-    zIndex: 0,
-    startBarIndex: Infinity,
-    miniIconUrl: defaultApplicationState[key].miniIconUrl,
-  };
+  getById: (id: string) => WindowInstance | undefined;
+  getApplicationKeys: () => AppsType[];
 };
+export type ApplicationStore = ApplicationState & ApplicationMethod;
 
-export const defaultInitState: ApplicationState = {
-  application: {
-    computer: initDefault("computer"),
-    document: initDefault("document"),
-    blog: initDefault("blog"),
-    about: initDefault("about"),
+const defaultInitState: ApplicationState = {
+  apps: {
+    computer: {
+      key: "computer",
+      label: "Computer",
+      iconUrl: "https://win98icons.alexmeub.com/images/computer_explorer-2.png",
+      miniIconUrl:
+        "https://win98icons.alexmeub.com/icons/png/computer_explorer-0.png",
+      showOnDesktop: true,
+      singleton: true,
+    },
+    document: {
+      key: "document",
+      label: "Documents",
+      iconUrl: "https://win98icons.alexmeub.com/images/directory_closed-3.png",
+      miniIconUrl:
+        "https://win98icons.alexmeub.com/icons/png/directory_closed-1.png",
+      showOnDesktop: true,
+      singleton: true,
+    },
+    blog: {
+      key: "blog",
+      label: "Blog",
+      iconUrl: "/assets/img/notion-logo-no-background.png",
+      miniIconUrl: "/assets/img/notion-logo-no-background.png",
+      showOnDesktop: true,
+      singleton: false,
+    },
+    about: {
+      key: "about",
+      label: "About Me",
+      iconUrl: "/assets/img/notion-logo-no-background.png",
+      miniIconUrl: "/assets/img/notion-logo-no-background.png",
+      showOnDesktop: true,
+      singleton: false,
+    },
+    notepad: {
+      key: "notepad",
+      label: "Notepad",
+      iconUrl: "/assets/img/notepad.png",
+      miniIconUrl: "/assets/img/notepad.png",
+      showOnDesktop: false,
+      singleton: false,
+    },
   },
+  windows: [],
+  topZ: 1,
 };
-
-let zIndex = 0;
-let startBarIndex = 0;
 
 export const createApplicationStore = (
   initState: ApplicationState = defaultInitState
-) => {
-  return create<ApplicationStore>()((set, get) => ({
+) =>
+  create<ApplicationStore>()((set, get) => ({
     ...initState,
 
-    touchUsedApplication: (key: DefaultApplicationKey) => {
-      set((state) => ({
-        application: {
-          ...state.application,
-          [key]: {
-            ...state.application[key],
-            zIndex: zIndex,
-            isMini: true,
-          },
-        },
-      }));
-      zIndex++;
+    open: (app, params) => {
+      const { apps, windows, topZ } = get();
+
+      // singleton이면 기존 창 포커스
+      if (apps[app]?.singleton) {
+        const ex = windows.find((w) => w.app === app);
+        if (ex) {
+          get().focus(ex.id);
+          return ex.id;
+        }
+      }
+
+      const id = crypto.randomUUID();
+      const baseTitle = apps[app]?.label ?? app;
+      const title =
+        app === "blog" && params?.pageId
+          ? `${baseTitle} - ${String(params.pageId).slice(0, 6)}`
+          : app === "about" && params?.pageId
+          ? `${baseTitle} - ${String(params.pageId).slice(0, 6)}`
+          : baseTitle;
+
+      const win: WindowInstance = {
+        id,
+        app,
+        title,
+        minimized: false,
+        maximized: false,
+        zIndex: topZ + 1,
+        params,
+      };
+
+      set({ windows: [...windows, win], topZ: topZ + 1 });
+      return id;
     },
 
-    openApplication: (key: DefaultApplicationKey) => {
-      set((state) => ({
-        application: {
-          ...state.application,
-          [key]: {
-            ...state.application[key],
-            zIndex: zIndex,
-            startBarIndex: startBarIndex,
-            useApplication: true,
-          },
-        },
-      }));
-      zIndex++;
-      startBarIndex++;
-    },
-    closeApplication: (key: DefaultApplicationKey) => {
-      set((state) => ({
-        application: {
-          ...state.application,
-          [key]: {
-            ...state.application[key],
-            zIndex: 0,
-            startBarIndex: Infinity,
-            useApplication: false,
-          },
-        },
-      }));
-    },
-    getApplicationKeys: () =>
-      Object.keys(defaultApplicationState) as DefaultApplicationKey[],
-    getApplication: (key: DefaultApplicationKey) => {
-      const state = get();
-      return state.application[key];
-    },
+    close: (id) =>
+      set((s) => ({ windows: s.windows.filter((w) => w.id !== id) })),
+    focus: (id) =>
+      set((s) => {
+        const newTop = s.topZ + 1;
+        return {
+          windows: s.windows.map((w) =>
+            w.id === id ? { ...w, zIndex: newTop } : w
+          ),
+          topZ: newTop,
+        };
+      }),
+    getById: (id) => get().windows.find((w) => w.id === id),
+
+    getApplicationKeys: () => Object.keys(get().apps) as AppsType[],
   }));
-};

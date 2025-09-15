@@ -4,6 +4,6 @@ import React, { lazy } from "react";
 
 export const viewerRegistry: Record<string, React.ComponentType> = {
   computer: lazy(() => import("@app/computer/ClientComputerLayout")),
-
+  blog: lazy(() => import("@app/blog/ClientBlogLayout")),
   // ...
 };
