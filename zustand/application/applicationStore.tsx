@@ -33,6 +33,8 @@ type ApplicationMethod = {
   open: (app: AppsType, params?: Record<string, any>) => string;
   close: (id: string) => void;
   focus: (id: string) => void;
+  updateParams: (id: string, path: Record<string, any>) => void;
+  rename: (id: string, title: string) => void;
 
   getById: (id: string) => WindowInstance | undefined;
   getApplicationKeys: () => AppsType[];
@@ -87,7 +89,16 @@ const defaultInitState: ApplicationState = {
   windows: [],
   topZ: 1,
 };
-
+function computeTitle(
+  base: string,
+  app: AppsType,
+  params?: Record<string, any>
+) {
+  if ((app === "blog" || app === "about") && params?.pageId) {
+    return `${base} - ${String(params.pageId).slice(0, 6)}`;
+  }
+  return base;
+}
 export const createApplicationStore = (
   initState: ApplicationState = defaultInitState
 ) =>
@@ -97,10 +108,19 @@ export const createApplicationStore = (
     open: (app, params) => {
       const { apps, windows, topZ } = get();
 
-      // singleton이면 기존 창 포커스
       if (apps[app]?.singleton) {
         const ex = windows.find((w) => w.app === app);
         if (ex) {
+          // 새 파라미터가 오면 기존 창에 병합 적용
+          if (params && Object.keys(params).length) {
+            get().updateParams(ex.id, params); // ← 아래 추가할 액션
+            // (선택) 타이틀도 재계산
+            const nextTitle = computeTitle(apps[app]?.label ?? app, app, {
+              ...(ex.params ?? {}),
+              ...params,
+            });
+            get().rename(ex.id, nextTitle);
+          }
           get().focus(ex.id);
           return ex.id;
         }
@@ -108,12 +128,7 @@ export const createApplicationStore = (
 
       const id = crypto.randomUUID();
       const baseTitle = apps[app]?.label ?? app;
-      const title =
-        app === "blog" && params?.pageId
-          ? `${baseTitle} - ${String(params.pageId).slice(0, 6)}`
-          : app === "about" && params?.pageId
-          ? `${baseTitle} - ${String(params.pageId).slice(0, 6)}`
-          : baseTitle;
+      const title = computeTitle(baseTitle, app, params);
 
       const win: WindowInstance = {
         id,
@@ -128,11 +143,22 @@ export const createApplicationStore = (
       set({ windows: [...windows, win], topZ: topZ + 1 });
       return id;
     },
+    updateParams: (id, patch) =>
+      set((s) => ({
+        windows: s.windows.map((w) =>
+          w.id === id ? { ...w, params: { ...(w.params ?? {}), ...patch } } : w
+        ),
+      })),
+    rename: (id, title) =>
+      set((s) => ({
+        windows: s.windows.map((w) => (w.id === id ? { ...w, title } : w)),
+      })),
 
     close: (id) =>
       set((s) => ({ windows: s.windows.filter((w) => w.id !== id) })),
     focus: (id) =>
       set((s) => {
+        console.log(id);
         const newTop = s.topZ + 1;
         return {
           windows: s.windows.map((w) =>

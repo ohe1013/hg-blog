@@ -1,4 +1,5 @@
 "use client";
+import { rootDir } from "@features/notion/data";
 import {
   Window,
   WindowBody,
@@ -6,24 +7,27 @@ import {
   WindowResizeHeader,
   WindowStatus,
 } from "../../features/window/components";
-import { Fragment, ReactNode } from "react";
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
-export default function ClientAboutLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const { about } = useApplicationStore((state) => state.application);
+import AboutView from "@features/about/AboutView";
+
+// 블로그 창 1개 인스턴스를 렌더하는 컴포넌트
+export default function AboutWindow({ winId }: { winId: string }) {
+  const { getById, updateParams } = useApplicationStore((s) => s);
+  const win = getById(winId);
+  if (!win) return null; // 이미 닫혔을 수 있음
+  const pageId = win.params?.pageId ?? rootDir.about;
+
   return (
-    <Fragment>
-      {about.useApplication && (
-        <Window title="about">
-          <WindowResizeHeader></WindowResizeHeader>
-          <WindowMenuBar />
-          <WindowBody>{children}</WindowBody>
-          <WindowStatus></WindowStatus>
-        </Window>
-      )}
-    </Fragment>
+    <Window winId={winId}>
+      <WindowResizeHeader />
+      <WindowMenuBar />
+      <WindowBody>
+        <AboutView
+          pageId={pageId}
+          onNavigate={(nextId) => updateParams(winId, { pageId: nextId })}
+        />
+      </WindowBody>
+      <WindowStatus />
+    </Window>
   );
 }

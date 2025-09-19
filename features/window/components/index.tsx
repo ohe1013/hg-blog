@@ -10,12 +10,17 @@ import {
   useRef,
   useState,
   Fragment,
+  memo,
 } from "react";
 import { State, useWindow } from "../hooks/useWindow";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../style/index.scss";
 import Button from "@lib/components/Button";
-import { useFileExplorerStore } from "../../../zustand/file/fileExplore";
+import {
+  useExplorer,
+  useFileExplorerStore,
+  useViewMode,
+} from "../../../zustand/file/fileExplore";
 
 // ---------- Context & Types ----------
 type WindowCtx = {
@@ -48,7 +53,7 @@ interface WindowProps {
 }
 
 // ---------- Window ----------
-const Window = ({ children, winId }: WindowProps) => {
+const Window = memo(({ children, winId }: WindowProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const {
     state,
@@ -66,7 +71,6 @@ const Window = ({ children, winId }: WindowProps) => {
 
   const appMeta = apps[win.app];
   const zIndex = win.zIndex ?? 0;
-
   const ctxValue = useMemo<WindowCtx>(
     () => ({
       context: state,
@@ -99,14 +103,14 @@ const Window = ({ children, winId }: WindowProps) => {
         onClick={() => focus(winId)}
         onMouseMove={!isFull ? setMouseCursor : undefined}
         onMouseDown={!isFull ? onMouseDownBorder : undefined}
-        className="window flex flex-col"
+        className="window flex flex-col absolute"
         style={{ zIndex }}
       >
         {children}
       </div>
     </WindowContext.Provider>
   );
-};
+});
 
 // ---------- Header ----------
 const WindowResizeHeader = () => {
@@ -287,16 +291,28 @@ const WindowMenuBar = () => {
 
 // ---------- AddressBar / Body / MainBody / SideBar / Status ----------
 const WindowAddressBar = () => {
-  const { currentPath, enterFolder } = useFileExplorerStore();
+  const { goBack, goForward, upOneLevel, resetToRoot, setViewMode } =
+    useExplorer((s) => s);
+  const mode = useViewMode();
   return (
     <div className="WindowAddressBar" style={{ minHeight: "40px" }}>
-      {/* 버튼들은 생략 */}
-      {currentPath.map((seg, i) => (
-        <Fragment key={i}>
-          <span> &gt; </span>
-          <button onClick={() => enterFolder(seg)}>{seg}</button>
-        </Fragment>
-      ))}
+      <button onClick={goBack}>◀</button>
+      <button onClick={goForward}>▶</button>
+      <button onClick={upOneLevel}>⬆</button>
+      <button onClick={resetToRoot}>Computer</button>
+      <div className="spacer" />
+      <button
+        onClick={() => setViewMode("grid")}
+        aria-pressed={mode === "grid"}
+      >
+        Grid
+      </button>
+      <button
+        onClick={() => setViewMode("list")}
+        aria-pressed={mode === "list"}
+      >
+        List
+      </button>
     </div>
   );
 };

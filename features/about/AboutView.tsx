@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Renderer from "@features/notion/Renderer";
 
-export default function BlogView({
+export default function AboutView({
   pageId,
   onNavigate,
 }: {
@@ -13,6 +13,7 @@ export default function BlogView({
   const [recordMap, setRecordMap] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     let cancelled = false;
     async function load() {

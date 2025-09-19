@@ -4,7 +4,7 @@
 $windowPadding: 3px;
 
 @mixin window-body {
-  display: flex;
+  // display: flex;
   box-shadow: navBoxShadow();
   margin-left: 1px;
   background-color: #ffffff;
