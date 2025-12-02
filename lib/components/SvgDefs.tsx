@@ -19,8 +19,8 @@ export default function SvgDefs() {
 						"
             result="dark-parts-isolated"
           />
-          <feFlood result="shadow-color" floodColor="#000000" />
-          <feFlood result="hilight-color" floodColor="#000000" />
+          <feFlood result="shadow-color" floodColor="rgb(128, 128, 128)" />
+          <feFlood result="hilight-color" floodColor="rgb(128, 128, 128)" />
           <feOffset in="dark-parts-isolated" dx="1" dy="1" result="offset" />
           <feComposite
             in="hilight-color"

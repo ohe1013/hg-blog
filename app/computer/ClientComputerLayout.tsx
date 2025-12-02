@@ -1,4 +1,5 @@
 "use client";
+import { Fragment } from "react";
 import {
   Window,
   WindowAddressBar,
@@ -9,37 +10,49 @@ import {
   WindowSideBar,
   WindowStatus,
 } from "../../features/window/components";
-import { Fragment, ReactNode } from "react";
-import { useDragSelect } from "@lib/hooks/useDrag";
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
+import { useDragSelect } from "@lib/hooks/useDrag";
 import { useExplorer } from "@features/explorer/stores/fileExplorer";
 import { FolderGrid } from "@features/explorer/components/FolderGrid";
 import { FileViewer } from "@features/explorer/components/FileViewer";
-export default function ComputerClientLayout() {
-  const { computer } = useApplicationStore((state) => state.application);
-  const { containerRef, selection, bindMouseDown, SelectionRect } =
-    useDragSelect<"blog" | "about" | "computer" | "document">();
+import ComputerSidebar from "@app/computer/ComputerSidebar";
+
+// 블로그 창 1개 인스턴스를 렌더하는 컴포넌트
+export default function WindowWindow({ winId }: { winId: string }) {
+  const { getById } = useApplicationStore((s) => s);
+  const win = getById(winId);
+  const {
+    containerRef,
+    selection,
+    bindMouseDown,
+    SelectionRect,
+    itemRefs,
+    selectedIds,
+  } = useDragSelect<"blog" | "about" | "computer" | "document">();
   const { fs, currentId } = useExplorer();
+  if (!win) return null; // 이미 닫혔을 수 있음
   const current = fs.byId[currentId];
   return (
     <Fragment>
-      {computer.useApplication === true ? (
-        <Window title="computer">
-          <WindowResizeHeader />
-          <WindowMenuBar />
-          <WindowAddressBar />
-          <WindowBody>
-            <WindowSideBar />
-            <WindowMainBody
-              containerRef={containerRef}
-              onMouseDown={bindMouseDown}
-            >
-              {current?.kind === "folder" ? <FolderGrid /> : <FileViewer />}
-            </WindowMainBody>
-          </WindowBody>
-          <WindowStatus />
-        </Window>
-      ) : null}
+      <Window winId={winId}>
+        <WindowResizeHeader />
+        <WindowMenuBar />
+        <WindowAddressBar />
+        <WindowBody style={{ display: "flex" }}>
+          <WindowSideBar>
+            <ComputerSidebar />
+          </WindowSideBar>
+          <WindowMainBody
+            containerRef={containerRef}
+            onMouseDown={bindMouseDown}
+            itemRefs={itemRefs}
+            selectedIds={selectedIds}
+          >
+            <FolderGrid />
+          </WindowMainBody>
+        </WindowBody>
+        <WindowStatus />
+      </Window>
       {selection.visible && (
         <SelectionRect
           x={selection.x}

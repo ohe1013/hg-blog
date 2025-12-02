@@ -296,23 +296,81 @@ const WindowAddressBar = () => {
   const mode = useViewMode();
   return (
     <div className="WindowAddressBar" style={{ minHeight: "40px" }}>
-      <button onClick={goBack}>◀</button>
-      <button onClick={goForward}>▶</button>
-      <button onClick={upOneLevel}>⬆</button>
-      <button onClick={resetToRoot}>Computer</button>
+      <button
+        className="toolbar-button "
+        style={{ boxShadow: "none", background: "none" }}
+        onClick={goBack}
+        disabled
+      >
+        <div
+          className="icon back-button"
+          style={{
+            filter: "url(#disabled-inset-filter)",
+          }}
+        ></div>
+        <span className="label-text">Back</span>
+      </button>
+      <button
+        className="toolbar-dropdown-button lightweight forward-dropdown-button"
+        style={{ boxShadow: "none", background: "none" }}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            fill: "currentColor",
+            display: "inline-block",
+            verticalAlign: "middle",
+          }}
+        >
+          <path
+            style={{ transform: "rotate(90deg)", transformOrigin: "center" }}
+            d="m6 4 4 4-4 4z"
+          ></path>
+        </svg>
+      </button>
+      <button
+        className="toolbar-button "
+        style={{ boxShadow: "none", background: "none" }}
+        onClick={goForward}
+      >
+        <div className="icon forward-button"></div>
+        <span className="label-text">Forward</span>
+      </button>
+      <button
+        className="toolbar-dropdown-button lightweight forward-dropdown-button"
+        style={{ boxShadow: "none", background: "none" }}
+        disabled
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            fill: "currentColor",
+            display: "inline-block",
+            verticalAlign: "middle",
+          }}
+        >
+          <path
+            style={{ transform: "rotate(90deg)", transformOrigin: "center" }}
+            d="m6 4 4 4-4 4z"
+          ></path>
+        </svg>
+      </button>
+      <button
+        className="toolbar-button "
+        style={{ boxShadow: "none", background: "none" }}
+        onClick={upOneLevel}
+      >
+        <div className="icon up-button"></div>
+        <span className="label-text">Up</span>
+      </button>
+
       <div className="spacer" />
-      <button
-        onClick={() => setViewMode("grid")}
-        aria-pressed={mode === "grid"}
-      >
-        Grid
-      </button>
-      <button
-        onClick={() => setViewMode("list")}
-        aria-pressed={mode === "list"}
-      >
-        List
-      </button>
     </div>
   );
 };
@@ -320,9 +378,17 @@ const WindowAddressBar = () => {
 interface WindowBodyProps {
   children: ReactNode;
 }
-const WindowBody = ({ children }: WindowBodyProps) => {
+interface WindowBodyProps {
+  children: ReactNode;
+  style?: React.CSSProperties;
+}
+
+const WindowBody = ({ children, style }: WindowBodyProps) => {
   return (
-    <div className="WindowBody overflow-y-auto" style={{ flexGrow: 1 }}>
+    <div
+      className="WindowBody overflow-y-auto"
+      style={{ flexGrow: 1, display: "flex", ...style }}
+    >
       {children}
     </div>
   );
@@ -353,7 +419,7 @@ const WindowMainBody = ({
   );
 };
 
-const WindowSideBar = () => (
+const WindowSideBar = ({ children }: { children: ReactNode }) => (
   <div
     className="WindowSideBar"
     style={{
@@ -361,7 +427,7 @@ const WindowSideBar = () => (
       visibility: "visible",
     }}
   >
-    {/* 생략 */}
+    {children}
   </div>
 );
 

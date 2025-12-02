@@ -1,7 +1,5 @@
 "use client";
 import {
-  MouseEventHandler,
-  PropsWithChildren,
   Ref,
   useLayoutEffect,
   useRef,
@@ -9,8 +7,6 @@ import {
 } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
-import { useRouter } from "next/navigation";
-import { rootDir } from "@features/notion/data";
 import { AppsType } from "../../../zustand/application/applicationStore";
 
 type GridKey = string;
