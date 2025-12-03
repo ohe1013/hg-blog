@@ -16,9 +16,7 @@ import ComputerWindow from "./computer/ClientComputerLayout";
 const DocumentWindow: ComponentType = () => (
   <div style={{ padding: 12 }}>Documents</div>
 );
-const NotepadWindow: ComponentType = () => (
-  <div style={{ padding: 12 }}>Notepad</div>
-);
+import NotepadWindow from "@features/notepad/components/NotepadWindow";
 
 const appRenderer: Record<AppsType, ComponentType<any>> = {
   blog: BlogWindow,
@@ -36,7 +34,10 @@ export function GlobalWindowsHub() {
       {windows.map((w) => {
         if (w.app === "blog") return <BlogWindow key={w.id} winId={w.id} />;
         if (w.app === "about") return <AboutWindow key={w.id} winId={w.id} />;
-        if (w.app === "computer") return <ComputerWindow key={w.id} winId={w.id} />;
+        if (w.app === "computer")
+          return <ComputerWindow key={w.id} winId={w.id} />;
+        if (w.app === "notepad")
+          return <NotepadWindow key={w.id} winId={w.id} />;
         return null;
       })}
     </>

@@ -1,5 +1,5 @@
-import { DesktopGrid, DesktopGridItem } from "@features/desktop/components";
 import { useExplorer } from "../stores/fileExplorer";
+import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import { handleGridNavigation } from "@lib/utils/keyboard";
 import { Ref, useLayoutEffect, useRef, useState } from "react";
 import "../styles/index.scss";
@@ -20,6 +20,7 @@ export const FolderGridContainer = ({
   setSelectedIds,
 }: FolderGridContainerProps) => {
   const { fs, currentId, open } = useExplorer();
+  const { open: openApp } = useApplicationStore((s) => s);
   const [rows, setRows] = useState(1);
   const cur = fs.byId[currentId];
 
@@ -28,14 +29,36 @@ export const FolderGridContainer = ({
   const children = cur.children.map((id) => fs.byId[id]).filter(Boolean);
   const keys = children.map((c) => c.id);
 
+  const handleOpen = (id: string) => {
+    const node = fs.byId[id];
+    if (!node) return;
+    if (node.kind === "folder") {
+      open(id);
+    } else {
+      // 파일이면 앱 실행 (여기서는 notepad로 가정하거나, node.app 사용)
+      // sampleFs에 app 필드가 있으므로 그것을 활용
+      const appKey =
+        node.app === "markdown-viewer" || node.app === "text-viewer"
+          ? "notepad"
+          : (node.app as any);
+
+      // 임시: 이미지 뷰어 등은 아직 없으므로 텍스트 계열만 notepad로 연결
+      if (appKey === "notepad") {
+        openApp("notepad", { fileId: id });
+      } else {
+        console.warn("No app for", node.app);
+      }
+    }
+  };
+
   return (
     <FolderGrid
       containerRef={containerRef}
       onMouseDown={onMouseDown}
       flow="row"
       className="relative w-full h-full"
-      gapX={8}
-      gapY={4}
+      gapX={0}
+      gapY={0}
       onRowsChange={setRows}
     >
       {children.map((node, index) => (
@@ -59,11 +82,9 @@ export const FolderGridContainer = ({
         >
           <FolderGridItem
             label={node.name}
-            iconUrl={
-              "https://win98icons.alexmeub.com/images/directory_closed-3.png"
-            }
+            iconUrl={node.iconUrl}
             selected={selectedIds.has(node.id)}
-            onOpen={() => open(node.id)}
+            onOpen={() => handleOpen(node.id)}
           />
         </div>
       ))}

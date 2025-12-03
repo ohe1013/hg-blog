@@ -9,12 +9,15 @@ export type FsNodeBase = {
 export type FolderNode = FsNodeBase & {
   kind: "folder";
   children: FileId[];
+  type: "folder";
+  iconUrl: string;
 };
 
 export type FileNode = FsNodeBase & {
   kind: "file";
-  mime: string;
+  type: "file" | "image" | "notepad";
   app: string; // 'markdown-viewer' | 'image-viewer' | ...
+  iconUrl: string;
   payload?: unknown; // 파일 데이터/경로 등
 };
 

@@ -6,12 +6,21 @@ type ExplorerState = {
   fs: FileSystem;
   currentId: FileId;
   selectedIds: FileId[];
+  backStack: FileId[];
+  forwardStack: FileId[];
   open: (id: FileId) => void;
   enter: (id: FileId) => void;
   back: () => void;
+  forward: () => void;
+  up: () => void;
+};
+
+const iconDict = {
+  folder: "https://win98icons.alexmeub.com/images/directory_closed-3.png",
+  notepad: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
+  img: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
 };
 // fs/sampleFs.ts
-
 const sampleFs: FileSystem = {
   rootId: "root",
   byId: {
@@ -22,6 +31,8 @@ const sampleFs: FileSystem = {
       kind: "folder",
       parentId: null,
       children: ["file_readme", "f_projects", "f_docs"],
+      iconUrl: iconDict.folder,
+      type: "folder",
     },
 
     // root files
@@ -30,9 +41,10 @@ const sampleFs: FileSystem = {
       name: "Readme.md",
       kind: "file",
       parentId: "root",
-      mime: "text/markdown",
+      iconUrl: iconDict.notepad,
+      type: "notepad",
       app: "markdown-viewer",
-      payload: "# Welcome\nThis is a demo filesystem.",
+      payload: "Welcome\nThis is a demo filesystem.",
     },
 
     // level 1 folders
@@ -42,6 +54,8 @@ const sampleFs: FileSystem = {
       kind: "folder",
       parentId: "root",
       children: ["file_spec", "img_app", "f_photos"],
+      iconUrl: iconDict.folder,
+      type: "folder",
     },
     f_docs: {
       id: "f_docs",
@@ -49,6 +63,8 @@ const sampleFs: FileSystem = {
       kind: "folder",
       parentId: "root",
       children: ["doc_design"],
+      iconUrl: iconDict.folder,
+      type: "folder",
     },
 
     // level 1 files
@@ -57,7 +73,8 @@ const sampleFs: FileSystem = {
       name: "spec.txt",
       kind: "file",
       parentId: "f_projects",
-      mime: "text/plain",
+      iconUrl: iconDict.notepad,
+      type: "notepad",
       app: "text-viewer",
       payload: "Feature spec v1.0",
     },
@@ -66,7 +83,8 @@ const sampleFs: FileSystem = {
       name: "app.png",
       kind: "file",
       parentId: "f_projects",
-      mime: "image/png",
+      iconUrl: iconDict.notepad,
+      type: "notepad",
       app: "image-viewer",
       payload: "/assets/demo/app.png",
     },
@@ -75,7 +93,8 @@ const sampleFs: FileSystem = {
       name: "design.md",
       kind: "file",
       parentId: "f_docs",
-      mime: "text/markdown",
+      iconUrl: iconDict.notepad,
+      type: "notepad",
       app: "markdown-viewer",
       payload: "## Design\n- Grid\n- Address bar\n- Viewers",
     },
@@ -87,6 +106,8 @@ const sampleFs: FileSystem = {
       kind: "folder",
       parentId: "f_projects",
       children: ["img_cover", "f_2025"],
+      iconUrl: iconDict.folder,
+      type: "folder",
     },
 
     // level 2 file
@@ -95,7 +116,8 @@ const sampleFs: FileSystem = {
       name: "cover.jpg",
       kind: "file",
       parentId: "f_photos",
-      mime: "image/jpeg",
+      iconUrl: iconDict.notepad,
+      type: "notepad",
       app: "image-viewer",
       payload: "/assets/demo/cover.jpg",
     },
@@ -107,6 +129,8 @@ const sampleFs: FileSystem = {
       kind: "folder",
       parentId: "f_photos",
       children: ["file_trip", "img_cat"],
+      iconUrl: iconDict.folder,
+      type: "folder",
     },
 
     // level 3 files
@@ -115,7 +139,8 @@ const sampleFs: FileSystem = {
       name: "trip.md",
       kind: "file",
       parentId: "f_2025",
-      mime: "text/markdown",
+      iconUrl: iconDict.notepad,
+      type: "notepad",
       app: "markdown-viewer",
       payload: "### Spring Trip 2025\n- Seoul → Jeju",
     },
@@ -124,7 +149,8 @@ const sampleFs: FileSystem = {
       name: "cat.png",
       kind: "file",
       parentId: "f_2025",
-      mime: "image/png",
+      iconUrl: iconDict.notepad,
+      type: "notepad",
       app: "image-viewer",
       payload: "/assets/demo/cat.png",
     },
@@ -135,14 +161,66 @@ export const useExplorer = create<ExplorerState>((set, get) => ({
   fs: sampleFs,
   currentId: "root",
   selectedIds: [],
+  backStack: [],
+  forwardStack: [],
+
   open: (id) => {
-    const node = get().fs.byId[id];
+    const { fs, currentId, backStack } = get();
+    const node = fs.byId[id];
     if (!node) return;
-    if (node.kind === "folder") set({ currentId: id, selectedIds: [] });
-    else set({ currentId: id });
+
+    if (node.kind === "folder") {
+      // 폴더 이동 시 히스토리 추가
+      if (currentId !== id) {
+        set({
+          currentId: id,
+          selectedIds: [],
+          backStack: [...backStack, currentId],
+          forwardStack: [], // 새 경로 진입 시 forward 초기화
+        });
+      }
+    } else {
+      // 파일 선택 등 (현재는 currentId 변경 없음)
+      set({ currentId: id });
+    }
   },
+
   enter: (id) => get().open(id),
+
   back: () => {
-    /* TODO: history 구현 */
+    const { backStack, currentId, forwardStack } = get();
+    if (backStack.length === 0) return;
+
+    const prev = backStack[backStack.length - 1];
+    const newBack = backStack.slice(0, -1);
+
+    set({
+      currentId: prev,
+      backStack: newBack,
+      forwardStack: [currentId, ...forwardStack],
+      selectedIds: [],
+    });
+  },
+
+  forward: () => {
+    const { forwardStack, currentId, backStack } = get();
+    if (forwardStack.length === 0) return;
+
+    const next = forwardStack[0];
+    const newForward = forwardStack.slice(1);
+
+    set({
+      currentId: next,
+      backStack: [...backStack, currentId],
+      forwardStack: newForward,
+      selectedIds: [],
+    });
+  },
+
+  up: () => {
+    const { fs, currentId, open } = get();
+    const node = fs.byId[currentId];
+    if (!node || !node.parentId) return;
+    open(node.parentId);
   },
 }));

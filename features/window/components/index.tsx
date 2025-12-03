@@ -17,10 +17,10 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import "../style/index.scss";
 import Button from "@lib/components/Button";
 import {
-  useExplorer,
   useFileExplorerStore,
   useViewMode,
 } from "../../../zustand/file/fileExplore";
+import { useExplorer } from "@features/explorer/stores/fileExplorer";
 
 // ---------- Context & Types ----------
 type WindowCtx = {
@@ -290,22 +290,25 @@ const WindowMenuBar = () => {
 };
 
 // ---------- AddressBar / Body / MainBody / SideBar / Status ----------
+// ---------- AddressBar / Body / MainBody / SideBar / Status ----------
 const WindowAddressBar = () => {
-  const { goBack, goForward, upOneLevel, resetToRoot, setViewMode } =
-    useExplorer((s) => s);
-  const mode = useViewMode();
+  const { back, forward, up, backStack, forwardStack } = useExplorer();
+
+  const canBack = backStack.length > 0;
+  const canForward = forwardStack.length > 0;
+
   return (
     <div className="WindowAddressBar" style={{ minHeight: "40px" }}>
       <button
         className="toolbar-button "
         style={{ boxShadow: "none", background: "none" }}
-        onClick={goBack}
-        // disabled
+        onClick={back}
+        disabled={!canBack}
       >
         <div
           className="icon back-button"
           style={{
-            filter: "url(#disabled-inset-filter)",
+            filter: !canBack ? "url(#disabled-inset-filter)" : undefined,
           }}
         ></div>
         <span className="label-text">Back</span>
@@ -334,9 +337,15 @@ const WindowAddressBar = () => {
       <button
         className="toolbar-button "
         style={{ boxShadow: "none", background: "none" }}
-        onClick={goForward}
+        onClick={forward}
+        disabled={!canForward}
       >
-        <div className="icon forward-button"></div>
+        <div
+          className="icon forward-button"
+          style={{
+            filter: !canForward ? "url(#disabled-inset-filter)" : undefined,
+          }}
+        ></div>
         <span className="label-text">Forward</span>
       </button>
       <button
@@ -364,7 +373,7 @@ const WindowAddressBar = () => {
       <button
         className="toolbar-button "
         style={{ boxShadow: "none", background: "none" }}
-        onClick={upOneLevel}
+        onClick={up}
       >
         <div className="icon up-button"></div>
         <span className="label-text">Up</span>
