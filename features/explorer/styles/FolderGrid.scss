@@ -1,7 +1,7 @@
 @import "/styles/var/colors";
 @import "/styles/functions/box-shadows";
 
-@mixin desktop-icon {
+@mixin folder-grid {
   &__wrapper {
     position: relative;
     width: 32px;
@@ -31,7 +31,7 @@
   }
 
   &__text {
-    color: #ffffff;
+    color: #000000;
     margin-top: 2px;
     display: block;
     font-family: "Pixelated MS Sans Serif", Arial;
@@ -41,6 +41,7 @@
   &__text.actived {
     background-color: #000080;
     opacity: 0.5;
+    color: #ffffff;
   }
   &__text.actived::after {
     content: "";

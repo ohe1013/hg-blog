@@ -1,0 +1,5 @@
+@import "./FolderGrid.scss";
+
+.FolderGrid {
+  @include folder-grid;
+}
