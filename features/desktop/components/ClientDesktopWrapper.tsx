@@ -4,6 +4,7 @@ import React from "react";
 import { useDragSelect } from "@lib/hooks/useDrag";
 import { DesktopIconGrid } from ".";
 import { StartBar } from "@features/startBar/components";
+import { AppsType } from "../../../zustand/application/applicationStore";
 
 type Props = {
   children: React.ReactNode;
@@ -27,7 +28,9 @@ export default function ClientDesktopWrapper({
     selectedIds,
     bindMouseDown,
     SelectionRect,
-  } = useDragSelect<"blog" | "about" | "computer" | "document">();
+    setSelectedIds,
+  } = useDragSelect<AppsType>();
+
   return (
     <>
       {/* <DesktopGrid containerRef={containerRef} onMouseDown={bindMouseDown}> */}
@@ -36,6 +39,7 @@ export default function ClientDesktopWrapper({
         onMouseDown={bindMouseDown}
         itemRefs={itemRefs}
         selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
       />
       {children}
       {blog}

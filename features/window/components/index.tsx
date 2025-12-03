@@ -300,7 +300,7 @@ const WindowAddressBar = () => {
         className="toolbar-button "
         style={{ boxShadow: "none", background: "none" }}
         onClick={goBack}
-        disabled
+        // disabled
       >
         <div
           className="icon back-button"
@@ -396,7 +396,7 @@ const WindowBody = ({ children, style }: WindowBodyProps) => {
 
 interface WindowMainBodyProps {
   containerRef?: Ref<HTMLDivElement>;
-  onMouseDown: (e: React.MouseEvent) => void;
+  onMouseDown?: (e: React.MouseEvent) => void;
   children: ReactNode;
 }
 const WindowMainBody = ({
@@ -410,7 +410,7 @@ const WindowMainBody = ({
       onMouseDown={(e) => {
         e.stopPropagation();
         e.preventDefault();
-        onMouseDown(e);
+        onMouseDown?.(e);
       }}
       ref={containerRef}
     >

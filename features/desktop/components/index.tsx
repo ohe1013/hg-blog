@@ -1,13 +1,9 @@
 "use client";
-import {
-  Ref,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import { Ref, useLayoutEffect, useRef, useState } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
 import { AppsType } from "../../../zustand/application/applicationStore";
+import { handleGridNavigation } from "@lib/utils/keyboard";
 
 type GridKey = string;
 
@@ -23,6 +19,7 @@ type DesktopGridProps = {
   tileHeight?: number; // 80
   gapX?: number; // 16 (Tailwind gap-x-4 기준)
   gapY?: number; // 8  (Tailwind gap-y-2 기준)
+  onRowsChange?: (rows: number) => void;
 };
 
 function DesktopGrid({
@@ -35,6 +32,7 @@ function DesktopGrid({
   tileHeight = 60,
   gapX = 16,
   gapY = 8,
+  onRowsChange,
 }: DesktopGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState(1); // 세로 우선일 때 필요한 행 수
@@ -50,6 +48,7 @@ function DesktopGrid({
       const perRow = tileHeight + gapY;
       const count = Math.max(1, Math.floor((h + gapY) / perRow));
       setRows(count);
+      onRowsChange?.(count);
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -137,8 +136,11 @@ function DesktopGridItem({
         onBlur?.();
       }}
       onDoubleClick={() => onOpen?.()}
+      onClick={(e) => {
+        e.currentTarget.focus();
+      }}
       onKeyDown={handleEnterOrSpace}
-      className={`text-center w-[72px] leading-3 py-2 px-[1px] ${
+      className={`text-center w-[72px] leading-3 py-2 px-[1px] outline-none ${
         active ? "active" : ""
       }`}
     >
@@ -165,6 +167,7 @@ type DesktopIconGridProps = {
   selectedIds: Set<AppsType>;
   containerRef: React.Ref<HTMLDivElement>;
   onMouseDown: (e: React.MouseEvent) => void;
+  setSelectedIds?: (ids: Set<AppsType>) => void;
 };
 
 function DesktopIconGrid({
@@ -172,7 +175,9 @@ function DesktopIconGrid({
   selectedIds,
   containerRef,
   onMouseDown,
+  setSelectedIds,
 }: DesktopIconGridProps) {
+  const [rows, setRows] = useState(1);
   const appStore = useApplicationStore((s) => s);
   // 앱 키들 중 바탕화면에 표시할 것만
   const keys = appStore
@@ -185,8 +190,12 @@ function DesktopIconGrid({
   };
 
   return (
-    <DesktopGrid containerRef={containerRef} onMouseDown={onMouseDown}>
-      {keys.map((key) => {
+    <DesktopGrid
+      containerRef={containerRef}
+      onMouseDown={onMouseDown}
+      onRowsChange={setRows}
+    >
+      {keys.map((key, index) => {
         const app = appStore.apps[key];
         return (
           <div
@@ -195,6 +204,17 @@ function DesktopIconGrid({
             ref={(el) => {
               itemRefs.current[key] = el;
             }}
+            onKeyDown={(e) =>
+              handleGridNavigation(
+                e,
+                index,
+                rows,
+                keys,
+                itemRefs,
+                "col",
+                setSelectedIds as any
+              )
+            }
           >
             <DesktopGridItem
               label={app.label}

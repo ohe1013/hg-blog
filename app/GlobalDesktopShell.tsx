@@ -4,6 +4,7 @@ import React from "react";
 import { useDragSelect } from "@lib/hooks/useDrag";
 import { DesktopIconGrid } from "@features/desktop/components";
 import { StartBar } from "@features/startBar/components";
+import { AppsType } from "../zustand/application/applicationStore";
 
 // 전역 데스크톱 Background & 아이콘 & 시작바만 담당
 export default function GlobalDesktopShell() {
@@ -14,7 +15,8 @@ export default function GlobalDesktopShell() {
     selectedIds,
     bindMouseDown,
     SelectionRect,
-  } = useDragSelect<"blog" | "about" | "computer" | "document">();
+    setSelectedIds,
+  } = useDragSelect<AppsType>();
 
   return (
     <div
@@ -31,6 +33,7 @@ export default function GlobalDesktopShell() {
         onMouseDown={bindMouseDown}
         itemRefs={itemRefs}
         selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
       />
       <StartBar />
       {selection.visible && (

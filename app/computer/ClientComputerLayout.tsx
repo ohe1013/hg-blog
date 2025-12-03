@@ -28,7 +28,8 @@ export default function WindowWindow({ winId }: { winId: string }) {
     SelectionRect,
     itemRefs,
     selectedIds,
-  } = useDragSelect<"blog" | "about" | "computer" | "document">();
+    setSelectedIds,
+  } = useDragSelect<string>();
   const { fs, currentId } = useExplorer();
   if (!win) return null; // 이미 닫혔을 수 있음
   const current = fs.byId[currentId];
@@ -42,13 +43,14 @@ export default function WindowWindow({ winId }: { winId: string }) {
           <WindowSideBar>
             <ComputerSidebar />
           </WindowSideBar>
-          <WindowMainBody
-            containerRef={containerRef}
-            onMouseDown={bindMouseDown}
-            itemRefs={itemRefs}
-            selectedIds={selectedIds}
-          >
-            <FolderGrid />
+          <WindowMainBody>
+            <FolderGrid
+              containerRef={containerRef}
+              onMouseDown={bindMouseDown}
+              itemRefs={itemRefs}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+            />
           </WindowMainBody>
         </WindowBody>
         <WindowStatus />

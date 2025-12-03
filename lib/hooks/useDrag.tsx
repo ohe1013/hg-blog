@@ -140,5 +140,6 @@ export function useDragSelect<T extends string>() {
     selectedIds,
     bindMouseDown,
     SelectionRect,
+    setSelectedIds,
   };
 }
