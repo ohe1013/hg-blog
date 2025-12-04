@@ -3,8 +3,9 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import { handleGridNavigation } from "@lib/utils/keyboard";
 import { Ref, useLayoutEffect, useRef, useState } from "react";
 import "../styles/index.scss";
+import { useItemInteraction } from "../hooks/useItemInteraction";
 
-interface FolderGridContainerProps {
+interface ExplorerGridContainerProps {
   containerRef: React.Ref<HTMLDivElement>;
   onMouseDown: (e: React.MouseEvent) => void;
   itemRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
@@ -12,49 +13,100 @@ interface FolderGridContainerProps {
   setSelectedIds: (ids: Set<string>) => void;
 }
 
-export const FolderGridContainer = ({
+export const ExplorerGridContainer = ({
   containerRef,
   onMouseDown,
   itemRefs,
   selectedIds,
   setSelectedIds,
-}: FolderGridContainerProps) => {
-  const { fs, currentId, open } = useExplorer();
-  const { open: openApp } = useApplicationStore((s) => s);
+}: ExplorerGridContainerProps) => {
+  const { fs, currentId } = useExplorer();
   const [rows, setRows] = useState(1);
   const cur = fs.byId[currentId];
+  const { handleOpen } = useItemInteraction();
 
   if (!cur || cur.kind !== "folder") return null;
 
   const children = cur.children.map((id) => fs.byId[id]).filter(Boolean);
   const keys = children.map((c) => c.id);
 
-  const handleOpen = (id: string) => {
-    const node = fs.byId[id];
-    if (!node) return;
-    if (node.kind === "folder") {
-      open(id);
-    } else {
-      // 파일이면 앱 실행 (여기서는 notepad로 가정하거나, node.app 사용)
-      // sampleFs에 app 필드가 있으므로 그것을 활용
-      const appKey =
-        node.app === "markdown-viewer" || node.app === "text-viewer"
-          ? "notepad"
-          : (node.app as any);
+  const handleContainerKeyDown = (e: React.KeyboardEvent) => {
+    // 1. Determine start index
+    // Try to find the item that triggered the event (if focus is on an item)
+    let startIndex = -1;
+    const target = e.target as HTMLElement;
+    const keyAttr = target.getAttribute("data-key");
 
-      // 임시: 이미지 뷰어 등은 아직 없으므로 텍스트 계열만 notepad로 연결
-      if (appKey === "notepad") {
-        openApp("notepad", { fileId: id });
-      } else {
-        console.warn("No app for", node.app);
+    if (keyAttr) {
+      startIndex = keys.indexOf(keyAttr);
+    }
+
+    // If no specific item is focused (or found), try the first selected item
+    if (startIndex === -1 && selectedIds.size > 0) {
+      const firstSelected = keys.find((k) => selectedIds.has(k));
+      if (firstSelected) {
+        startIndex = keys.indexOf(firstSelected);
+      }
+    }
+
+    // If still nothing, start from -1 (so next is 0) or 0
+    if (startIndex === -1) startIndex = 0;
+
+    handleGridNavigation(
+      e,
+      startIndex,
+      rows,
+      keys,
+      itemRefs,
+      "row",
+      setSelectedIds
+    );
+
+    if (e.defaultPrevented) return;
+
+    if (e.key.length === 1) {
+      const char = e.key.toLowerCase();
+      const sortedChildren = children.map((c, i) => ({
+        name: c.name,
+        id: c.id,
+        index: i,
+      }));
+
+      // Search after current index
+      let nextItem = sortedChildren
+        .slice(startIndex + 1)
+        .find((c) => c.name.toLowerCase().startsWith(char));
+
+      // Wrap around
+      if (!nextItem) {
+        nextItem = sortedChildren
+          .slice(0, startIndex + 1)
+          .find((c) => c.name.toLowerCase().startsWith(char));
+      }
+
+      if (nextItem) {
+        e.preventDefault();
+        const nextKey = nextItem.id;
+        itemRefs.current[nextKey]
+          ?.querySelector<HTMLElement>("[tabindex]")
+          ?.focus();
+        setSelectedIds(new Set([nextKey]));
       }
     }
   };
 
   return (
-    <FolderGrid
+    <ExplorerGrid
       containerRef={containerRef}
-      onMouseDown={onMouseDown}
+      onMouseDown={(e) => {
+        onMouseDown(e);
+        // 빈 공간 클릭 시 컨테이너에 포커스 강제
+        const target = e.target as HTMLElement;
+        if (!target.closest("[data-key]")) {
+          (e.currentTarget as HTMLElement).focus({ preventScroll: true });
+        }
+      }}
+      onKeyDown={handleContainerKeyDown}
       flow="row"
       className="relative w-full h-full"
       gapX={0}
@@ -68,30 +120,22 @@ export const FolderGridContainer = ({
           ref={(el) => {
             itemRefs.current[node.id] = el;
           }}
-          onKeyDown={(e) =>
-            handleGridNavigation(
-              e,
-              index,
-              rows,
-              keys,
-              itemRefs,
-              "row",
-              setSelectedIds
-            )
-          }
         >
-          <FolderGridItem
+          <ExplorerGridItem
             label={node.name}
             iconUrl={node.iconUrl}
             selected={selectedIds.has(node.id)}
-            onOpen={() => handleOpen(node.id)}
+            onOpen={() => {
+              setSelectedIds(new Set());
+              handleOpen(node.id);
+            }}
           />
         </div>
       ))}
-    </FolderGrid>
+    </ExplorerGrid>
   );
 };
-type FolderGridProps = {
+type ExplorerGridProps = {
   containerRef: Ref<HTMLDivElement>;
   onMouseDown: (e: React.MouseEvent) => void;
   children: React.ReactNode;
@@ -104,8 +148,9 @@ type FolderGridProps = {
   gapX?: number; // 16 (Tailwind gap-x-4 기준)
   gapY?: number; // 8  (Tailwind gap-y-2 기준)
   onRowsChange?: (rows: number) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 };
-function FolderGrid({
+function ExplorerGrid({
   containerRef,
   onMouseDown,
   children,
@@ -116,7 +161,8 @@ function FolderGrid({
   gapX = 16,
   gapY = 8,
   onRowsChange,
-}: FolderGridProps) {
+  onKeyDown,
+}: ExplorerGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState(1); // 세로 우선일 때 필요한 행 수
 
@@ -156,6 +202,8 @@ function FolderGrid({
     <div
       ref={containerRef}
       onMouseDown={onMouseDown}
+      onKeyDown={onKeyDown}
+      tabIndex={0}
       className={
         className ?? "absolute inset-0 h-dvh w-full overflow-hidden bg-teal-600"
       }
@@ -185,7 +233,7 @@ type ItemProps = {
   onBlur?: () => void;
 };
 
-function FolderGridItem({
+function ExplorerGridItem({
   label,
   iconUrl,
   selected = false,
@@ -193,8 +241,7 @@ function FolderGridItem({
   onFocus,
   onBlur,
 }: ItemProps) {
-  const [isFocus, setIsFocus] = useState(false);
-  const active = isFocus || selected;
+  const active = selected;
 
   const handleEnterOrSpace = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" || e.key === " ") {
@@ -210,11 +257,9 @@ function FolderGridItem({
       aria-selected={active}
       aria-label={label}
       onFocus={(e) => {
-        setIsFocus(true);
         onFocus?.();
       }}
       onBlur={(e) => {
-        setIsFocus(false);
         onBlur?.();
       }}
       onDoubleClick={() => onOpen?.()}

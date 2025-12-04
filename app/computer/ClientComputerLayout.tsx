@@ -13,7 +13,7 @@ import {
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
 import { useDragSelect } from "@lib/hooks/useDrag";
 import { useExplorer } from "@features/explorer/stores/fileExplorer";
-import { FolderGridContainer } from "@features/explorer/components/FolderGrid";
+import { ExplorerGridContainer } from "@features/explorer/components/ExplorerGrid";
 import { FileViewer } from "@features/explorer/components/FileViewer";
 import ComputerSidebar from "@app/computer/ComputerSidebar";
 
@@ -44,7 +44,7 @@ export default function WindowWindow({ winId }: { winId: string }) {
             <ComputerSidebar />
           </WindowSideBar>
           <WindowMainBody>
-            <FolderGridContainer
+            <ExplorerGridContainer
               containerRef={containerRef}
               onMouseDown={bindMouseDown}
               itemRefs={itemRefs}

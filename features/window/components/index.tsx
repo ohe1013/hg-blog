@@ -16,10 +16,7 @@ import { State, useWindow } from "../hooks/useWindow";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../style/index.scss";
 import Button from "@lib/components/Button";
-import {
-  useFileExplorerStore,
-  useViewMode,
-} from "../../../zustand/file/fileExplore";
+
 import { useExplorer } from "@features/explorer/stores/fileExplorer";
 
 // ---------- Context & Types ----------
@@ -157,9 +154,8 @@ const WindowResizeHeader = () => {
   );
 };
 
-// ---------- Menu ----------
 const WindowMenuBar = () => {
-  const { closeWindow } = useContext(WindowContext);
+  const { closeWindow, winId } = useContext(WindowContext);
   const [active, setActive] = useState<"file" | "help" | "view" | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const fileBtnRef = useRef<HTMLButtonElement>(null);
@@ -170,32 +166,40 @@ const WindowMenuBar = () => {
     setActive((prev) => (prev === menu ? null : menu));
 
   useEffect(() => {
-    const parent = menuRef.current?.parentElement;
-    if (!parent) return;
-    const keydownHandler = (e: KeyboardEvent) => {
-      if (e.code === "KeyF") {
-        fileBtnRef.current?.focus();
-        setActive("file");
-      }
-      if (e.code === "KeyH") {
-        helpBtnRef.current?.focus();
-        setActive("help");
-      }
-      if (e.code === "KeyV") {
-        viewBtnRef.current?.focus();
-        setActive("view");
-      }
-    };
-    parent.addEventListener("keydown", keydownHandler);
     const clickAway = (e: MouseEvent) => {
       if (!menuRef.current?.contains(e.target as Node)) setActive(null);
     };
     document.addEventListener("click", clickAway);
     return () => {
-      parent.removeEventListener("keydown", keydownHandler);
       document.removeEventListener("click", clickAway);
     };
   }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+
+    if (
+      target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA" ||
+      target.isContentEditable
+    ) {
+      return;
+    }
+
+    // 이 핫키들은 이 컴포넌트(또는 자식들)를 포커스한 상태에서만 동작
+    if (e.code === "KeyF") {
+      fileBtnRef.current?.focus();
+      setActive("file");
+    }
+    if (e.code === "KeyH") {
+      helpBtnRef.current?.focus();
+      setActive("help");
+    }
+    if (e.code === "KeyV") {
+      viewBtnRef.current?.focus();
+      setActive("view");
+    }
+  };
 
   return (
     <div
@@ -203,6 +207,12 @@ const WindowMenuBar = () => {
       className="WindowMenuBar"
       style={{ zIndex: 1000 }}
       role="menubar"
+      tabIndex={-1} // 포커스 가능하게
+      onMouseDown={() => {
+        // 클릭하면 이 컴포넌트를 "활성" 상태로
+        menuRef.current?.focus();
+      }}
+      onKeyDown={handleKeyDown}
     >
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
@@ -233,6 +243,7 @@ const WindowMenuBar = () => {
           <div className="divider divider--group-1-end" />
         </div>
       </div>
+
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
           onClick={() => onToggle("help")}
@@ -259,6 +270,7 @@ const WindowMenuBar = () => {
           </div>
         </div>
       </div>
+
       <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
         <Button
           onClick={() => onToggle("view")}

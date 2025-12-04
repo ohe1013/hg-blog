@@ -5,8 +5,6 @@ import "../styles/index.scss";
 import { AppsType } from "../../../zustand/application/applicationStore";
 import { handleGridNavigation } from "@lib/utils/keyboard";
 
-type GridKey = string;
-
 type DesktopGridProps = {
   containerRef: Ref<HTMLDivElement>;
   onMouseDown: (e: React.MouseEvent) => void;
