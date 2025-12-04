@@ -4,6 +4,7 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import "../styles/index.scss";
 import { AppsType } from "../../../zustand/application/applicationStore";
 import { handleGridNavigation } from "@lib/utils/keyboard";
+import { useGridNavigation } from "@lib/hooks/useGridNavigation";
 
 type DesktopGridProps = {
   containerRef: Ref<HTMLDivElement>;
@@ -18,6 +19,7 @@ type DesktopGridProps = {
   gapX?: number; // 16 (Tailwind gap-x-4 기준)
   gapY?: number; // 8  (Tailwind gap-y-2 기준)
   onRowsChange?: (rows: number) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 };
 
 function DesktopGrid({
@@ -31,6 +33,7 @@ function DesktopGrid({
   gapX = 16,
   gapY = 8,
   onRowsChange,
+  onKeyDown,
 }: DesktopGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState(1); // 세로 우선일 때 필요한 행 수
@@ -70,7 +73,16 @@ function DesktopGrid({
   return (
     <div
       ref={containerRef}
-      onMouseDown={onMouseDown}
+      onMouseDown={(e) => {
+        onMouseDown(e);
+        // 빈 공간 클릭 시 컨테이너에 포커스 강제
+        const target = e.target as HTMLElement;
+        if (!target.closest("[data-key]")) {
+          (e.currentTarget as HTMLElement).focus({ preventScroll: true });
+        }
+      }}
+      onKeyDown={onKeyDown}
+      tabIndex={0}
       className={
         className ?? "absolute inset-0 h-dvh w-full overflow-hidden bg-teal-600"
       }
@@ -187,11 +199,22 @@ function DesktopIconGrid({
     appStore.open(key);
   };
 
+  const { handleContainerKeyDown } = useGridNavigation({
+    rows,
+    keys,
+    itemRefs,
+    selectedIds: selectedIds as Set<string>,
+    setSelectedIds: setSelectedIds as any,
+    items: keys.map((k) => ({ id: k, name: appStore.apps[k].label })),
+    rowType: "col",
+  });
+
   return (
     <DesktopGrid
       containerRef={containerRef}
       onMouseDown={onMouseDown}
       onRowsChange={setRows}
+      onKeyDown={handleContainerKeyDown}
     >
       {keys.map((key, index) => {
         const app = appStore.apps[key];
@@ -202,17 +225,6 @@ function DesktopIconGrid({
             ref={(el) => {
               itemRefs.current[key] = el;
             }}
-            onKeyDown={(e) =>
-              handleGridNavigation(
-                e,
-                index,
-                rows,
-                keys,
-                itemRefs,
-                "col",
-                setSelectedIds as any
-              )
-            }
           >
             <DesktopGridItem
               label={app.label}
