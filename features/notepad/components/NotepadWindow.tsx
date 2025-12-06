@@ -14,7 +14,7 @@ interface NotepadWindowProps {
 }
 
 export default function NotepadWindow({ winId }: NotepadWindowProps) {
-  const { getById } = useApplicationStore((s) => s);
+  const { getById, close } = useApplicationStore((s) => s);
   const { fs } = useExplorer();
   const win = getById(winId);
   const [content, setContent] = useState("");
@@ -23,6 +23,11 @@ export default function NotepadWindow({ winId }: NotepadWindowProps) {
 
   useEffect(() => {
     if (fileId) {
+      const saved = localStorage.getItem(`notepad_content_${fileId}`);
+      if (saved !== null) {
+        setContent(saved);
+        return;
+      }
       const node = fs.byId[fileId];
       if (node && node.kind === "file" && typeof node.payload === "string") {
         setContent(node.payload);
@@ -30,12 +35,46 @@ export default function NotepadWindow({ winId }: NotepadWindowProps) {
     }
   }, [fileId, fs.byId]);
 
+  const handleSave = () => {
+    if (fileId) {
+      localStorage.setItem(`notepad_content_${fileId}`, content);
+    }
+  };
+
   if (!win) return null;
+
+  const menus = [
+    {
+      label: "File",
+      key: "file",
+      items: [
+        { label: "Save", onClick: handleSave },
+        { label: "Close", onClick: () => close(winId) },
+      ],
+    },
+    {
+      label: "Edit",
+      key: "edit",
+      items: [
+        { label: "Cut", disabled: true },
+        { label: "Copy", disabled: true },
+        { label: "Paste", disabled: true },
+      ],
+    },
+    {
+      label: "Help",
+      key: "help",
+      items: [
+        { label: "Help Topics", disabled: true },
+        { label: "About", disabled: true },
+      ],
+    },
+  ];
 
   return (
     <Window winId={winId}>
       <WindowResizeHeader />
-      <WindowMenuBar />
+      <WindowMenuBar menus={menus} />
       <WindowBody style={{ display: "flex", flexDirection: "column" }}>
         <textarea
           className="w-full h-full resize-none outline-none p-1 font-mono text-sm"

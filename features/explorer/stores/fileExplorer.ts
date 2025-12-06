@@ -13,6 +13,7 @@ type ExplorerState = {
   back: () => void;
   forward: () => void;
   up: () => void;
+  goBackTo: (id: FileId) => void;
 };
 
 const iconDict = {
@@ -27,7 +28,7 @@ const sampleFs: FileSystem = {
     // level 0
     root: {
       id: "root",
-      name: "This PC",
+      name: "Computer",
       kind: "folder",
       parentId: null,
       children: ["file_readme", "f_projects", "f_docs"],
@@ -38,13 +39,13 @@ const sampleFs: FileSystem = {
     // root files
     file_readme: {
       id: "file_readme",
-      name: "Readme.md",
+      name: "Readme.txt",
       kind: "file",
       parentId: "root",
       iconUrl: iconDict.notepad,
       type: "notepad",
       app: "markdown-viewer",
-      payload: "Welcome\nThis is a demo filesystem.",
+      payload: "Welcome\nThis is a demo filesystem. it's saved in localStorage.",
     },
 
     // level 1 folders
@@ -53,7 +54,7 @@ const sampleFs: FileSystem = {
       name: "Projects",
       kind: "folder",
       parentId: "root",
-      children: ["file_spec", "img_app", "f_photos"],
+      children: ["file_spec"],
       iconUrl: iconDict.folder,
       type: "folder",
     },
@@ -62,7 +63,7 @@ const sampleFs: FileSystem = {
       name: "Docs",
       kind: "folder",
       parentId: "root",
-      children: ["doc_design"],
+      children: [],
       iconUrl: iconDict.folder,
       type: "folder",
     },
@@ -222,5 +223,74 @@ export const useExplorer = create<ExplorerState>((set, get) => ({
     const node = fs.byId[currentId];
     if (!node || !node.parentId) return;
     open(node.parentId);
+  },
+
+  goBackTo: (id) => {
+    const { backStack, currentId, forwardStack } = get();
+    const index = backStack.lastIndexOf(id);
+    if (index === -1) return;
+
+    // backStack: [A, B, C, D] -> if go back to B (index 1)
+    // new Current: B
+    // new Back: [A]
+    // items to forward: [C, D] + [currentId] + forwardStack -> [currentId, D, C] + forwardStack?
+    // standard 'back' logic: pop D -> current D. push old Current to forward.
+    // If we skip multiple, we should push them all to forward in reverse order of visit?
+    
+    // correct history behavior:
+    // history: [A, B, C, D, Current]
+    // Jump to B.
+    // history: [A] + [B]
+    // forward: [C, D, Current] (in order of forward navigation)
+    
+    // items between index and end of backStack
+    const intermediate = backStack.slice(index + 1);
+    // intermediate = [C, D]
+    
+    // New state
+    // Back: [A]
+    // Current: B
+    // Forward: [C, D, Current] -- wait, if I press forward from B, I should go to C. 
+    // So forwardStack should be [C, D, Current] + oldForward?
+    // Actually typically forward stack is cleared if you *fork* history, but if you just go back, 
+    // you can go forward again.
+    
+    // Let's match single back behavior:
+    // single back from E (Current) to D:
+    // back: [A, B, C]
+    // current: D
+    // forward: [E] + oldForward
+    
+    // if back again to C:
+    // back: [A, B]
+    // current: C
+    // forward: [D, E] + oldForward
+    
+    // So if jumping B:
+    // back: [A]
+    // current: B
+    // forward: [C, D, E] + oldForward
+    
+    const itemsToForward = [...intermediate, currentId].reverse();
+    // intermediate=[C, D], current=E. [...int, curr] = [C, D, E].
+    // reverse -> [E, D, C] ?
+    // forward stack top is the *next* page.
+    // if current is B. next is C.
+    // So forward stack should start with C.
+    // So it should be [C, D, E].
+    
+    // So NO REVERSE on intermediate?
+    // [C, D] + [E] = [C, D, E]
+    // forwardStack = [C, D, E, ...oldForward]
+    
+    const newForward = [...intermediate, currentId, ...forwardStack];
+    const newBack = backStack.slice(0, index);
+    
+    set({
+      currentId: id,
+      backStack: newBack,
+      forwardStack: newForward,
+      selectedIds: [],
+    });
   },
 }));

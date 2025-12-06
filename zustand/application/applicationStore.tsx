@@ -80,8 +80,8 @@ const defaultInitState: ApplicationState = {
     notepad: {
       key: "notepad",
       label: "Notepad",
-      iconUrl: "/assets/img/notepad.png",
-      miniIconUrl: "/assets/img/notepad.png",
+      iconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-1.png",
+      miniIconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-0.png",
       showOnDesktop: false,
       singleton: false,
     },
@@ -158,7 +158,6 @@ export const createApplicationStore = (
       set((s) => ({ windows: s.windows.filter((w) => w.id !== id) })),
     focus: (id) =>
       set((s) => {
-        console.log(id);
         const newTop = s.topZ + 1;
         return {
           windows: s.windows.map((w) =>

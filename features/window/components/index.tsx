@@ -154,16 +154,32 @@ const WindowResizeHeader = () => {
   );
 };
 
-const WindowMenuBar = () => {
-  const { closeWindow, winId } = useContext(WindowContext);
-  const [active, setActive] = useState<"file" | "help" | "view" | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const fileBtnRef = useRef<HTMLButtonElement>(null);
-  const helpBtnRef = useRef<HTMLButtonElement>(null);
-  const viewBtnRef = useRef<HTMLButtonElement>(null);
+export interface MenuItem {
+  label: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}
 
-  const onToggle = (menu: typeof active) =>
-    setActive((prev) => (prev === menu ? null : menu));
+export interface MenuGroup {
+  label: string;
+  key: string;
+  items: MenuItem[];
+}
+
+interface WindowMenuBarProps {
+  menus?: MenuGroup[];
+}
+
+const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
+  const { closeWindow, winId } = useContext(WindowContext);
+  const [active, setActive] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  // Refs for focus management
+  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
+  const onToggle = (menuKey: string) =>
+    setActive((prev) => (prev === menuKey ? null : menuKey));
 
   useEffect(() => {
     const clickAway = (e: MouseEvent) => {
@@ -174,6 +190,35 @@ const WindowMenuBar = () => {
       document.removeEventListener("click", clickAway);
     };
   }, []);
+
+  // Default menus if none provided
+  const defaultMenus: MenuGroup[] = useMemo(() => [
+    {
+      label: "File",
+      key: "file",
+      items: [
+        { label: "Close", onClick: closeWindow }
+      ]
+    },
+    {
+      label: "Help",
+      key: "help",
+      items: [
+        { label: "Help Topics", disabled: true },
+        { label: "About", disabled: true }
+      ]
+    },
+    {
+      label: "View",
+      key: "view",
+      items: [
+        { label: "This is Dummy", disabled: true },
+        { label: "Sorry", disabled: true }
+      ]
+    }
+  ], [closeWindow]);
+
+  const menus = customMenus || defaultMenus;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
@@ -186,18 +231,28 @@ const WindowMenuBar = () => {
       return;
     }
 
-    // 이 핫키들은 이 컴포넌트(또는 자식들)를 포커스한 상태에서만 동작
+    // Basic hotkey support for standard menus
+    // This could be improved to be dynamic based on first letter
     if (e.code === "KeyF") {
-      fileBtnRef.current?.focus();
-      setActive("file");
+      const btn = buttonRefs.current.get("file");
+      if (btn) {
+        btn.focus();
+        setActive("file");
+      }
     }
     if (e.code === "KeyH") {
-      helpBtnRef.current?.focus();
-      setActive("help");
+      const btn = buttonRefs.current.get("help");
+      if (btn) {
+        btn.focus();
+        setActive("help");
+      }
     }
     if (e.code === "KeyV") {
-      viewBtnRef.current?.focus();
-      setActive("view");
+      const btn = buttonRefs.current.get("view");
+      if (btn) {
+        btn.focus();
+        setActive("view");
+      }
     }
   };
 
@@ -207,96 +262,67 @@ const WindowMenuBar = () => {
       className="WindowMenuBar"
       style={{ zIndex: 1000 }}
       role="menubar"
-      tabIndex={-1} // 포커스 가능하게
+      tabIndex={-1}
       onMouseDown={() => {
-        // 클릭하면 이 컴포넌트를 "활성" 상태로
         menuRef.current?.focus();
       }}
       onKeyDown={handleKeyDown}
     >
-      <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
-        <Button
-          onClick={() => onToggle("file")}
-          onMouseEnter={(e) =>
-            active && (e.currentTarget as HTMLButtonElement).focus()
-          }
-          ref={fileBtnRef}
-          className={active === "file" ? "active" : ""}
-          aria-haspopup="menu"
-          aria-expanded={active === "file"}
-        >
-          <span style={{ textDecoration: "underline" }}>F</span>ile
-        </Button>
-        <div className="StandardMenu">
-          <div className="divider divider--group-0-start" />
-          <div className="divider divider--group-0-end" />
-          <div className="divider divider--group-1-start" />
-          <div className="StandardMenuItem">
-            <button
-              className="StandardMenuItem__button btn"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={closeWindow}
-            >
-              Close
-            </button>
-          </div>
-          <div className="divider divider--group-1-end" />
+      {menus.map((group) => (
+        <div key={group.key} className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
+          <Button
+            onClick={() => onToggle(group.key)}
+            onMouseEnter={(e) =>
+              active && (e.currentTarget as HTMLButtonElement).focus()
+            }
+            ref={(el) => {
+              if (el) buttonRefs.current.set(group.key, el);
+              else buttonRefs.current.delete(group.key);
+            }}
+            className={active === group.key ? "active" : ""}
+            aria-haspopup="menu"
+            aria-expanded={active === group.key}
+          >
+            {/* Simple heuristic for underlining first letter: just render label for now, 
+                or manually handle "File" -> "F" underline if we want to be fancy. 
+                For now, let's just render the label. 
+                If we want to preserve the exact look of "File" with 'F' underlined, 
+                we'd need more complex data structure or parsing. 
+                I'll check if the label matches standard ones to apply underline. */}
+            {group.label === "File" ? <><span style={{ textDecoration: "underline" }}>F</span>ile</> :
+             group.label === "Help" ? <><span style={{ textDecoration: "underline" }}>H</span>elp</> :
+             group.label === "View" ? <><span style={{ textDecoration: "underline" }}>V</span>iew</> :
+             group.label}
+          </Button>
+          
+          {active === group.key && (
+            <div className="StandardMenu">
+              <div className="divider divider--group-0-start" />
+              {group.items.map((item, idx) => (
+                <div key={idx} className="StandardMenuItem">
+                  <button
+                    className={`StandardMenuItem__button ${item.disabled ? "disabled" : "btn"}`}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!item.disabled) {
+                        item.onClick?.();
+                        setActive(null);
+                      }
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                </div>
+              ))}
+              <div className="divider divider--group-0-end" />
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
-        <Button
-          onClick={() => onToggle("help")}
-          onMouseEnter={(e) =>
-            active && (e.currentTarget as HTMLButtonElement).focus()
-          }
-          ref={helpBtnRef}
-          className={active === "help" ? "active" : ""}
-          aria-haspopup="menu"
-          aria-expanded={active === "help"}
-        >
-          <span style={{ textDecoration: "underline" }}>H</span>elp
-        </Button>
-        <div className="StandardMenu">
-          <div className="divider divider--group-0-start" />
-          <div className="StandardMenuItem">
-            <button className="StandardMenuItem__button disabled">
-              Help Topics
-            </button>
-          </div>
-          <div className="divider divider--group-0-end" />
-          <div className="StandardMenuItem">
-            <button className="StandardMenuItem__button disabled">About</button>
-          </div>
-        </div>
-      </div>
-
-      <div className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
-        <Button
-          onClick={() => onToggle("view")}
-          onMouseEnter={(e) =>
-            active && (e.currentTarget as HTMLButtonElement).focus()
-          }
-          ref={viewBtnRef}
-          className={active === "view" ? "active" : ""}
-          aria-haspopup="menu"
-          aria-expanded={active === "view"}
-        >
-          <span style={{ textDecoration: "underline" }}>V</span>iew
-        </Button>
-        <div className="StandardMenu">
-          <div className="divider divider--group-0-start" />
-          <div className="StandardMenuItem">
-            <button className="StandardMenuItem__button disabled">
-              This is Dummy
-            </button>
-          </div>
-          <div className="divider divider--group-0-end" />
-          <div className="StandardMenuItem">
-            <button className="StandardMenuItem__button disabled">Sorry</button>
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   );
 };
@@ -304,7 +330,19 @@ const WindowMenuBar = () => {
 // ---------- AddressBar / Body / MainBody / SideBar / Status ----------
 // ---------- AddressBar / Body / MainBody / SideBar / Status ----------
 const WindowAddressBar = () => {
-  const { back, forward, up, backStack, forwardStack } = useExplorer();
+  const { back, forward, up, backStack, forwardStack, fs, goBackTo } = useExplorer();
+  const [isBackOpen, setBackOpen] = useState(false);
+  const backRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const close = (e: MouseEvent) => {
+        if (isBackOpen && backRef.current && !backRef.current.contains(e.target as Node)) {
+            setBackOpen(false);
+        }
+    }
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [isBackOpen]);
 
   const canBack = backStack.length > 0;
   const canForward = forwardStack.length > 0;
@@ -325,27 +363,80 @@ const WindowAddressBar = () => {
         ></div>
         <span className="label-text">Back</span>
       </button>
-      <button
-        className="toolbar-dropdown-button lightweight forward-dropdown-button"
-        style={{ boxShadow: "none", background: "none" }}
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{
-            fill: "currentColor",
-            display: "inline-block",
-            verticalAlign: "middle",
-          }}
+      <div style={{ display: "inline-block", position: "relative" ,width:"fit-content"}} ref={backRef}>
+        <button
+          className="toolbar-dropdown-button lightweight forward-dropdown-button "
+          style={{ boxShadow: "none", background: "none", minWidth:"fit-content",padding:"0px",height:"100%" }}
+          disabled={!canBack}
+          onClick={() => setBackOpen(!isBackOpen)}
         >
-          <path
-            style={{ transform: "rotate(90deg)", transformOrigin: "center" }}
-            d="m6 4 4 4-4 4z"
-          ></path>
-        </svg>
-      </button>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+              fill: "currentColor",
+              display: "inline-block",
+              verticalAlign: "middle",
+            }}
+          >
+            <path
+              style={{ transform: "rotate(90deg)", transformOrigin: "center" }}
+              d="m6 4 4 4-4 4z"
+            ></path>
+          </svg>
+        </button>
+        {isBackOpen && (
+            <div
+                style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 100,
+                    backgroundColor: "#c0c0c0",
+                    border: "2px solid",
+                    borderColor: "#dfdfdf #000000 #000000 #dfdfdf",
+                    boxShadow: "2px 2px 5px rgba(0,0,0,0.3)"
+                }}
+            >
+                {backStack.slice(-5).reverse().map((id) => {
+                    const node = fs.byId[id];
+                    return (
+                        <div
+                            key={id}
+                            style={{
+                                padding: "4px 8px",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                width:"max-content"
+                            }}
+                            onClick={() => {
+                                goBackTo(id);
+                                setBackOpen(false);
+                            }}
+                             onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = "#000080";
+                                e.currentTarget.style.color = "white";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = "";
+                                e.currentTarget.style.color = "black";
+                            }}
+                        >
+                            {node?.iconUrl && (
+                                <img src={node.iconUrl} alt="" style={{ width: "16px", height: "16px" }} />
+                            )}
+                            <span style={{ fontSize: "12px" }}>{node?.name || id}</span>
+                        </div>
+                    );
+                })}
+            </div>
+        )}
+      </div>
+
       <button
         className="toolbar-button "
         style={{ boxShadow: "none", background: "none" }}

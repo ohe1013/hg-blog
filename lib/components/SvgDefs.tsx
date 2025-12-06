@@ -20,7 +20,7 @@ export default function SvgDefs() {
             result="dark-parts-isolated"
           />
           <feFlood result="shadow-color" floodColor="rgb(128, 128, 128)" />
-          <feFlood result="hilight-color" floodColor="rgb(128, 128, 128)" />
+          <feFlood result="hilight-color" floodColor="rgb(255, 255, 255)" />
           <feOffset in="dark-parts-isolated" dx="1" dy="1" result="offset" />
           <feComposite
             in="hilight-color"
@@ -40,6 +40,7 @@ export default function SvgDefs() {
           </feMerge>
         </filter>
       </defs>
+      
     </svg>
   );
 }
