@@ -1,5 +1,5 @@
-@import "/styles/var/colors";
-@import "/styles/functions/box-shadows";
+@import "../../../styles/var/colors";
+@import "../../../styles/functions/box-shadows";
 
 @mixin desktop-icon {
   &__wrapper {

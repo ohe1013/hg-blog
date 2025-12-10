@@ -1,19 +1,23 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { NotionAPI } from "notion-client";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: { pageId: string } }
-) {
-  try {
-    const notion = new NotionAPI();
-    const recordMap = await notion.getPage(params.pageId);
+type RouteContext = {
+  params: Promise<{ pageId: string }>;
+};
 
-    // 캐시 정책은 취향껏 (예: 60초)
+export async function GET(_req: NextRequest, context: RouteContext) {
+  try {
+    const { pageId } = await context.params; // 🔹 여기서 await 필요
+
+    const notion = new NotionAPI();
+    const recordMap = await notion.getPage(pageId);
+
     return NextResponse.json(
       { recordMap },
       {
-        headers: { "Cache-Control": "s-maxage=60, stale-while-revalidate=300" },
+        headers: {
+          "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+        },
       }
     );
   } catch (e) {

@@ -1,6 +1,6 @@
-@import "/styles/var/colors.scss";
-@import "/styles/var/imageUrls.scss";
-@import "/styles/functions/box-shadows.scss";
+@import "../../../styles/var/colors.scss";
+@import "../../../styles/var/imageUrls.scss";
+@import "../../../styles/functions/box-shadows.scss";
 $windowPadding: 3px;
 
 @mixin window-addressbar {
@@ -20,9 +20,9 @@ $windowPadding: 3px;
     -1px 1px 0px $darkgrey, 0px 1px 0px $darkgrey, navBoxShadow(),
     -1px -1px 0px $darkgrey, 0px -1px 0px $darkgrey, inset 0px 1px 0px #ffffff,
     1px -1px 0px #ffffff;
-  > div{
+  > div {
     > button {
-      color:$black;
+      color: $black;
 
       &:disabled,
       &.disabled {

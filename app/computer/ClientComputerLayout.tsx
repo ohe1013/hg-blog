@@ -14,7 +14,6 @@ import { useApplicationStore } from "../../zustand/application/applicationProvid
 import { useDragSelect } from "@lib/hooks/useDrag";
 import { useExplorer } from "@features/explorer/stores/fileExplorer";
 import { ExplorerGridContainer } from "@features/explorer/components/ExplorerGrid";
-import { FileViewer } from "@features/explorer/components/FileViewer";
 import ComputerSidebar from "@app/computer/ComputerSidebar";
 
 // 블로그 창 1개 인스턴스를 렌더하는 컴포넌트

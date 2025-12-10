@@ -1,5 +1,5 @@
-@import "/styles/var/colors";
-@import "/styles/functions/box-shadows";
+@import "../../../styles/var/colors";
+@import "../../../styles/functions/box-shadows";
 $start: "https://win98icons.alexmeub.com/images/start-button.png";
 
 @mixin start-button {
@@ -22,8 +22,8 @@ $start: "https://win98icons.alexmeub.com/images/start-button.png";
 
   &.active,
   &.clicked {
-    box-shadow: dualShadow($black, #ffffff), shadow($black, 0, 1), dualShadow($darkgrey, $grey, 2),
-      0px -1px 0px $black;
+    box-shadow: dualShadow($black, #ffffff), shadow($black, 0, 1),
+      dualShadow($darkgrey, $grey, 2), 0px -1px 0px $black;
     background-position: 3px 2px;
     outline: 1px dotted $black;
     outline-offset: -4px;

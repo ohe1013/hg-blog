@@ -1,6 +1,6 @@
-@import "/styles/var/colors.scss";
-@import "/styles/var/imageUrls.scss";
-@import "/styles/functions/box-shadows.scss";
+@import "../../../styles/var/colors.scss";
+@import "../../../styles/var/imageUrls.scss";
+@import "../../../styles/functions/box-shadows.scss";
 $windowPadding: 3px;
 
 @mixin onDisplay($direction: "right") {

@@ -2,18 +2,16 @@ import "../styles/globals.css";
 import "98.css";
 import { ApplicationStoreProvider } from "../zustand/application/applicationProvider";
 import SvgDefs from "@lib/components/SvgDefs";
-import GlobalDesktopShell from "./GlobalDesktopShell"; // ✅ 새로 추가(클라이언트 컴포넌트)
+import GlobalDesktopShell from "./GlobalDesktopShell";
 import { GlobalWindowsHub } from "./GlobalWindowsHub";
 
 export default function RootLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: { lang: string };
 }) {
   return (
-    <html lang="ko" id={params.lang}>
+    <html lang="ko" id="ko">
       <head>
         <meta charSet="utf-8" />
         <title>hg-blog</title>
