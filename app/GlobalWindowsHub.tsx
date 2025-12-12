@@ -9,13 +9,11 @@ import {
 import BlogWindow from "./blog/ClientBlogLayout";
 import AboutWindow from "./about/ClientAboutLayout";
 import ComputerWindow from "./computer/ClientComputerLayout";
+import DocumentWindow from "./document/ClientDocumentLayout";
 
 // --- 각 앱의 내용 컴포넌트 매핑(임시) ---
 // 실제 구현된 컴포넌트로 교체해줘. props는 자유롭게 맞추면 돼.
 
-const DocumentWindow: ComponentType = () => (
-  <div style={{ padding: 12 }}>Documents</div>
-);
 import NotepadWindow from "@features/notepad/components/NotepadWindow";
 
 const appRenderer: Record<AppsType, ComponentType<any>> = {
@@ -36,6 +34,8 @@ export function GlobalWindowsHub() {
         if (w.app === "about") return <AboutWindow key={w.id} winId={w.id} />;
         if (w.app === "computer")
           return <ComputerWindow key={w.id} winId={w.id} />;
+        if (w.app === "document")
+          return <DocumentWindow key={w.id} winId={w.id} />;
         if (w.app === "notepad")
           return <NotepadWindow key={w.id} winId={w.id} />;
         return null;

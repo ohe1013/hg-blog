@@ -4,6 +4,7 @@ import { type StoreApi, useStore } from "zustand";
 import { shallow } from "zustand/shallow"; // 선택
 
 import { ApplicationStore, createApplicationStore } from "./applicationStore";
+import { useStoreWithEqualityFn } from "zustand/traditional";
 
 export const ApplicationStoreContext =
   createContext<StoreApi<ApplicationStore> | null>(null);
@@ -32,5 +33,5 @@ export function useApplicationStore<T>(
     throw new Error(
       "useApplicationStore must be used within ApplicationStoreProvider"
     );
-  return useStore(ctx, selector, equalityFn ?? shallow); // shallow는 선택
+  return useStoreWithEqualityFn(ctx, selector, equalityFn ?? shallow); // shallow는 선택
 }

@@ -3,7 +3,6 @@ import { Ref, useLayoutEffect, useRef, useState } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
 import { AppsType } from "../../../zustand/application/applicationStore";
-import { handleGridNavigation } from "@lib/utils/keyboard";
 import { useGridNavigation } from "@lib/hooks/useGridNavigation";
 
 type DesktopGridProps = {

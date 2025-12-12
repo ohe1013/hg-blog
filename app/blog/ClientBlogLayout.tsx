@@ -21,7 +21,7 @@ export default function BlogWindow({ winId }: { winId: string }) {
     <Window winId={winId}>
       <WindowResizeHeader />
       <WindowMenuBar />
-      <WindowBody>
+      <WindowBody style={{ display: "block" }}>
         <BlogView
           pageId={pageId}
           onNavigate={(nextId) => updateParams(winId, { pageId: nextId })}

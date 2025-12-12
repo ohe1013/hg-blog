@@ -23,7 +23,7 @@ export default function NotepadWindow({ winId }: NotepadWindowProps) {
 
   useEffect(() => {
     if (fileId) {
-      const saved = localStorage.getItem(`notepad_content_${fileId}`);
+      const saved = sessionStorage.getItem(`notepad_content_${fileId}`);
       if (saved !== null) {
         setContent(saved);
         return;
@@ -37,7 +37,7 @@ export default function NotepadWindow({ winId }: NotepadWindowProps) {
 
   const handleSave = () => {
     if (fileId) {
-      localStorage.setItem(`notepad_content_${fileId}`, content);
+      sessionStorage.setItem(`notepad_content_${fileId}`, content);
     }
   };
 

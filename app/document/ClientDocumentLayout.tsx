@@ -14,10 +14,10 @@ import { useApplicationStore } from "../../zustand/application/applicationProvid
 import { useDragSelect } from "@lib/hooks/useDrag";
 import { useExplorer } from "@features/explorer/stores/fileExplorer";
 import { ExplorerGridContainer } from "@features/explorer/components/ExplorerGrid";
-import ComputerSidebar from "@app/computer/ComputerSidebar";
+import DocumentSidebar from "./DocumentSidebar";
 
 // 블로그 창 1개 인스턴스를 렌더하는 컴포넌트
-export default function ComputerWindow({ winId }: { winId: string }) {
+export default function DocumentWindow({ winId }: { winId: string }) {
   const { getById } = useApplicationStore((s) => s);
   const win = getById(winId);
   const {
@@ -40,7 +40,7 @@ export default function ComputerWindow({ winId }: { winId: string }) {
         <WindowAddressBar />
         <WindowBody style={{ display: "flex" }}>
           <WindowSideBar>
-            <ComputerSidebar />
+            <DocumentSidebar />
           </WindowSideBar>
           <WindowMainBody>
             <ExplorerGridContainer

@@ -45,7 +45,8 @@ const sampleFs: FileSystem = {
       iconUrl: iconDict.notepad,
       type: "notepad",
       app: "markdown-viewer",
-      payload: "Welcome\nThis is a demo filesystem. it's saved in localStorage.",
+      payload:
+        "Welcome\nThis is a demo filesystem. it's saved in sessionStorage.",
     },
 
     // level 1 folders
@@ -236,41 +237,41 @@ export const useExplorer = create<ExplorerState>((set, get) => ({
     // items to forward: [C, D] + [currentId] + forwardStack -> [currentId, D, C] + forwardStack?
     // standard 'back' logic: pop D -> current D. push old Current to forward.
     // If we skip multiple, we should push them all to forward in reverse order of visit?
-    
+
     // correct history behavior:
     // history: [A, B, C, D, Current]
     // Jump to B.
     // history: [A] + [B]
     // forward: [C, D, Current] (in order of forward navigation)
-    
+
     // items between index and end of backStack
     const intermediate = backStack.slice(index + 1);
     // intermediate = [C, D]
-    
+
     // New state
     // Back: [A]
     // Current: B
-    // Forward: [C, D, Current] -- wait, if I press forward from B, I should go to C. 
+    // Forward: [C, D, Current] -- wait, if I press forward from B, I should go to C.
     // So forwardStack should be [C, D, Current] + oldForward?
-    // Actually typically forward stack is cleared if you *fork* history, but if you just go back, 
+    // Actually typically forward stack is cleared if you *fork* history, but if you just go back,
     // you can go forward again.
-    
+
     // Let's match single back behavior:
     // single back from E (Current) to D:
     // back: [A, B, C]
     // current: D
     // forward: [E] + oldForward
-    
+
     // if back again to C:
     // back: [A, B]
     // current: C
     // forward: [D, E] + oldForward
-    
+
     // So if jumping B:
     // back: [A]
     // current: B
     // forward: [C, D, E] + oldForward
-    
+
     const itemsToForward = [...intermediate, currentId].reverse();
     // intermediate=[C, D], current=E. [...int, curr] = [C, D, E].
     // reverse -> [E, D, C] ?
@@ -278,14 +279,14 @@ export const useExplorer = create<ExplorerState>((set, get) => ({
     // if current is B. next is C.
     // So forward stack should start with C.
     // So it should be [C, D, E].
-    
+
     // So NO REVERSE on intermediate?
     // [C, D] + [E] = [C, D, E]
     // forwardStack = [C, D, E, ...oldForward]
-    
+
     const newForward = [...intermediate, currentId, ...forwardStack];
     const newBack = backStack.slice(0, index);
-    
+
     set({
       currentId: id,
       backStack: newBack,

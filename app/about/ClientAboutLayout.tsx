@@ -21,7 +21,7 @@ export default function AboutWindow({ winId }: { winId: string }) {
     <Window winId={winId}>
       <WindowResizeHeader />
       <WindowMenuBar />
-      <WindowBody>
+      <WindowBody style={{ display: "block" }}>
         <AboutView
           pageId={pageId}
           onNavigate={(nextId) => updateParams(winId, { pageId: nextId })}
