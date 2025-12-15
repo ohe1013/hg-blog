@@ -6,12 +6,16 @@ import Renderer from "@features/notion/Renderer";
 export default function BlogView({
   pageId,
   onNavigate,
+  initialRecordMap,
 }: {
   pageId: string;
   onNavigate: (id: string) => void;
+  initialRecordMap?: any;
 }) {
-  const [recordMap, setRecordMap] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [recordMap, setRecordMap] = useState<any | null>(
+    initialRecordMap ?? null
+  );
+  const [loading, setLoading] = useState(!initialRecordMap);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;

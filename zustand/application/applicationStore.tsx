@@ -19,6 +19,7 @@ export type WindowInstance = {
   minimized: boolean;
   maximized: boolean;
   params?: Record<string, any>; // blog:{pageId}, about:{pageId} 등
+  initialData?: any; // SSR hydration data
 };
 
 type ApplicationState = {
@@ -30,7 +31,11 @@ type ApplicationState = {
 };
 
 type ApplicationMethod = {
-  open: (app: AppsType, params?: Record<string, any>) => string;
+  open: (
+    app: AppsType,
+    params?: Record<string, any>,
+    initialData?: any
+  ) => string;
   close: (id: string) => void;
   focus: (id: string) => void;
   updateParams: (id: string, path: Record<string, any>) => void;
@@ -105,7 +110,7 @@ export const createApplicationStore = (
   create<ApplicationStore>()((set, get) => ({
     ...initState,
 
-    open: (app, params) => {
+    open: (app, params, initialData) => {
       const { apps, windows, topZ } = get();
 
       if (apps[app]?.singleton) {
@@ -126,7 +131,7 @@ export const createApplicationStore = (
         }
       }
 
-      const id = crypto.randomUUID();
+      const id = Math.random().toString(36).substring(7);
       const baseTitle = apps[app]?.label ?? app;
       const title = computeTitle(baseTitle, app, params);
 
@@ -138,6 +143,7 @@ export const createApplicationStore = (
         maximized: false,
         zIndex: topZ + 1,
         params,
+        initialData,
       };
 
       set({ windows: [...windows, win], topZ: topZ + 1 });

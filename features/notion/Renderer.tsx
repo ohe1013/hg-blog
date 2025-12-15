@@ -121,7 +121,10 @@ export const Renderer = memo(function Renderer({
       PageLink: (props: any) => (
         <PageLink {...props} onNavigate={onNavigate} rootUrl={rootUrl} />
       ),
-      nextImage: Image,
+      nextImage: (props: any) => {
+        const alt = props.alt || "Blog image";
+        return <Image {...props} alt={alt} />;
+      },
       nextLink: Link,
     }),
     [onNavigate, rootUrl]

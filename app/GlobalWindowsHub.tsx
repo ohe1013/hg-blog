@@ -26,7 +26,6 @@ const appRenderer: Record<AppsType, ComponentType<any>> = {
 
 export function GlobalWindowsHub() {
   const { windows } = useApplicationStore((s) => s);
-
   return (
     <>
       {windows.map((w) => {

@@ -25,6 +25,10 @@ export default function RootLayout({
         <ApplicationStoreProvider>
           <GlobalDesktopShell />
           <GlobalWindowsHub />
+          {/* SSR Content: Hidden but present for SEO */}
+          <div style={{ display: "none" }} aria-hidden="true">
+            {children}
+          </div>
         </ApplicationStoreProvider>
       </body>
     </html>

@@ -96,7 +96,7 @@ type ExplorerGridProps = {
   onRowsChange?: (rows: number) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
 };
-function ExplorerGrid({
+export function ExplorerGrid({
   containerRef,
   onMouseDown,
   children,
@@ -179,7 +179,7 @@ type ItemProps = {
   onBlur?: () => void;
 };
 
-function ExplorerGridItem({
+export function ExplorerGridItem({
   label,
   iconUrl,
   selected = false,
