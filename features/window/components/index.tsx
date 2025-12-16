@@ -314,7 +314,8 @@ const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
                       }
                     }}
                   >
-                    {item.label}
+                    <span style={{ textDecoration: "underline" }}>{item.label.charAt(0).toUpperCase()}</span>
+                    {item.label.slice(1)}
                   </button>
                 </div>
               ))}
@@ -327,10 +328,9 @@ const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
   );
 };
 
-// ---------- AddressBar / Body / MainBody / SideBar / Status ----------
-// ---------- AddressBar / Body / MainBody / SideBar / Status ----------
+
 const WindowAddressBar = () => {
-  const { back, forward, up, backStack, forwardStack, fs, goBackTo } = useExplorer();
+  const { back, forward, up, backStack, forwardStack, fs, goBackTo,currentId } = useExplorer();
   const [isBackOpen, setBackOpen] = useState(false);
   const backRef = useRef<HTMLDivElement>(null);
 
@@ -475,8 +475,11 @@ const WindowAddressBar = () => {
       </button>
       <button
         className="toolbar-button "
-        style={{ boxShadow: "none", background: "none" }}
         onClick={up}
+        style={{boxShadow: "none", background: "none",
+            filter: currentId === "root" ? "url(#disabled-inset-filter)" : undefined,
+          }}
+        disabled={currentId === "root"}
       >
         <div className="icon up-button"></div>
         <span className="label-text">Up</span>

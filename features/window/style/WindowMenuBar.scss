@@ -91,7 +91,7 @@ $windowPadding: 3px;
   // position: absolute;
   overflow-y: visible;
   z-index: 20;
-  min-height: 22px;
+  min-height: fit-content;
   // padding-left: 12px;
   width: calc(100% - 2px);
   margin: 0px 1px;
