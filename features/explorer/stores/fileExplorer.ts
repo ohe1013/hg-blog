@@ -21,17 +21,37 @@ const iconDict = {
   notepad: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
   img: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
 };
-// fs/sampleFs.ts
-const sampleFs: FileSystem = {
-  rootId: "root",
+
+const fsDict: FileSystem = {
+  rootIds: ["computer", "document", "blog"], // ✅ 여러 root
   byId: {
-    // level 0
-    root: {
-      id: "root",
+    // root 1
+    computer: {
+      id: "computer",
       name: "Computer",
       kind: "folder",
-      parentId: null,
+      parentId: null, // ✅ 최상단
       children: ["file_readme", "f_projects", "f_docs"],
+      iconUrl: iconDict.folder,
+      type: "folder",
+    },
+
+    // root 2
+    blog: {
+      id: "blog",
+      name: "Blog",
+      kind: "folder",
+      parentId: null, // ✅ 최상단
+      children: ["doc_design"],
+      iconUrl: iconDict.folder,
+      type: "folder",
+    },
+    document: {
+      id: "document",
+      name: "Document",
+      kind: "folder",
+      parentId: null, // ✅ 최상단
+      children: ["doc_design"],
       iconUrl: iconDict.folder,
       type: "folder",
     },
@@ -41,7 +61,7 @@ const sampleFs: FileSystem = {
       id: "file_readme",
       name: "Readme.txt",
       kind: "file",
-      parentId: "root",
+      parentId: "computer",
       iconUrl: iconDict.notepad,
       type: "notepad",
       app: "markdown-viewer",
@@ -54,8 +74,8 @@ const sampleFs: FileSystem = {
       id: "f_projects",
       name: "Projects",
       kind: "folder",
-      parentId: "root",
-      children: ["file_spec"],
+      parentId: "computer",
+      children: ["file_spec", "f_photos", "img_app"],
       iconUrl: iconDict.folder,
       type: "folder",
     },
@@ -63,7 +83,7 @@ const sampleFs: FileSystem = {
       id: "f_docs",
       name: "Docs",
       kind: "folder",
-      parentId: "root",
+      parentId: "computer",
       children: [],
       iconUrl: iconDict.folder,
       type: "folder",
@@ -94,7 +114,7 @@ const sampleFs: FileSystem = {
       id: "doc_design",
       name: "design.md",
       kind: "file",
-      parentId: "f_docs",
+      parentId: "root_docs", // ✅ 두 번째 root 밑으로 이동
       iconUrl: iconDict.notepad,
       type: "notepad",
       app: "markdown-viewer",
@@ -160,8 +180,8 @@ const sampleFs: FileSystem = {
 };
 
 export const useExplorer = create<ExplorerState>((set, get) => ({
-  fs: sampleFs,
-  currentId: "root",
+  fs: fsDict,
+  currentId: fsDict.rootIds[0],
   selectedIds: [],
   backStack: [],
   forwardStack: [],
@@ -222,7 +242,13 @@ export const useExplorer = create<ExplorerState>((set, get) => ({
   up: () => {
     const { fs, currentId, open } = get();
     const node = fs.byId[currentId];
-    if (!node || !node.parentId) return;
+    if (!node) return;
+
+    if (!node.parentId) {
+      // TODO: 가상 "Computer" 뷰를 위한 처리 (지금은 그냥 no-op)
+      return;
+    }
+
     open(node.parentId);
   },
 

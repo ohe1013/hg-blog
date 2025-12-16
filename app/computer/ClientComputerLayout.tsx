@@ -12,7 +12,6 @@ import {
 } from "../../features/window/components";
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
 import { useDragSelect } from "@lib/hooks/useDrag";
-import { useExplorer } from "@features/explorer/stores/fileExplorer";
 import { ExplorerGridContainer } from "@features/explorer/components/ExplorerGrid";
 import ComputerSidebar from "@app/computer/ComputerSidebar";
 
@@ -29,9 +28,7 @@ export default function ComputerWindow({ winId }: { winId: string }) {
     selectedIds,
     setSelectedIds,
   } = useDragSelect<string>();
-  const { fs, currentId } = useExplorer();
   if (!win) return null; // 이미 닫혔을 수 있음
-  const current = fs.byId[currentId];
   return (
     <Fragment>
       <Window winId={winId}>
@@ -49,6 +46,7 @@ export default function ComputerWindow({ winId }: { winId: string }) {
               itemRefs={itemRefs}
               selectedIds={selectedIds}
               setSelectedIds={setSelectedIds}
+              winId={win.app}
             />
           </WindowMainBody>
         </WindowBody>

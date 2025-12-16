@@ -24,6 +24,6 @@ export type FileNode = FsNodeBase & {
 export type FsNode = FolderNode | FileNode;
 
 export type FileSystem = {
-  rootId: FileId;
+  rootIds: FileId[]; // rootId -> rootIds
   byId: Record<FileId, FsNode>;
 };

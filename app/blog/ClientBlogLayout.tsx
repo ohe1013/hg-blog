@@ -11,42 +11,57 @@ import {
   WindowStatus,
 } from "../../features/window/components";
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
-import BlogView from "@features/blog/BlogView";
-
-import BlogFolderView from "@features/blog/BlogFolderView";
 import BlogSidebar from "./BlogSidebar";
+import { Fragment } from "react/jsx-runtime";
+import { ExplorerGridContainer } from "@features/explorer/components/ExplorerGrid";
+import { useDragSelect } from "@lib/hooks/useDrag";
 
 // 블로그 창 1개 인스턴스를 렌더하는 컴포넌트
 export default function BlogWindow({ winId }: { winId: string }) {
-  const { getById, updateParams } = useApplicationStore((s) => s);
+  const { getById } = useApplicationStore((s) => s);
   const win = getById(winId);
   if (!win) return null; // 이미 닫혔을 수 있음
   const pageId = win.params?.pageId ?? rootDir.blog;
-  console.log(pageId, rootDir.blog);
+  const {
+    containerRef,
+    selection,
+    bindMouseDown,
+    SelectionRect,
+    itemRefs,
+    selectedIds,
+    setSelectedIds,
+  } = useDragSelect<string>();
   return (
-    <Window winId={winId}>
-      <WindowResizeHeader />
-      <WindowMenuBar />
-      <WindowAddressBar />
-      <WindowBody style={{ display: "flex" }}>
-        <WindowSideBar>
-          <BlogSidebar />
-        </WindowSideBar>
-        <WindowMainBody>
-          {pageId === rootDir.blog ? (
-            <BlogFolderView
-              onNavigate={(nextId) => updateParams(winId, { pageId: nextId })}
+    <Fragment>
+      <Window winId={winId}>
+        <WindowResizeHeader />
+        <WindowMenuBar />
+        <WindowAddressBar />
+        <WindowBody style={{ display: "flex" }}>
+          <WindowSideBar>
+            <BlogSidebar />
+          </WindowSideBar>
+          <WindowMainBody>
+            <ExplorerGridContainer
+              containerRef={containerRef}
+              onMouseDown={bindMouseDown}
+              itemRefs={itemRefs}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+              winId={win.app}
             />
-          ) : (
-            <BlogView
-              pageId={pageId}
-              onNavigate={(nextId) => updateParams(winId, { pageId: nextId })}
-              initialRecordMap={win.initialData}
-            />
-          )}
-        </WindowMainBody>
-      </WindowBody>
-      <WindowStatus />
-    </Window>
+          </WindowMainBody>
+        </WindowBody>
+        <WindowStatus />
+      </Window>
+      {selection.visible && (
+        <SelectionRect
+          x={selection.x}
+          y={selection.y}
+          w={selection.w}
+          h={selection.h}
+        />
+      )}
+    </Fragment>
   );
 }

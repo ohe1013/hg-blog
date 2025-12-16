@@ -12,6 +12,7 @@ interface ExplorerGridContainerProps {
   itemRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
   selectedIds: Set<string>;
   setSelectedIds: (ids: Set<string>) => void;
+  winId: string;
 }
 
 export const ExplorerGridContainer = ({
@@ -20,10 +21,11 @@ export const ExplorerGridContainer = ({
   itemRefs,
   selectedIds,
   setSelectedIds,
+  winId,
 }: ExplorerGridContainerProps) => {
-  const { fs, currentId } = useExplorer();
+  const { fs } = useExplorer();
   const [rows, setRows] = useState(1);
-  const cur = fs.byId[currentId];
+  const cur = fs.byId[winId];
   const { handleOpen } = useItemInteraction();
 
   if (!cur || cur.kind !== "folder") return null;
