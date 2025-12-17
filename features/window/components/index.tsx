@@ -17,7 +17,7 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import "../style/index.scss";
 import Button from "@lib/components/Button";
 
-import { useExplorer } from "@features/explorer/stores/fileExplorer";
+import { useExplorerContext } from "@features/explorer/stores/ExplorerContext";
 
 // ---------- Context & Types ----------
 type WindowCtx = {
@@ -174,7 +174,7 @@ const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
   const { closeWindow, winId } = useContext(WindowContext);
   const [active, setActive] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  
+
   // Refs for focus management
   const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
@@ -192,31 +192,32 @@ const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
   }, []);
 
   // Default menus if none provided
-  const defaultMenus: MenuGroup[] = useMemo(() => [
-    {
-      label: "File",
-      key: "file",
-      items: [
-        { label: "Close", onClick: closeWindow }
-      ]
-    },
-    {
-      label: "Help",
-      key: "help",
-      items: [
-        { label: "Help Topics", disabled: true },
-        { label: "About", disabled: true }
-      ]
-    },
-    {
-      label: "View",
-      key: "view",
-      items: [
-        { label: "This is Dummy", disabled: true },
-        { label: "Sorry", disabled: true }
-      ]
-    }
-  ], [closeWindow]);
+  const defaultMenus: MenuGroup[] = useMemo(
+    () => [
+      {
+        label: "File",
+        key: "file",
+        items: [{ label: "Close", onClick: closeWindow }],
+      },
+      {
+        label: "Help",
+        key: "help",
+        items: [
+          { label: "Help Topics", disabled: true },
+          { label: "About", disabled: true },
+        ],
+      },
+      {
+        label: "View",
+        key: "view",
+        items: [
+          { label: "This is Dummy", disabled: true },
+          { label: "Sorry", disabled: true },
+        ],
+      },
+    ],
+    [closeWindow]
+  );
 
   const menus = customMenus || defaultMenus;
 
@@ -269,7 +270,10 @@ const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
       onKeyDown={handleKeyDown}
     >
       {menus.map((group) => (
-        <div key={group.key} className="StandardMenuWrapper MenuBar__section WindowProgram__menu">
+        <div
+          key={group.key}
+          className="StandardMenuWrapper MenuBar__section WindowProgram__menu"
+        >
           <Button
             onClick={() => onToggle(group.key)}
             onMouseEnter={(e) =>
@@ -289,19 +293,32 @@ const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
                 If we want to preserve the exact look of "File" with 'F' underlined, 
                 we'd need more complex data structure or parsing. 
                 I'll check if the label matches standard ones to apply underline. */}
-            {group.label === "File" ? <><span style={{ textDecoration: "underline" }}>F</span>ile</> :
-             group.label === "Help" ? <><span style={{ textDecoration: "underline" }}>H</span>elp</> :
-             group.label === "View" ? <><span style={{ textDecoration: "underline" }}>V</span>iew</> :
-             group.label}
+            {group.label === "File" ? (
+              <>
+                <span style={{ textDecoration: "underline" }}>F</span>ile
+              </>
+            ) : group.label === "Help" ? (
+              <>
+                <span style={{ textDecoration: "underline" }}>H</span>elp
+              </>
+            ) : group.label === "View" ? (
+              <>
+                <span style={{ textDecoration: "underline" }}>V</span>iew
+              </>
+            ) : (
+              group.label
+            )}
           </Button>
-          
+
           {active === group.key && (
             <div className="StandardMenu">
               <div className="divider divider--group-0-start" />
               {group.items.map((item, idx) => (
                 <div key={idx} className="StandardMenuItem">
                   <button
-                    className={`StandardMenuItem__button ${item.disabled ? "disabled" : "btn"}`}
+                    className={`StandardMenuItem__button ${
+                      item.disabled ? "disabled" : "btn"
+                    }`}
                     onMouseDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -314,7 +331,9 @@ const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
                       }
                     }}
                   >
-                    <span style={{ textDecoration: "underline" }}>{item.label.charAt(0).toUpperCase()}</span>
+                    <span style={{ textDecoration: "underline" }}>
+                      {item.label.charAt(0).toUpperCase()}
+                    </span>
                     {item.label.slice(1)}
                   </button>
                 </div>
@@ -328,18 +347,31 @@ const WindowMenuBar = ({ menus: customMenus }: WindowMenuBarProps) => {
   );
 };
 
-
 const WindowAddressBar = () => {
-  const { back, forward, up, backStack, forwardStack, fs, goBackTo,currentId } = useExplorer();
+  const {
+    back,
+    forward,
+    up,
+    backStack,
+    forwardStack,
+    fs,
+    goBackTo,
+    currentId,
+    isRoot,
+  } = useExplorerContext((s) => s);
   const [isBackOpen, setBackOpen] = useState(false);
   const backRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
-        if (isBackOpen && backRef.current && !backRef.current.contains(e.target as Node)) {
-            setBackOpen(false);
-        }
-    }
+      if (
+        isBackOpen &&
+        backRef.current &&
+        !backRef.current.contains(e.target as Node)
+      ) {
+        setBackOpen(false);
+      }
+    };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, [isBackOpen]);
@@ -363,10 +395,23 @@ const WindowAddressBar = () => {
         ></div>
         <span className="label-text">Back</span>
       </button>
-      <div style={{ display: "inline-block", position: "relative" ,width:"fit-content"}} ref={backRef}>
+      <div
+        style={{
+          display: "inline-block",
+          position: "relative",
+          width: "fit-content",
+        }}
+        ref={backRef}
+      >
         <button
           className="toolbar-dropdown-button lightweight forward-dropdown-button "
-          style={{ boxShadow: "none", background: "none", minWidth:"fit-content",padding:"0px",height:"100%" }}
+          style={{
+            boxShadow: "none",
+            background: "none",
+            minWidth: "fit-content",
+            padding: "0px",
+            height: "100%",
+          }}
           disabled={!canBack}
           onClick={() => setBackOpen(!isBackOpen)}
         >
@@ -388,52 +433,59 @@ const WindowAddressBar = () => {
           </svg>
         </button>
         {isBackOpen && (
-            <div
-                style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    zIndex: 100,
-                    backgroundColor: "#c0c0c0",
-                    border: "2px solid",
-                    borderColor: "#dfdfdf #000000 #000000 #dfdfdf",
-                    boxShadow: "2px 2px 5px rgba(0,0,0,0.3)"
-                }}
-            >
-                {backStack.slice(-5).reverse().map((id) => {
-                    const node = fs.byId[id];
-                    return (
-                        <div
-                            key={id}
-                            style={{
-                                padding: "4px 8px",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                width:"max-content"
-                            }}
-                            onClick={() => {
-                                goBackTo(id);
-                                setBackOpen(false);
-                            }}
-                             onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = "#000080";
-                                e.currentTarget.style.color = "white";
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = "";
-                                e.currentTarget.style.color = "black";
-                            }}
-                        >
-                            {node?.iconUrl && (
-                                <img src={node.iconUrl} alt="" style={{ width: "16px", height: "16px" }} />
-                            )}
-                            <span style={{ fontSize: "12px" }}>{node?.name || id}</span>
-                        </div>
-                    );
-                })}
-            </div>
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              zIndex: 100,
+              backgroundColor: "#c0c0c0",
+              border: "2px solid",
+              borderColor: "#dfdfdf #000000 #000000 #dfdfdf",
+              boxShadow: "2px 2px 5px rgba(0,0,0,0.3)",
+            }}
+          >
+            {backStack
+              .slice(-5)
+              .reverse()
+              .map((id) => {
+                const node = fs.byId[id];
+                return (
+                  <div
+                    key={id}
+                    style={{
+                      padding: "4px 8px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      width: "max-content",
+                    }}
+                    onClick={() => {
+                      goBackTo(id);
+                      setBackOpen(false);
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#000080";
+                      e.currentTarget.style.color = "white";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "";
+                      e.currentTarget.style.color = "black";
+                    }}
+                  >
+                    {node?.iconUrl && (
+                      <img
+                        src={node.iconUrl}
+                        alt=""
+                        style={{ width: "16px", height: "16px" }}
+                      />
+                    )}
+                    <span style={{ fontSize: "12px" }}>{node?.name || id}</span>
+                  </div>
+                );
+              })}
+          </div>
         )}
       </div>
 
@@ -476,10 +528,12 @@ const WindowAddressBar = () => {
       <button
         className="toolbar-button "
         onClick={up}
-        style={{boxShadow: "none", background: "none",
-            filter: currentId === "root" ? "url(#disabled-inset-filter)" : undefined,
-          }}
-        disabled={currentId === "root"}
+        style={{
+          boxShadow: "none",
+          background: "none",
+          filter: isRoot() ? "url(#disabled-inset-filter)" : undefined,
+        }}
+        disabled={isRoot()}
       >
         <div className="icon up-button"></div>
         <span className="label-text">Up</span>

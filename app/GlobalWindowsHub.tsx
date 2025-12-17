@@ -15,6 +15,7 @@ import DocumentWindow from "./document/ClientDocumentLayout";
 // 실제 구현된 컴포넌트로 교체해줘. props는 자유롭게 맞추면 돼.
 
 import NotepadWindow from "@features/notepad/components/NotepadWindow";
+import BlogViewerWindow from "@features/blog/components/BlogViewerWindow";
 
 const appRenderer: Record<AppsType, ComponentType<any>> = {
   blog: BlogWindow,
@@ -22,6 +23,7 @@ const appRenderer: Record<AppsType, ComponentType<any>> = {
   computer: ComputerWindow,
   document: DocumentWindow,
   notepad: NotepadWindow,
+  "blog-viewer": BlogViewerWindow,
 };
 
 export function GlobalWindowsHub() {
@@ -37,6 +39,8 @@ export function GlobalWindowsHub() {
           return <DocumentWindow key={w.id} winId={w.id} />;
         if (w.app === "notepad")
           return <NotepadWindow key={w.id} winId={w.id} />;
+        if (w.app === "blog-viewer")
+          return <BlogViewerWindow key={w.id} winId={w.id} />;
         return null;
       })}
     </>

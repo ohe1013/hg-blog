@@ -14,6 +14,7 @@ import { useApplicationStore } from "../../zustand/application/applicationProvid
 import { useDragSelect } from "@lib/hooks/useDrag";
 import { ExplorerGridContainer } from "@features/explorer/components/ExplorerGrid";
 import ComputerSidebar from "@app/computer/ComputerSidebar";
+import { ExplorerProvider } from "@features/explorer/stores/ExplorerContext";
 
 // 블로그 창 1개 인스턴스를 렌더하는 컴포넌트
 export default function ComputerWindow({ winId }: { winId: string }) {
@@ -31,35 +32,36 @@ export default function ComputerWindow({ winId }: { winId: string }) {
   if (!win) return null; // 이미 닫혔을 수 있음
   return (
     <Fragment>
-      <Window winId={winId}>
-        <WindowResizeHeader />
-        <WindowMenuBar />
-        <WindowAddressBar />
-        <WindowBody style={{ display: "flex" }}>
-          <WindowSideBar>
-            <ComputerSidebar />
-          </WindowSideBar>
-          <WindowMainBody>
-            <ExplorerGridContainer
-              containerRef={containerRef}
-              onMouseDown={bindMouseDown}
-              itemRefs={itemRefs}
-              selectedIds={selectedIds}
-              setSelectedIds={setSelectedIds}
-              winId={win.app}
-            />
-          </WindowMainBody>
-        </WindowBody>
-        <WindowStatus />
-      </Window>
-      {selection.visible && (
-        <SelectionRect
-          x={selection.x}
-          y={selection.y}
-          w={selection.w}
-          h={selection.h}
-        />
-      )}
+      <ExplorerProvider initialId="computer">
+        <Window winId={winId}>
+          <WindowResizeHeader />
+          <WindowMenuBar />
+          <WindowAddressBar />
+          <WindowBody style={{ display: "flex" }}>
+            <WindowSideBar>
+              <ComputerSidebar selectedIds={selectedIds} />
+            </WindowSideBar>
+            <WindowMainBody>
+              <ExplorerGridContainer
+                containerRef={containerRef}
+                onMouseDown={bindMouseDown}
+                itemRefs={itemRefs}
+                selectedIds={selectedIds}
+                setSelectedIds={setSelectedIds}
+              />
+            </WindowMainBody>
+          </WindowBody>
+          <WindowStatus />
+        </Window>
+        {selection.visible && (
+          <SelectionRect
+            x={selection.x}
+            y={selection.y}
+            w={selection.w}
+            h={selection.h}
+          />
+        )}
+      </ExplorerProvider>
     </Fragment>
   );
 }

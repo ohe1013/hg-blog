@@ -1,8 +1,7 @@
-import { NotionAPI } from "notion-client";
-import BlogSSRWrapper from "./BlogSSRWrapper";
-import { rootDir } from "@features/notion/data";
-
+import { getBlogPosts } from "@features/notion/api";
+import BlogStateInitializer from "./BlogStateInitializer";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const revalidate = 3600; // 1 hour
 
@@ -12,18 +11,24 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const notion = new NotionAPI();
-  try {
-    const recordMap = await notion.getPage(rootDir.blog);
-    return <BlogSSRWrapper recordMap={recordMap} pageId={rootDir.blog} />;
-  } catch (error: any) {
-    console.error("Failed to fetch blog page:", error);
-    return (
-      <div style={{ padding: 20, color: "red" }}>
-        <h1>Error loading blog</h1>
-        <pre>{JSON.stringify(error, null, 2)}</pre>
-        <p>{error?.message}</p>
+  const posts = await getBlogPosts();
+
+  return (
+    <>
+      <div className="sr-only">
+        <h1>HG Blog Posts</h1>
+        <ul>
+          {posts.map((post) => (
+            <li key={post.pageId}>
+              <Link href={`/blog/${post.pageId}`}>{post.title}</Link>
+              <time dateTime={new Date(post.createdTime).toISOString()}>
+                {new Date(post.createdTime).toLocaleDateString()}
+              </time>
+            </li>
+          ))}
+        </ul>
       </div>
-    );
-  }
+      <BlogStateInitializer initialPosts={posts} />
+    </>
+  );
 }

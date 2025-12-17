@@ -7,7 +7,7 @@ import {
   WindowStatus,
 } from "../../window/components";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
-import { useExplorer } from "../../explorer/stores/fileExplorer";
+import { initialFs } from "../../fs/data/initialFs";
 
 interface NotepadWindowProps {
   winId: string;
@@ -15,7 +15,7 @@ interface NotepadWindowProps {
 
 export default function NotepadWindow({ winId }: NotepadWindowProps) {
   const { getById, close } = useApplicationStore((s) => s);
-  const { fs } = useExplorer();
+  const fs = initialFs;
   const win = getById(winId);
   const [content, setContent] = useState("");
 

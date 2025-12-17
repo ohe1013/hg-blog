@@ -1,8 +1,8 @@
-import { useExplorer } from "../stores/fileExplorer";
+import { useExplorerContext } from "../stores/ExplorerContext";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 
 export const useItemInteraction = () => {
-  const { fs, open } = useExplorer();
+  const { fs, open } = useExplorerContext((s) => s);
   const { open: openApp } = useApplicationStore((s) => s);
 
   const handleOpen = (id: string) => {
@@ -16,10 +16,18 @@ export const useItemInteraction = () => {
       const appKey =
         node.app === "markdown-viewer" || node.app === "text-viewer"
           ? "notepad"
+          : node.app === "blog-viewer"
+          ? "blog-viewer"
           : (node.app as any);
 
       if (appKey === "notepad") {
         openApp("notepad", { fileId: id });
+      } else if (appKey === "blog-viewer") {
+        // Open blog viewer window
+        openApp("blog-viewer", {
+          fileId: id,
+          pageId: (node.payload as any)?.pageId,
+        });
       } else {
         console.warn("No app for", node.app);
       }

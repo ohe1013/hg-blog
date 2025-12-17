@@ -1,6 +1,4 @@
-import { useExplorer } from "../stores/fileExplorer";
-import { useApplicationStore } from "../../../zustand/application/applicationProvider";
-import { handleGridNavigation } from "@lib/utils/keyboard";
+import { useExplorerContext } from "../stores/ExplorerContext";
 import { Ref, useLayoutEffect, useRef, useState } from "react";
 import "../styles/index.scss";
 import { useItemInteraction } from "../hooks/useItemInteraction";
@@ -12,7 +10,6 @@ interface ExplorerGridContainerProps {
   itemRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
   selectedIds: Set<string>;
   setSelectedIds: (ids: Set<string>) => void;
-  winId: string;
 }
 
 export const ExplorerGridContainer = ({
@@ -21,11 +18,10 @@ export const ExplorerGridContainer = ({
   itemRefs,
   selectedIds,
   setSelectedIds,
-  winId,
 }: ExplorerGridContainerProps) => {
-  const { fs } = useExplorer();
+  const { fs, currentId } = useExplorerContext((s) => s);
   const [rows, setRows] = useState(1);
-  const cur = fs.byId[winId];
+  const cur = fs.byId[currentId];
   const { handleOpen } = useItemInteraction();
 
   if (!cur || cur.kind !== "folder") return null;

@@ -1,6 +1,12 @@
 import { create } from "zustand";
 
-export type AppsType = "blog" | "about" | "computer" | "document" | "notepad";
+export type AppsType =
+  | "blog"
+  | "about"
+  | "computer"
+  | "document"
+  | "notepad"
+  | "blog-viewer";
 
 type AppCatalogItem = {
   key: AppsType;
@@ -90,6 +96,14 @@ const defaultInitState: ApplicationState = {
       showOnDesktop: false,
       singleton: false,
     },
+    "blog-viewer": {
+      key: "blog-viewer",
+      label: "Blog Post",
+      iconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-1.png",
+      miniIconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-0.png",
+      showOnDesktop: false,
+      singleton: false,
+    },
   },
   windows: [],
   topZ: 1,
@@ -99,7 +113,10 @@ function computeTitle(
   app: AppsType,
   params?: Record<string, any>
 ) {
-  if ((app === "blog" || app === "about") && params?.pageId) {
+  if (
+    (app === "blog" || app === "about" || app === "blog-viewer") &&
+    params?.pageId
+  ) {
     return `${base} - ${String(params.pageId).slice(0, 6)}`;
   }
   return base;
