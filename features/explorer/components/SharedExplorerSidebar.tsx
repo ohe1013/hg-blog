@@ -1,10 +1,21 @@
 import { useExplorerContext } from "@features/explorer/stores/ExplorerContext";
 import { Fragment } from "react";
 
-interface ComputerSidebarProps {
+interface SharedExplorerSidebarProps {
+  iconUrl: string;
+  title: string;
+  defaultInfo: string;
   selectedIds: Set<string>;
+  iconStyle?: React.CSSProperties;
 }
-export default function ComputerSidebar({ selectedIds }: ComputerSidebarProps) {
+
+export default function SharedExplorerSidebar({
+  iconUrl,
+  title,
+  defaultInfo,
+  selectedIds,
+  iconStyle,
+}: SharedExplorerSidebarProps) {
   const { fs } = useExplorerContext((s) => s);
   const selectedNodes = Array.from(selectedIds || [])
     .map((id) => fs.byId[id])
@@ -12,13 +23,10 @@ export default function ComputerSidebar({ selectedIds }: ComputerSidebarProps) {
 
   return (
     <Fragment>
-      <p>
-        <img
-          draggable="false"
-          src="https://98.js.org/images/icons/hard-disk-drive-32x32.png"
-        />
+      {/* <p>
+        <img draggable="false" src={iconUrl} style={iconStyle} />
       </p>
-      <p className="Title">(C:)</p>
+      <p className="Title">{title}</p>
       <p className="LogoLine">
         <img
           src="https://98.js.org/src/WEB//wvline.gif"
@@ -26,6 +34,7 @@ export default function ComputerSidebar({ selectedIds }: ComputerSidebarProps) {
           height="1px"
         />
       </p>
+
       <p>
         {selectedNodes.length === 1 ? (
           <div
@@ -47,11 +56,9 @@ export default function ComputerSidebar({ selectedIds }: ComputerSidebarProps) {
             {selectedNodes.map((n) => n.name).join("\n")}
           </div>
         ) : (
-          <span id="Info">Select an item to view its description.</span>
+          <span id="Info">{defaultInfo}</span>
         )}
-      </p>
-
-      <div id="Media"></div>
+      </p> */}
     </Fragment>
   );
 }

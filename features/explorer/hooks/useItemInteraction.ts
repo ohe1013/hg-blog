@@ -26,7 +26,6 @@ export const useItemInteraction = () => {
         // Open blog viewer window
         openApp("blog-viewer", {
           fileId: id,
-          pageId: (node.payload as any)?.pageId,
         });
       } else {
         console.warn("No app for", node.app);

@@ -4,7 +4,7 @@ import { iconDict } from "./icon";
 export const blog: FileData = {
   file_notion: {
     id: "file_notion",
-    name: "notion.md",
+    name: "blog.md",
     kind: "file",
     parentId: "blog",
     iconUrl: iconDict.notion,

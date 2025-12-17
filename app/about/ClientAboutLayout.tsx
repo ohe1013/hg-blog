@@ -1,33 +1,27 @@
 "use client";
-import { rootDir } from "@features/notion/data";
-import {
-  Window,
-  WindowBody,
-  WindowMenuBar,
-  WindowResizeHeader,
-  WindowStatus,
-} from "../../features/window/components";
-import { useApplicationStore } from "../../zustand/application/applicationProvider";
-import AboutView from "@features/about/AboutView";
 
-// 블로그 창 1개 인스턴스를 렌더하는 컴포넌트
+import { BlogPost } from "@features/notion/api";
+import { useApplicationStore } from "../../zustand/application/applicationProvider";
+import SharedExplorerLayout from "@features/explorer/components/SharedExplorerLayout";
+
 export default function AboutWindow({ winId }: { winId: string }) {
   const { getById, updateParams } = useApplicationStore((s) => s);
   const win = getById(winId);
-  if (!win) return null; // 이미 닫혔을 수 있음
-  const pageId = win.params?.pageId ?? rootDir.about;
+  if (!win) return null;
+
+  const initialPosts = win.params?.initialPosts as BlogPost[] | undefined;
 
   return (
-    <Window winId={winId}>
-      <WindowResizeHeader />
-      <WindowMenuBar />
-      <WindowBody style={{ display: "block" }}>
-        <AboutView
-          pageId={pageId}
-          onNavigate={(nextId) => updateParams(winId, { pageId: nextId })}
-        />
-      </WindowBody>
-      <WindowStatus />
-    </Window>
+    <SharedExplorerLayout
+      winId={winId}
+      explorerId="about"
+      sidebarConfig={{
+        iconUrl: "/assets/img/notion-logo-no-background.png",
+        title: "About",
+        defaultInfo: "Information about me.",
+        iconStyle: { width: 32, height: 32 },
+      }}
+      initialPosts={initialPosts}
+    />
   );
 }

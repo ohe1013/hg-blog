@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { NotionAPI } from "notion-client";
+"use client";
+import { useEffect, useState } from "react";
 import {
   Window,
   WindowBody,
@@ -9,26 +9,27 @@ import {
 } from "../../window/components";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import Renderer from "@features/notion/Renderer";
+import { initialFs } from "@features/fs/data/initialFs";
+import { FileNode } from "@features/fs/types";
 
 interface BlogViewerWindowProps {
   winId: string;
 }
 
 export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
-  const { getById, close } = useApplicationStore((s) => s);
+  const { getById } = useApplicationStore((s) => s);
+  const fs = initialFs;
   const win = getById(winId);
   const [recordMap, setRecordMap] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const pageId = win?.params?.pageId;
-
+  const fileId = win?.params?.fileId;
+  const node = fs.byId[fileId];
+  if (node.kind === "folder") return;
+  const pageId = node.pageId;
   useEffect(() => {
-    if (pageId) {
+    if (fileId) {
       setLoading(true);
-      // Client-side fetch for now, ideally we'd have a proxy API or use server actions
-      // But notion-client is node-only usually.
-      // We might need an API route to proxy this request if notion-client doesn't work in browser.
-      // For this demo, let's assume we have an API route /api/notion/[pageId]
 
       fetch(`/api/notion/${pageId}`)
         .then((res) => res.json())
@@ -41,9 +42,9 @@ export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
           setLoading(false);
         });
     }
-  }, [pageId]);
+  }, [fileId]);
 
-  if (!win) return null;
+  if (!win || !pageId) return null;
 
   return (
     <Window winId={winId}>
