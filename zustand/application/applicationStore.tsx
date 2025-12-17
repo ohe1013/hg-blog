@@ -99,8 +99,8 @@ const defaultInitState: ApplicationState = {
     "blog-viewer": {
       key: "blog-viewer",
       label: "Blog Post",
-      iconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-1.png",
-      miniIconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-0.png",
+      iconUrl: "/assets/img/notion-logo-no-background.png",
+      miniIconUrl: "/assets/img/notion-logo-no-background.png",
       showOnDesktop: false,
       singleton: false,
     },

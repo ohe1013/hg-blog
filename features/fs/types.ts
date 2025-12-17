@@ -15,15 +15,18 @@ export type FolderNode = FsNodeBase & {
 
 export type FileNode = FsNodeBase & {
   kind: "file";
-  type: "file" | "image" | "notepad";
+  type: "file" | "image" | "notepad" | "notion";
   app: string; // 'markdown-viewer' | 'image-viewer' | ...
   iconUrl: string;
   payload?: unknown; // 파일 데이터/경로 등
+  pageId?: string;
 };
 
 export type FsNode = FolderNode | FileNode;
 
+export type FileData = Record<FileId, FsNode>;
+
 export type FileSystem = {
   rootIds: FileId[]; // rootId -> rootIds
-  byId: Record<FileId, FsNode>;
+  byId: FileData;
 };

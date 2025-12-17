@@ -59,7 +59,7 @@ export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
         {loading && <div className="p-4">Loading...</div>}
         {!loading && recordMap && (
           <div className="h-full overflow-y-auto">
-            <Renderer recordMap={recordMap} rootPageId={pageId} />
+            <Renderer recordMap={recordMap} rootPageId={pageId} rootUrl="" />
           </div>
         )}
       </WindowBody>
