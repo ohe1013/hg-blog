@@ -23,7 +23,7 @@ export default function SharedExplorerSidebar({
 
   return (
     <Fragment>
-      {/* <p>
+      <p>
         <img draggable="false" src={iconUrl} style={iconStyle} />
       </p>
       <p className="Title">{title}</p>
@@ -35,7 +35,7 @@ export default function SharedExplorerSidebar({
         />
       </p>
 
-      <p>
+      <div className="Info">
         {selectedNodes.length === 1 ? (
           <div
             style={{
@@ -58,7 +58,7 @@ export default function SharedExplorerSidebar({
         ) : (
           <span id="Info">{defaultInfo}</span>
         )}
-      </p> */}
+      </div>
     </Fragment>
   );
 }

@@ -22,33 +22,6 @@ type PageLinkProps = {
   rootUrl: string;
 };
 
-const PageLinkBase = ({
-  href,
-  id,
-  children,
-  onNavigate,
-  rootUrl,
-}: PageLinkProps) => {
-  const raw = href ?? id ?? "";
-  const next = String(raw).split("/").pop()?.replace(/-/g, "");
-
-  if (!onNavigate || !next) {
-    return <Link href={`/${rootUrl}/${raw}`}>{children}</Link>;
-  }
-
-  // 렌더 과정의 console.log 제거 (디버그 필요 시 클릭 핸들러 내에서 1회만)
-  return (
-    <Link
-      href="#"
-      onClick={(e) => {
-        e.preventDefault();
-        onNavigate(next);
-      }}
-    >
-      {children}
-    </Link>
-  );
-};
 // Renderer.tsx 최상단(컴포넌트 바깥)
 const Code = dynamic(() =>
   import("react-notion-x/build/third-party/code").then((m) => m.Code)
@@ -103,13 +76,20 @@ const PageLink = memo(
     );
   })
 );
+
 export const Renderer = memo(function Renderer({
   recordMap,
   rootPageId,
   rootUrl,
   onNavigate,
 }: RendererProps) {
-  const mapPageUrl = useCallback((pageId: string) => `/${pageId}`, []);
+  const mapPageUrl = useCallback(
+    (pageId: string) => {
+      const base = rootUrl ? `/${rootUrl}` : "";
+      return `${base}/${pageId}`;
+    },
+    [rootUrl]
+  );
 
   const components = useMemo(
     () => ({

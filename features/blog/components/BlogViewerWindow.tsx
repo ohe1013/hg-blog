@@ -17,24 +17,31 @@ interface BlogViewerWindowProps {
 }
 
 export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
-  const { getById } = useApplicationStore((s) => s);
-  const fs = initialFs;
-  const win = getById(winId);
+  const win = useApplicationStore((s) => s.getById(winId));
   const [recordMap, setRecordMap] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const fileId = win?.params?.fileId;
-  const node = fs.byId[fileId];
-  if (node.kind === "folder") return;
-  const pageId = node.pageId;
+  const paramPageId = win?.params?.pageId;
+  const initialNode = fileId ? initialFs.byId[fileId] : null;
+  const initialPageId =
+    (initialNode?.kind === "file" ? initialNode.pageId : null) ?? paramPageId;
+
+  const [activePageId, setActivePageId] = useState<string | null>(
+    initialPageId ?? null
+  );
+
   useEffect(() => {
-    if (fileId) {
+    if (activePageId) {
       setLoading(true);
 
-      fetch(`/api/notion/${pageId}`)
-        .then((res) => res.json())
+      fetch(`/api/notion/page/${activePageId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        })
         .then((data) => {
-          setRecordMap(data);
+          setRecordMap(data.recordMap);
           setLoading(false);
         })
         .catch((err) => {
@@ -42,9 +49,9 @@ export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
           setLoading(false);
         });
     }
-  }, [fileId]);
+  }, [activePageId]);
 
-  if (!win || !pageId) return null;
+  if (!win || !activePageId) return null;
 
   return (
     <Window winId={winId}>
@@ -60,7 +67,12 @@ export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
         {loading && <div className="p-4">Loading...</div>}
         {!loading && recordMap && (
           <div className="h-full overflow-y-auto">
-            <Renderer recordMap={recordMap} rootPageId={pageId} rootUrl="" />
+            <Renderer
+              recordMap={recordMap}
+              rootPageId={activePageId}
+              rootUrl="blog"
+              onNavigate={(id) => setActivePageId(id)}
+            />
           </div>
         )}
       </WindowBody>
