@@ -583,7 +583,7 @@ const WindowMainBody = ({
     <div
       className="WindowMainBody"
       onMouseDown={(e) => {
-        // e.stopPropagation();
+        e.stopPropagation();
         e.preventDefault();
         onMouseDown?.(e);
       }}

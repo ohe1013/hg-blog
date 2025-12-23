@@ -67,8 +67,13 @@ const PageLink = memo(
         href={`/${rootUrl}/${raw}`}
         {...rest} // ★ className, style, data-*, aria-*, target, rel 등 보존
         onClick={(e) => {
+          console.log("click");
           e.preventDefault();
           onNavigate(next);
+          // 만약 rest에도 onClick이 있다면 그것도 실행해줌
+          if (typeof (rest as any).onClick === "function") {
+            (rest as any).onClick(e);
+          }
         }}
       >
         {children}

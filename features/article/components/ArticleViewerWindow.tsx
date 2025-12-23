@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Window,
   WindowBody,
@@ -33,7 +33,10 @@ export default function ArticleViewerWindow({
     initialPageId ?? null
   );
 
-  console.log(activePageId);
+  const handleNavigate = useCallback((id: string) => {
+    setActivePageId(id);
+  }, []);
+
   useEffect(() => {
     if (activePageId) {
       setLoading(true);
@@ -74,7 +77,7 @@ export default function ArticleViewerWindow({
               recordMap={recordMap}
               rootPageId={activePageId}
               rootUrl="article"
-              onNavigate={(id) => setActivePageId(id)}
+              onNavigate={handleNavigate}
             />
           </div>
         )}
