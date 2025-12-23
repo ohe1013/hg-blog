@@ -15,7 +15,7 @@ import { useDragSelect } from "@lib/hooks/useDrag";
 import { ExplorerGridContainer } from "@features/explorer/components/ExplorerGrid";
 import { ExplorerProvider } from "@features/explorer/stores/ExplorerContext";
 import SharedExplorerSidebar from "@features/explorer/components/SharedExplorerSidebar";
-import { BlogPost } from "@features/notion/api";
+import { ArticlePost } from "@features/notion/api";
 
 interface SidebarConfig {
   iconUrl: string;
@@ -28,7 +28,7 @@ interface SharedExplorerLayoutProps {
   winId: string;
   explorerId: string;
   sidebarConfig: SidebarConfig;
-  initialPosts?: BlogPost[];
+  initialPosts?: ArticlePost[];
 }
 
 export default function SharedExplorerLayout({

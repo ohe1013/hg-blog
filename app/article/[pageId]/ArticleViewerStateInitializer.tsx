@@ -2,17 +2,17 @@
 
 import { useEffect, useRef } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
-import { BlogPost } from "@features/notion/api";
+import { ArticlePost } from "@features/notion/api";
 
-interface BlogViewerStateInitializerProps {
+interface ArticleViewerStateInitializerProps {
   pageId: string;
-  initialPosts: BlogPost[];
+  initialPosts: ArticlePost[];
 }
 
-export default function BlogViewerStateInitializer({
+export default function ArticleViewerStateInitializer({
   pageId,
   initialPosts,
-}: BlogViewerStateInitializerProps) {
+}: ArticleViewerStateInitializerProps) {
   const { open } = useApplicationStore((s) => s);
   const initialized = useRef(false);
 
@@ -21,10 +21,10 @@ export default function BlogViewerStateInitializer({
     initialized.current = true;
 
     // 1. Open the blog explorer window
-    open("blog", { initialPosts });
+    open("articles", { initialPosts });
 
     // 2. Open the specific blog viewer window
-    open("blog-viewer", { pageId });
+    open("article-viewer", { pageId });
   }, [pageId, initialPosts, open]);
 
   return null;

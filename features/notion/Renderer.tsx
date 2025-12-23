@@ -86,7 +86,7 @@ export const Renderer = memo(function Renderer({
   const mapPageUrl = useCallback(
     (pageId: string) => {
       const base = rootUrl ? `/${rootUrl}` : "";
-      return `${base}/${pageId}`;
+      return `${pageId}`;
     },
     [rootUrl]
   );
@@ -102,7 +102,7 @@ export const Renderer = memo(function Renderer({
         <PageLink {...props} onNavigate={onNavigate} rootUrl={rootUrl} />
       ),
       nextImage: (props: any) => {
-        const alt = props.alt || "Blog image";
+        const alt = props.alt || "Article image";
         return <Image {...props} alt={alt} />;
       },
       nextLink: Link,

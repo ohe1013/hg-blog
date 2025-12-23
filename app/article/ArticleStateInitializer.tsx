@@ -2,15 +2,15 @@
 
 import { useEffect, useRef } from "react";
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
-import { BlogPost } from "@features/notion/api";
+import { ArticlePost } from "@features/notion/api";
 
-interface BlogStateInitializerProps {
-  initialPosts: BlogPost[];
+interface ArticleStateInitializerProps {
+  initialPosts: ArticlePost[];
 }
 
-export default function BlogStateInitializer({
+export default function ArticleStateInitializer({
   initialPosts,
-}: BlogStateInitializerProps) {
+}: ArticleStateInitializerProps) {
   const { open } = useApplicationStore((s) => s);
   const initialized = useRef(false);
 
@@ -18,8 +18,7 @@ export default function BlogStateInitializer({
     if (initialized.current) return;
     initialized.current = true;
 
-    // Open the blog window with the fetched posts
-    open("blog", { initialPosts });
+    open("articles", { initialPosts });
   }, [initialPosts, open]);
 
   return null;

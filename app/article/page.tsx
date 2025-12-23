@@ -1,26 +1,26 @@
-import { getBlogPosts } from "@features/notion/api";
-import BlogStateInitializer from "./BlogStateInitializer";
+import { getArticlePosts } from "@features/notion/api";
+import ArticleStateInitializer from "./ArticleStateInitializer";
 import { Metadata } from "next";
 import Link from "next/link";
 
 export const revalidate = 3600; // 1 hour
 
 export const metadata: Metadata = {
-  title: "HG Blog",
-  description: "HG's Tech Blog - React, Next.js, and more.",
+  title: "HG Articles",
+  description: "HG's Tech Articles",
 };
 
-export default async function BlogPage() {
-  const posts = await getBlogPosts();
+export default async function ArticlePage() {
+  const posts = await getArticlePosts();
 
   return (
     <>
       <div className="sr-only">
-        <h1>HG Blog Posts</h1>
+        <h1>HG Articles</h1>
         <ul>
           {posts.map((post) => (
             <li key={post.pageId}>
-              <Link href={`/blog/${post.pageId}`}>{post.title}</Link>
+              <Link href={`/article/${post.pageId}`}>{post.title}</Link>
               <time dateTime={new Date(post.createdTime).toISOString()}>
                 {new Date(post.createdTime).toLocaleDateString()}
               </time>
@@ -28,7 +28,7 @@ export default async function BlogPage() {
           ))}
         </ul>
       </div>
-      <BlogStateInitializer initialPosts={posts} />
+      <ArticleStateInitializer initialPosts={posts} />
     </>
   );
 }

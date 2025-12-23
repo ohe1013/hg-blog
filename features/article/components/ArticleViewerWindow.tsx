@@ -12,11 +12,13 @@ import Renderer from "@features/notion/Renderer";
 import { initialFs } from "@features/fs/data/initialFs";
 import { FileNode } from "@features/fs/types";
 
-interface BlogViewerWindowProps {
+interface ArticleViewerWindowProps {
   winId: string;
 }
 
-export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
+export default function ArticleViewerWindow({
+  winId,
+}: ArticleViewerWindowProps) {
   const win = useApplicationStore((s) => s.getById(winId));
   const [recordMap, setRecordMap] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -31,6 +33,7 @@ export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
     initialPageId ?? null
   );
 
+  console.log(activePageId);
   useEffect(() => {
     if (activePageId) {
       setLoading(true);
@@ -64,13 +67,13 @@ export default function BlogViewerWindow({ winId }: BlogViewerWindowProps) {
           background: "white",
         }}
       >
-        {loading && <div className="p-4">Loading...</div>}
+        {/* {loading && <div className="p-4">Loading...</div>} */}
         {!loading && recordMap && (
           <div className="h-full overflow-y-auto">
             <Renderer
               recordMap={recordMap}
               rootPageId={activePageId}
-              rootUrl="blog"
+              rootUrl="article"
               onNavigate={(id) => setActivePageId(id)}
             />
           </div>

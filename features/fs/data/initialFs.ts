@@ -1,12 +1,12 @@
 import { FileSystem } from "../types";
 import { iconDict } from "./icon";
-import { blog } from "./blog";
+import { articles } from "./articles";
 import { computer } from "./computer";
 import { document } from "./document";
 import { about } from "./about";
 
 export const initialFs: FileSystem = {
-  rootIds: ["computer", "document", "blog"], // ✅ 여러 root
+  rootIds: ["computer", "document", "articles", "about"], // ✅ 여러 root
   byId: {
     // root 1
     computer: {
@@ -21,13 +21,13 @@ export const initialFs: FileSystem = {
       type: "folder",
     },
 
-    blog: {
-      id: "blog",
-      name: "Blog",
+    articles: {
+      id: "articles",
+      name: "Articles",
       kind: "folder",
       parentId: null, // ✅ 최상단
-      children: Object.entries(blog)
-        .filter(([_, value]) => value.parentId === "blog")
+      children: Object.entries(articles)
+        .filter(([_, value]) => value.parentId === "articles")
         .map(([key]) => key),
       iconUrl: iconDict.folder,
       type: "folder",
@@ -55,7 +55,7 @@ export const initialFs: FileSystem = {
       type: "folder",
     },
     ...computer,
-    ...blog,
+    ...articles,
     ...about,
     ...document,
   },

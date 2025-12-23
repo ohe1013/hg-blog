@@ -1,17 +1,17 @@
 import { NotionAPI } from "notion-client";
 import { rootDir } from "./data";
 
-export interface BlogPost {
+export interface ArticlePost {
   pageId: string;
   slug: string;
   title: string;
   createdTime: number;
 }
 
-export async function getBlogPosts(): Promise<BlogPost[]> {
+export async function getArticlePosts(): Promise<ArticlePost[]> {
   const notion = new NotionAPI();
   try {
-    const recordMap = await notion.getPage(rootDir.blog);
+    const recordMap = await notion.getPage(rootDir.articles);
     const collectionQuery = recordMap.collection_query;
     if (!collectionQuery) return [];
 
@@ -35,9 +35,9 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
           createdTime: b.created_time,
         };
       })
-      .filter((post): post is BlogPost => post !== null);
+      .filter((post): post is ArticlePost => post !== null);
   } catch (error) {
-    console.error("Failed to fetch blog posts:", error);
+    console.error("Failed to fetch article posts:", error);
     return [];
   }
 }

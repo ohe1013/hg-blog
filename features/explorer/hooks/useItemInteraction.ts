@@ -16,15 +16,15 @@ export const useItemInteraction = () => {
       const appKey =
         node.app === "markdown-viewer" || node.app === "text-viewer"
           ? "notepad"
-          : node.app === "blog-viewer"
-          ? "blog-viewer"
+          : node.app === "article-viewer"
+          ? "article-viewer"
           : (node.app as any);
 
       if (appKey === "notepad") {
         openApp("notepad", { fileId: id });
-      } else if (appKey === "blog-viewer") {
+      } else if (appKey === "article-viewer") {
         // Open blog viewer window
-        openApp("blog-viewer", {
+        openApp("article-viewer", {
           fileId: id,
         });
       } else {

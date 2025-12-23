@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Renderer from "@features/notion/Renderer";
 
-export default function BlogView({
+export default function ArticleView({
   pageId,
   onNavigate,
   initialRecordMap,
@@ -54,7 +54,7 @@ export default function BlogView({
       onNavigate={onNavigate}
       recordMap={recordMap}
       rootPageId={pageId}
-      rootUrl="blog"
+      rootUrl="article"
     />
   );
 }

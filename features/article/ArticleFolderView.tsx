@@ -6,7 +6,7 @@ import {
 import { useState } from "react";
 
 // 하드코딩된 블로그 포스트 리스트
-const BLOG_POSTS = [
+const ARTICLE_POSTS = [
   {
     id: "15d298367c41800f9521c60630713583",
     title: "Hello World",
@@ -19,7 +19,7 @@ const BLOG_POSTS = [
   },
 ];
 
-export default function BlogFolderView({
+export default function ArticleFolderView({
   onNavigate,
 }: {
   onNavigate: (id: string) => void;
@@ -50,7 +50,7 @@ export default function BlogFolderView({
         gapY={16}
         onRowsChange={setRows}
       >
-        {BLOG_POSTS.map((post) => (
+        {ARTICLE_POSTS.map((post) => (
           <div
             key={post.id}
             data-key={post.id}
@@ -58,7 +58,7 @@ export default function BlogFolderView({
               itemRefs.current[post.id] = el;
             }}
           >
-            <BlogGridItem
+            <ArticleGridItem
               label={post.title}
               iconUrl={post.iconUrl}
               selected={selectedIds.has(post.id)}
@@ -82,7 +82,7 @@ export default function BlogFolderView({
   );
 }
 
-function BlogGridItem({
+function ArticleGridItem({
   label,
   iconUrl,
   selected,

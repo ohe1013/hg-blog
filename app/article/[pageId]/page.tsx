@@ -1,6 +1,6 @@
 import { NotionAPI } from "notion-client";
-import { getBlogPosts } from "@features/notion/api";
-import BlogViewerStateInitializer from "./BlogViewerStateInitializer";
+import { getArticlePosts } from "@features/notion/api";
+import ArticleViewerStateInitializer from "./ArticleViewerStateInitializer";
 
 interface fetchEachPagesProps {
   params: Promise<{
@@ -11,7 +11,7 @@ interface fetchEachPagesProps {
 export const revalidate = 3600; // 1 hour
 
 export async function generateStaticParams() {
-  const posts = await getBlogPosts();
+  const posts = await getArticlePosts();
   return posts.map((post) => ({ pageId: post.pageId }));
 }
 
@@ -21,27 +21,28 @@ export async function generateMetadata({ params }: fetchEachPagesProps) {
   const recordMap = await notion.getPage(pageId);
   const title =
     Object.values(recordMap.block)[0]?.value?.properties?.title?.[0]?.[0] ||
-    "Blog Post";
+    "Article Post";
 
   return {
-    title: `${title} | HG Blog`,
-    description: `Read more about ${title} on HG Blog.`,
+    title: `${title} | HG Article`,
+    description: `Read more about ${title} on HG Article.`,
   };
 }
 
 const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
   const { pageId } = await params;
+  console.log(pageId);
   const notion = new NotionAPI();
 
   // Fetch both the specific post and the list of all posts
   const [recordMap, allPosts] = await Promise.all([
     notion.getPage(pageId),
-    getBlogPosts(),
+    getArticlePosts(),
   ]);
 
   const title =
     Object.values(recordMap.block)[0]?.value?.properties?.title?.[0]?.[0] ||
-    "Blog Post";
+    "Article Post";
 
   // Simple text extraction for SEO (first few blocks)
   const blocks = Object.values(recordMap.block);
@@ -59,12 +60,12 @@ const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
         <h1>{title}</h1>
         <article>
           {introText}
-          <p>Read the full post in the blog viewer window.</p>
+          <p>Read the full post in the article viewer window.</p>
         </article>
       </div>
 
       {/* Client-side logic to open the desktop windows */}
-      <BlogViewerStateInitializer pageId={pageId} initialPosts={allPosts} />
+      <ArticleViewerStateInitializer pageId={pageId} initialPosts={allPosts} />
     </>
   );
 };

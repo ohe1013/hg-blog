@@ -1,24 +1,24 @@
 "use client";
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
 import SharedExplorerLayout from "@features/explorer/components/SharedExplorerLayout";
-import { BlogPost } from "@features/notion/api";
+import { ArticlePost } from "@features/notion/api";
 
-export default function BlogWindow({ winId }: { winId: string }) {
+export default function ArticleWindow({ winId }: { winId: string }) {
   const { getById } = useApplicationStore((s) => s);
   const win = getById(winId);
   if (!win) return null;
 
-  const initialPosts = win.params?.initialPosts as BlogPost[] | undefined;
+  const initialPosts = win.params?.initialPosts as ArticlePost[] | undefined;
 
   return (
     <SharedExplorerLayout
       winId={winId}
-      explorerId="blog"
+      explorerId="articles"
       sidebarConfig={{
         iconUrl: "/assets/img/notion-logo-no-background.png",
-        title: "Blog",
+        title: "Articles",
         defaultInfo:
-          "Welcome to my tech blog. Here you can find my latest posts and thoughts.",
+          "Welcome to my tech articles. Here you can find my latest posts and thoughts.",
         iconStyle: { width: 32, height: 32 },
       }}
       initialPosts={initialPosts}
