@@ -1,12 +1,14 @@
 import { create } from "zustand";
 
-export type AppsType =
+export type SystemApps =
   | "blog"
   | "about"
   | "computer"
   | "document"
   | "notepad"
   | "blog-viewer";
+
+export type AppsType = SystemApps | (string & {});
 
 type AppCatalogItem = {
   key: AppsType;
@@ -15,6 +17,7 @@ type AppCatalogItem = {
   miniIconUrl: string;
   showOnDesktop?: boolean;
   singleton?: boolean; // 하나만 허용
+  externalUrl?: string;
 };
 
 export type WindowInstance = {
@@ -103,6 +106,25 @@ const defaultInitState: ApplicationState = {
       miniIconUrl: "/assets/img/notion-logo-no-background.png",
       showOnDesktop: false,
       singleton: false,
+    },
+    github: {
+      key: "github",
+      label: "GitHub",
+      iconUrl: "https://win98icons.alexmeub.com/icons/png/html-0.png",
+      miniIconUrl: "https://win98icons.alexmeub.com/icons/png/html-0.png",
+      showOnDesktop: true,
+      singleton: true,
+      externalUrl: "https://github.com/ohe1013",
+    },
+    portfolio: {
+      key: "portfolio",
+      label: "Portfolio",
+      iconUrl: "https://win98icons.alexmeub.com/icons/png/internet_connection-0.png",
+      miniIconUrl:
+        "https://win98icons.alexmeub.com/icons/png/internet_connection-0.png",
+      showOnDesktop: true,
+      singleton: true,
+      externalUrl: "https://www.google.com",
     },
   },
   windows: [],
