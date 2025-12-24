@@ -9,7 +9,6 @@ import {
   useMemo,
   useRef,
   useState,
-  Fragment,
   memo,
 } from "react";
 import { State, useWindow } from "../hooks/useWindow";
@@ -97,9 +96,16 @@ const Window = memo(({ children, winId }: WindowProps) => {
       <div
         tabIndex={0}
         ref={ref}
-        onClick={() => focus(winId)}
+        // onClick={() => focus(winId)}
         onMouseMove={!isFull ? setMouseCursor : undefined}
-        onMouseDown={!isFull ? onMouseDownBorder : undefined}
+        onMouseDown={
+          !isFull
+            ? (e) => {
+                focus(winId);
+                onMouseDownBorder(e);
+              }
+            : () => focus(winId)
+        }
         className="window flex flex-col absolute"
         style={{ zIndex }}
       >

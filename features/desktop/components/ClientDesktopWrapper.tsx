@@ -8,7 +8,7 @@ import { AppsType } from "../../../zustand/application/applicationStore";
 
 type Props = {
   children: React.ReactNode;
-  blog: React.ReactNode;
+  articles: React.ReactNode;
   about: React.ReactNode;
   computer: React.ReactNode;
   document: React.ReactNode;
@@ -16,7 +16,7 @@ type Props = {
 
 export default function ClientDesktopWrapper({
   children,
-  blog,
+  articles,
   about,
   computer,
   document,
@@ -42,7 +42,7 @@ export default function ClientDesktopWrapper({
         setSelectedIds={setSelectedIds}
       />
       {children}
-      {blog}
+      {articles}
       {about}
       {computer}
       {document}

@@ -20,17 +20,17 @@ type ExplorerState = {
   isRoot: () => boolean;
 };
 
-import { BlogPost } from "@features/notion/api";
+import { ArticlePost } from "@features/notion/api";
 
 export const createExplorerStore = (
   initialRootId: FileId,
-  initialPosts?: BlogPost[]
+  initialPosts?: ArticlePost[]
 ) => {
   let fs = { ...initialFs };
 
   if (initialPosts && initialPosts.length > 0) {
-    const blogFolder = fs.byId["blog"];
-    if (blogFolder && blogFolder.kind === "folder") {
+    const articleFolder = fs.byId["articles"];
+    if (articleFolder && articleFolder.kind === "folder") {
       // Create file nodes for each post
       const postNodes: Record<FileId, FsNode> = {};
       const postIds: FileId[] = [];
@@ -43,8 +43,8 @@ export const createExplorerStore = (
           name: post.title,
           kind: "file",
           type: "notepad", // Using notepad type for now to reuse icon/viewer
-          app: "blog-viewer",
-          parentId: "blog",
+          app: "article-viewer",
+          parentId: "articles",
           iconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
           payload: { pageId: post.pageId, slug: post.slug },
         };
@@ -56,9 +56,9 @@ export const createExplorerStore = (
         byId: {
           ...fs.byId,
           ...postNodes,
-          blog: {
-            ...blogFolder,
-            children: [...blogFolder.children, ...postIds],
+          articles: {
+            ...articleFolder,
+            children: [...articleFolder.children, ...postIds],
           },
         },
       };
@@ -167,7 +167,7 @@ export const ExplorerProvider = ({
 }: {
   children: React.ReactNode;
   initialId: FileId;
-  initialPosts?: BlogPost[];
+  initialPosts?: ArticlePost[];
 }) => {
   const storeRef = useRef<ExplorerStore>();
   if (!storeRef.current) {

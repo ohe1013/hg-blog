@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 export type SystemApps =
-  | "blog"
+  | "articles"
   | "about"
   | "computer"
   | "document"
@@ -27,7 +27,7 @@ export type WindowInstance = {
   zIndex: number;
   minimized: boolean;
   maximized: boolean;
-  params?: Record<string, any>; // blog:{pageId}, about:{pageId} 등
+  params?: Record<string, any>; // articles:{pageId}, about:{pageId} 등
   initialData?: any; // SSR hydration data
 };
 
@@ -75,9 +75,9 @@ const defaultInitState: ApplicationState = {
       showOnDesktop: true,
       singleton: true,
     },
-    blog: {
-      key: "blog",
-      label: "Blog",
+    articles: {
+      key: "articles",
+      label: "Articles",
       iconUrl: "/assets/img/notion-logo-no-background.png",
       miniIconUrl: "/assets/img/notion-logo-no-background.png",
       showOnDesktop: true,
@@ -99,9 +99,9 @@ const defaultInitState: ApplicationState = {
       showOnDesktop: false,
       singleton: false,
     },
-    "blog-viewer": {
-      key: "blog-viewer",
-      label: "Blog Post",
+    "article-viewer": {
+      key: "article-viewer",
+      label: "Article Post",
       iconUrl: "/assets/img/notion-logo-no-background.png",
       miniIconUrl: "/assets/img/notion-logo-no-background.png",
       showOnDesktop: false,
@@ -136,7 +136,7 @@ function computeTitle(
   params?: Record<string, any>
 ) {
   if (
-    (app === "blog" || app === "about" || app === "blog-viewer") &&
+    (app === "articles" || app === "about" || app === "article-viewer") &&
     params?.pageId
   ) {
     return `${base} - ${String(params.pageId).slice(0, 6)}`;

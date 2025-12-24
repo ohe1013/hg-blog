@@ -51,7 +51,7 @@ export default function AboutView({
       onNavigate={onNavigate}
       recordMap={recordMap}
       rootPageId={pageId}
-      rootUrl="blog"
+      rootUrl="about"
     />
   );
 }
