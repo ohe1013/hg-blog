@@ -21,8 +21,8 @@ const StartBar = () => {
     <StartBarContext.Provider value={{}}>
       <div className="StartBar">
         <StartBarStart></StartBarStart>
-        <div className="StartBar__quick-launch">
-          <button style={{ minWidth: 0, padding: 0, minHeight: 0 }}>
+        <div className="StartBar__quick-launch" style={{display:'flex'}}>
+          <button style={{ minWidth: 0, padding: 0, minHeight: 0,margin:'auto' }}>
             <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAnUExURUdwTFOoqf///wAAAMDHyIeIjxEA/6ipUf7/AKoAVwcAqwD///8AAC/f764AAAABdFJOUwBA5thmAAAAZUlEQVQY012O0RKAIAgEQQ4s6/+/N06trH3bnZsBkYV9lw/1ZFDipG7V3EQPDZSEHpGhO7o3MHQfezSGxYFm4vRSh8MZ0osV2BOMR7AuskxnUNrt8yxeV34auIm+yFd9EMrX7ccF27wDshZIPIoAAAAASUVORK5CYII=" />
           </button>
         </div>
@@ -56,18 +56,25 @@ export const StartBarApplications = () => {
     icon: apps[w.app]?.miniIconUrl ?? "",
   }));
   // startBar 순서를 별도 관리하고 싶으면 createdAt/order 필드를 windows에 추가해서 정렬
-
-  const { focus /* minimize, */ } = useApplicationStore((s) => s);
+  const { focus, minimize, restore } = useApplicationStore((s) => s);
 
   return (
     <div className="StartBar__applications">
       {taskWindows.map((w) => (
         <Fragment key={w.id}>
           <button
-            onClick={() => focus(w.id)}
+            onClick={() => {
+              if (w.minimized) {
+                restore(w.id);
+              } else if (w.zIndex === topZ) {
+                minimize(w.id);
+              } else {
+                focus(w.id);
+              }
+            }}
             style={{ backgroundImage: `url(${w.icon})` }}
             className={`btn StartBar__icon ${
-              w.zIndex === topZ ? "actived" : ""
+              w.zIndex === topZ && !w.minimized ? "actived" : ""
             }`}
             title={w.title}
           >

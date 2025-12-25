@@ -48,21 +48,29 @@ interface WindowProps {
   children: ReactNode;
 }
 
+interface WindowProps {
+  /** 창 인스턴스 id */
+  winId: string;
+  children: ReactNode;
+  initialWidth?: string;
+  initialHeight?: string;
+}
+
 // ---------- Window ----------
-const Window = memo(({ children, winId }: WindowProps) => {
+const Window = memo(({ children, winId, initialWidth, initialHeight }: WindowProps) => {
   const ref = useRef<HTMLDivElement>(null);
+  const { getById, apps, close, focus, minimize } = useApplicationStore((s) => s);
+  const win = getById(winId);
+  
   const {
     state,
     onMouseDownBorder,
     onMouseDownHeader,
     setMouseCursor,
-    onMiniToggle, // 필요 시 store 최소화 토글에 연결
     isFull,
     onFullSizeToggle, // 필요 시 store 최대화 토글에 연결
-  } = useWindow({ ref });
+  } = useWindow({ ref, initialWidth, initialHeight, minimized: win?.minimized });
 
-  const { getById, apps, close, focus } = useApplicationStore((s) => s);
-  const win = getById(winId);
   if (!win) return null; // 이미 닫혔을 수 있음
 
   const appMeta = apps[win.app];
@@ -74,7 +82,7 @@ const Window = memo(({ children, winId }: WindowProps) => {
       onFullSizeToggle,
       winId,
       closeWindow: () => close(winId),
-      minimizeWindow: onMiniToggle, // 스토어로 바꾸려면 여기서 toggleMinimize(winId)
+      minimizeWindow: () => minimize(winId), // 스토어로 바꾸려면 여기서 toggleMinimize(winId)
       focusWindow: () => focus(winId),
       moveHeader: onMouseDownHeader,
       ref,
@@ -85,7 +93,7 @@ const Window = memo(({ children, winId }: WindowProps) => {
       onFullSizeToggle,
       winId,
       close,
-      onMiniToggle,
+      minimize,
       focus,
       onMouseDownHeader,
     ]

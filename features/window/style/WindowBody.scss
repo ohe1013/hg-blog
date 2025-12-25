@@ -16,7 +16,8 @@ $windowPadding: 3px;
 }
 
 @mixin window-main-body {
-  width: 70%;
+  // width: 70%; // Removed to allow full width by default or controlled by usage
+  flex: 1;
   // height: calc(100% - 118px);
   // position: relative;
   overflow: hidden;

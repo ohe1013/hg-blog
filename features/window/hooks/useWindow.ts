@@ -5,14 +5,17 @@ import React, {
   useState,
 } from "react";
 
-interface UseDragProps {
+export interface UseDragProps {
   /**
    * ref to the element that would be moved
    */
   ref: React.RefObject<HTMLElement>;
+  initialWidth?: string;
+  initialHeight?: string;
+  minimized?: boolean;
 }
 
-interface UseDragProvided {
+export interface UseDragProvided {
   /**
    * Attach as a onMouseDown handler to the element that would be dragged
    */
@@ -20,7 +23,6 @@ interface UseDragProvided {
   onMouseDownBorder: MouseEventHandler<HTMLElement>;
   onMouseDownHeader: MouseEventHandler<HTMLElement>;
   onFullSizeToggle: MouseEventHandler<HTMLElement>;
-  onMiniToggle: MouseEventHandler<HTMLElement>;
   setMouseCursor: MouseEventHandler<HTMLElement>;
   isFull: boolean;
 }
@@ -54,21 +56,39 @@ export interface State {
   resizeDirection: string | null;
 }
 
-export function useWindow({ ref }: UseDragProps): UseDragProvided {
+export function useWindow({ ref, initialWidth, initialHeight, minimized }: UseDragProps): UseDragProvided {
   const [state, setState] = useState<State>({
     dragStart: PointZero,
     translation: PointZero,
     lastTranslation: PointZero,
-    size: DefaultSize,
-    lastSize: DefaultSize,
+    size: {
+      width: initialWidth ?? DefaultSize.width,
+      height: initialHeight ?? DefaultSize.height,
+    },
+    lastSize: {
+      width: initialWidth ?? DefaultSize.width,
+      height: initialHeight ?? DefaultSize.height,
+    },
     resizeDirection: null,
   });
 
   const [isFull, setIsFull] = useState<boolean>(false);
-  const [isMini, setIsMini] = useState<boolean>(false);
+
+  useEffect(() => {
+     if (minimized) {
+      ref.current?.style.setProperty("visibility", "hidden");
+      ref.current?.style.setProperty("opacity", "0");
+      ref.current?.style.setProperty("pointer-events", "none");
+    } else {
+      ref.current?.style.setProperty("visibility", null);
+      ref.current?.style.setProperty("opacity", null);
+      ref.current?.style.setProperty("pointer-events", null);
+    }
+  }, [minimized, ref]);
 
   const onMouseMoveBorder = useCallback(
     (e: MouseEvent) => {
+// ... existing logic ...
       const { resizeDirection } = state;
       switch (resizeDirection) {
         case "n":
@@ -305,19 +325,7 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     [onMouseMoveBorder, onMouseUpHeader]
   );
 
-  const onMiniToggle: MouseEventHandler<HTMLElement> = (e) => {
-    e.stopPropagation();
-    if (isMini) {
-      ref.current?.style.setProperty("visibility", "hidden");
-      ref.current?.style.setProperty("opacity", "0");
-      ref.current?.style.setProperty("pointer-events", "none");
-    } else {
-      ref.current?.style.setProperty("visibility", null);
-      ref.current?.style.setProperty("opacity", null);
-      ref.current?.style.setProperty("pointer-events", null);
-    }
-    setIsMini((mini) => (mini = !mini));
-  };
+
 
   const onFullSizeToggle: MouseEventHandler<HTMLElement> = (e) => {
     e.stopPropagation();
@@ -388,7 +396,6 @@ export function useWindow({ ref }: UseDragProps): UseDragProvided {
     onMouseDownHeader,
     onFullSizeToggle,
     setMouseCursor,
-    onMiniToggle,
     isFull,
   };
 }

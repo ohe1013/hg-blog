@@ -6,7 +6,8 @@ export type SystemApps =
   | "computer"
   | "document"
   | "notepad"
-  | "blog-viewer";
+  | "blog-viewer"
+  | "external-link-confirm";
 
 export type AppsType = SystemApps | (string & {});
 
@@ -47,6 +48,8 @@ type ApplicationMethod = {
   ) => string;
   close: (id: string) => void;
   focus: (id: string) => void;
+  minimize: (id: string) => void;
+  restore: (id: string) => void;
   updateParams: (id: string, path: Record<string, any>) => void;
   rename: (id: string, title: string) => void;
 
@@ -107,6 +110,14 @@ const defaultInitState: ApplicationState = {
       showOnDesktop: false,
       singleton: false,
     },
+    "blog-viewer": { // Fix for lint: missing property
+      key: "blog-viewer",
+      label: "Blog Viewer",
+      iconUrl: "/assets/img/notion-logo-no-background.png",
+      miniIconUrl: "/assets/img/notion-logo-no-background.png",
+      showOnDesktop: false,
+      singleton: false,
+    },
     github: {
       key: "github",
       label: "GitHub",
@@ -125,6 +136,14 @@ const defaultInitState: ApplicationState = {
       showOnDesktop: true,
       singleton: true,
       externalUrl: "https://www.google.com",
+    },
+    "external-link-confirm": {
+      key: "external-link-confirm",
+      label: "Link Confirmation",
+      iconUrl: "https://win98icons.alexmeub.com/icons/png/msg_warning-0.png",
+      miniIconUrl: "https://win98icons.alexmeub.com/icons/png/msg_warning-0.png",
+      showOnDesktop: false,
+      singleton: false,
     },
   },
   windows: [],
@@ -207,6 +226,24 @@ export const createApplicationStore = (
         return {
           windows: s.windows.map((w) =>
             w.id === id ? { ...w, zIndex: newTop } : w
+          ),
+          topZ: newTop,
+        };
+      }),
+    minimize: (id) =>
+      set((s) => ({
+        windows: s.windows.map((w) =>
+          w.id === id ? { ...w, minimized: true } : w
+        ),
+      })),
+    restore: (id) =>
+      set((s) => {
+        const newTop = s.topZ + 1;
+        return {
+          windows: s.windows.map((w) =>
+            w.id === id
+              ? { ...w, minimized: false, zIndex: newTop }
+              : w
           ),
           topZ: newTop,
         };

@@ -16,6 +16,7 @@ import DocumentWindow from "./document/ClientDocumentLayout";
 
 import NotepadWindow from "@features/notepad/components/NotepadWindow";
 import ArticleViewerWindow from "@features/article/components/ArticleViewerWindow";
+import ExternalLinkConfirmWindow from "@features/desktop/components/ExternalLinkConfirmWindow";
 
 const appRenderer: Record<AppsType, ComponentType<any>> = {
   articles: ArticleWindow,
@@ -24,6 +25,8 @@ const appRenderer: Record<AppsType, ComponentType<any>> = {
   document: DocumentWindow,
   notepad: NotepadWindow,
   "article-viewer": ArticleViewerWindow,
+  "external-link-confirm": ExternalLinkConfirmWindow,
+  "blog-viewer": ArticleViewerWindow, // Reusing ArticleViewerWindow or similar for now
 };
 
 export function GlobalWindowsHub() {
@@ -42,6 +45,8 @@ export function GlobalWindowsHub() {
           return <NotepadWindow key={w.id} winId={w.id} />;
         if (w.app === "article-viewer")
           return <ArticleViewerWindow key={w.id} winId={w.id} />;
+        if (w.app === "external-link-confirm")
+          return <ExternalLinkConfirmWindow key={w.id} winId={w.id} />;
         return null;
       })}
     </>

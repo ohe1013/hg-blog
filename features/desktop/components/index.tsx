@@ -196,8 +196,7 @@ function DesktopIconGrid({
   const handleOpen = (key: AppsType) => {
     const app = appStore.apps[key];
     if (app.externalUrl) {
-      alert(`[${app.label}] 외부 링크로 이동합니다.\n주소: ${app.externalUrl}`);
-      window.open(app.externalUrl, "_blank");
+      appStore.open("external-link-confirm", { url: app.externalUrl });
       return;
     }
     // 필요하면 params 넘기기: appStore.open('blog', { pageId: '...' })
