@@ -199,6 +199,10 @@ function DesktopIconGrid({
       appStore.open("external-link-confirm", { url: app.externalUrl });
       return;
     }
+    if (key === "readme") {
+      appStore.open("notepad", { fileId: "readme" });
+      return;
+    }
     // 필요하면 params 넘기기: appStore.open('blog', { pageId: '...' })
     appStore.open(key);
   };

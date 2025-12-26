@@ -12,6 +12,8 @@ export interface UseDragProps {
   ref: React.RefObject<HTMLElement>;
   initialWidth?: string;
   initialHeight?: string;
+  initialX?: number | "center";
+  initialY?: number | string; // e.g. 100 or "20%"
   minimized?: boolean;
 }
 
@@ -56,7 +58,14 @@ export interface State {
   resizeDirection: string | null;
 }
 
-export function useWindow({ ref, initialWidth, initialHeight, minimized }: UseDragProps): UseDragProvided {
+export function useWindow({
+  ref,
+  initialWidth,
+  initialHeight,
+  initialX,
+  initialY,
+  minimized,
+}: UseDragProps): UseDragProvided {
   const [state, setState] = useState<State>({
     dragStart: PointZero,
     translation: PointZero,
@@ -74,8 +83,41 @@ export function useWindow({ ref, initialWidth, initialHeight, minimized }: UseDr
 
   const [isFull, setIsFull] = useState<boolean>(false);
 
+  // Initial positioning logic
   useEffect(() => {
-     if (minimized) {
+    if (ref.current && (initialX !== undefined || initialY !== undefined)) {
+      const rect = ref.current.getBoundingClientRect();
+      const parentWidth = window.innerWidth;
+      const parentHeight = window.innerHeight;
+
+      let x = 0;
+      let y = 0;
+
+      if (initialX === "center") {
+        x = (parentWidth - rect.width) / 2;
+      } else if (typeof initialX === "number") {
+        x = initialX;
+      }
+
+      if (typeof initialY === "string" && initialY.endsWith("%")) {
+        const percent = parseFloat(initialY) / 100;
+        y = parentHeight * percent;
+      } else if (typeof initialY === "number") {
+        y = initialY;
+      } else if (initialY === "center") {
+        y = (parentHeight - rect.height) / 2;
+      }
+
+      setState((prev) => ({
+        ...prev,
+        translation: { x, y },
+        lastTranslation: { x, y },
+      }));
+    }
+  }, [initialX, initialY, ref]);
+
+  useEffect(() => {
+    if (minimized) {
       ref.current?.style.setProperty("visibility", "hidden");
       ref.current?.style.setProperty("opacity", "0");
       ref.current?.style.setProperty("pointer-events", "none");
@@ -88,7 +130,7 @@ export function useWindow({ ref, initialWidth, initialHeight, minimized }: UseDr
 
   const onMouseMoveBorder = useCallback(
     (e: MouseEvent) => {
-// ... existing logic ...
+      // ... existing logic ...
       const { resizeDirection } = state;
       switch (resizeDirection) {
         case "n":
@@ -324,8 +366,6 @@ export function useWindow({ ref, initialWidth, initialHeight, minimized }: UseDr
     },
     [onMouseMoveBorder, onMouseUpHeader]
   );
-
-
 
   const onFullSizeToggle: MouseEventHandler<HTMLElement> = (e) => {
     e.stopPropagation();

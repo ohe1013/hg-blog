@@ -13,12 +13,8 @@ export const useItemInteraction = () => {
       open(id);
     } else {
       // 파일이면 앱 실행
-      const appKey =
-        node.app === "markdown-viewer" || node.app === "text-viewer"
-          ? "notepad"
-          : node.app === "article-viewer"
-          ? "article-viewer"
-          : (node.app as any);
+
+      const appKey = node.app;
 
       if (appKey === "notepad") {
         openApp("notepad", { fileId: id });
@@ -27,6 +23,13 @@ export const useItemInteraction = () => {
         openApp("article-viewer", {
           fileId: id,
         });
+      } else if (appKey === "external-link-confirm") {
+        const payload = node.payload as { url: string };
+        if (payload.url) {
+          openApp("external-link-confirm", {
+            url: payload.url,
+          });
+        }
       } else {
         console.warn("No app for", node.app);
       }

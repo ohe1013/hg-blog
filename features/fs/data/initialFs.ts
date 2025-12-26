@@ -58,5 +58,28 @@ export const initialFs: FileSystem = {
     ...articles,
     ...about,
     ...document,
+    readme: {
+      id: "readme",
+      name: "readme.txt",
+      kind: "file",
+      parentId: null,
+      type: "file",
+      app: "notepad",
+      iconUrl: iconDict.notepad,
+      payload: `HG-BLOG v1.0.0
+====================
+
+Welcome to my personal blog. This is a nostalgic Windows 98-style interface built with Next.js and Tailwind CSS.
+
+Features:
+- Windows System: Draggable, resizable, and stackable windows.
+- Desktop: Grid-based icons with drag-select and navigation support.
+- Explorer: Folder-based navigation for articles and computer data.
+- Notion Integration: Articles are fetched directly from Notion.
+- Notepad: Simple text editor with local storage support.
+
+Feel free to look around and explore the articles!
+`,
+    },
   },
 };

@@ -1,3 +1,4 @@
+import { iconDict } from "@features/fs/data/icon";
 import { create } from "zustand";
 
 export type SystemApps =
@@ -7,7 +8,9 @@ export type SystemApps =
   | "document"
   | "notepad"
   | "blog-viewer"
-  | "external-link-confirm";
+  | "external-link-confirm"
+  | "linkedIn"
+  | "readme";
 
 export type AppsType = SystemApps | (string & {});
 
@@ -110,7 +113,8 @@ const defaultInitState: ApplicationState = {
       showOnDesktop: false,
       singleton: false,
     },
-    "blog-viewer": { // Fix for lint: missing property
+    "blog-viewer": {
+      // Fix for lint: missing property
       key: "blog-viewer",
       label: "Blog Viewer",
       iconUrl: "/assets/img/notion-logo-no-background.png",
@@ -121,28 +125,36 @@ const defaultInitState: ApplicationState = {
     github: {
       key: "github",
       label: "GitHub",
-      iconUrl: "https://win98icons.alexmeub.com/icons/png/html-0.png",
-      miniIconUrl: "https://win98icons.alexmeub.com/icons/png/html-0.png",
+      iconUrl: iconDict.github,
+      miniIconUrl: iconDict.github,
       showOnDesktop: true,
       singleton: true,
       externalUrl: "https://github.com/ohe1013",
     },
-    portfolio: {
-      key: "portfolio",
-      label: "Portfolio",
-      iconUrl: "https://win98icons.alexmeub.com/icons/png/internet_connection-0.png",
-      miniIconUrl:
-        "https://win98icons.alexmeub.com/icons/png/internet_connection-0.png",
+    linkedIn: {
+      key: "linkedIn",
+      label: "LinkedIn",
+      iconUrl: iconDict.linkedIn,
+      miniIconUrl: iconDict.linkedIn,
       showOnDesktop: true,
       singleton: true,
-      externalUrl: "https://www.google.com",
+      externalUrl:
+        "https://www.linkedin.com/in/%ED%98%84%EA%B7%BC-%EC%98%A4-737066254/",
     },
     "external-link-confirm": {
       key: "external-link-confirm",
       label: "Link Confirmation",
       iconUrl: "https://win98icons.alexmeub.com/icons/png/msg_warning-0.png",
-      miniIconUrl: "https://win98icons.alexmeub.com/icons/png/msg_warning-0.png",
+      miniIconUrl: "",
       showOnDesktop: false,
+      singleton: false,
+    },
+    readme: {
+      key: "readme",
+      label: "readme.txt",
+      iconUrl: iconDict.notepad,
+      miniIconUrl: iconDict.notepad,
+      showOnDesktop: true,
       singleton: false,
     },
   },
@@ -241,9 +253,7 @@ export const createApplicationStore = (
         const newTop = s.topZ + 1;
         return {
           windows: s.windows.map((w) =>
-            w.id === id
-              ? { ...w, minimized: false, zIndex: newTop }
-              : w
+            w.id === id ? { ...w, minimized: false, zIndex: newTop } : w
           ),
           topZ: newTop,
         };

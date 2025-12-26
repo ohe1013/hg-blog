@@ -18,17 +18,6 @@ import NotepadWindow from "@features/notepad/components/NotepadWindow";
 import ArticleViewerWindow from "@features/article/components/ArticleViewerWindow";
 import ExternalLinkConfirmWindow from "@features/desktop/components/ExternalLinkConfirmWindow";
 
-const appRenderer: Record<AppsType, ComponentType<any>> = {
-  articles: ArticleWindow,
-  about: AboutWindow,
-  computer: ComputerWindow,
-  document: DocumentWindow,
-  notepad: NotepadWindow,
-  "article-viewer": ArticleViewerWindow,
-  "external-link-confirm": ExternalLinkConfirmWindow,
-  "blog-viewer": ArticleViewerWindow, // Reusing ArticleViewerWindow or similar for now
-};
-
 export function GlobalWindowsHub() {
   const { windows } = useApplicationStore((s) => s);
   return (

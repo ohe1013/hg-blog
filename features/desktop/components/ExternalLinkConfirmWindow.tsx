@@ -35,7 +35,13 @@ export default function ExternalLinkConfirmWindow({
   };
 
   return (
-    <Window winId={winId} initialWidth="auto" initialHeight="auto">
+    <Window
+      winId={winId}
+      initialWidth="auto"
+      initialHeight="auto"
+      initialX="center"
+      initialY="5%"
+    >
       <WindowResizeHeader />
       <WindowBody
         style={{
@@ -50,12 +56,6 @@ export default function ExternalLinkConfirmWindow({
             style={{ width: "300px" }}
           >
             <div className="flex items-start gap-4 w-full">
-              <img
-                src="https://win98icons.alexmeub.com/icons/png/msg_warning-0.png"
-                alt="warning"
-                width={32}
-                height={32}
-              />
               <div className="flex flex-col gap-2 flex-1">
                 <p>You are about to visit an external website:</p>
                 <p>Do you want to continue?</p>

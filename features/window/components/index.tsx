@@ -54,74 +54,94 @@ interface WindowProps {
   children: ReactNode;
   initialWidth?: string;
   initialHeight?: string;
+  initialX?: number | "center";
+  initialY?: number | string;
 }
 
 // ---------- Window ----------
-const Window = memo(({ children, winId, initialWidth, initialHeight }: WindowProps) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { getById, apps, close, focus, minimize } = useApplicationStore((s) => s);
-  const win = getById(winId);
-  
-  const {
-    state,
-    onMouseDownBorder,
-    onMouseDownHeader,
-    setMouseCursor,
-    isFull,
-    onFullSizeToggle, // 필요 시 store 최대화 토글에 연결
-  } = useWindow({ ref, initialWidth, initialHeight, minimized: win?.minimized });
+const Window = memo(
+  ({
+    children,
+    winId,
+    initialWidth,
+    initialHeight,
+    initialX,
+    initialY,
+  }: WindowProps) => {
+    const ref = useRef<HTMLDivElement>(null);
+    const { getById, apps, close, focus, minimize } = useApplicationStore(
+      (s) => s
+    );
+    const win = getById(winId);
 
-  if (!win) return null; // 이미 닫혔을 수 있음
-
-  const appMeta = apps[win.app];
-  const zIndex = win.zIndex ?? 0;
-  const ctxValue = useMemo<WindowCtx>(
-    () => ({
-      context: state,
-      isFull, // 현재는 훅 로컬, 스토어와 동기화하려면 교체
-      onFullSizeToggle,
-      winId,
-      closeWindow: () => close(winId),
-      minimizeWindow: () => minimize(winId), // 스토어로 바꾸려면 여기서 toggleMinimize(winId)
-      focusWindow: () => focus(winId),
-      moveHeader: onMouseDownHeader,
-      ref,
-    }),
-    [
+    const {
       state,
-      isFull,
-      onFullSizeToggle,
-      winId,
-      close,
-      minimize,
-      focus,
+      onMouseDownBorder,
       onMouseDownHeader,
-    ]
-  );
+      setMouseCursor,
+      isFull,
+      onFullSizeToggle, // 필요 시 store 최대화 토글에 연결
+    } = useWindow({
+      ref,
+      initialWidth,
+      initialHeight,
+      initialX,
+      initialY,
+      minimized: win?.minimized,
+    });
 
-  return (
-    <WindowContext.Provider value={ctxValue}>
-      <div
-        tabIndex={0}
-        ref={ref}
-        // onClick={() => focus(winId)}
-        onMouseMove={!isFull ? setMouseCursor : undefined}
-        onMouseDown={
-          !isFull
-            ? (e) => {
-                focus(winId);
-                onMouseDownBorder(e);
-              }
-            : () => focus(winId)
-        }
-        className="window flex flex-col absolute"
-        style={{ zIndex }}
-      >
-        {children}
-      </div>
-    </WindowContext.Provider>
-  );
-});
+    if (!win) return null; // 이미 닫혔을 수 있음
+
+    const appMeta = apps[win.app];
+    const zIndex = win.zIndex ?? 0;
+    const ctxValue = useMemo<WindowCtx>(
+      () => ({
+        context: state,
+        isFull, // 현재는 훅 로컬, 스토어와 동기화하려면 교체
+        onFullSizeToggle,
+        winId,
+        closeWindow: () => close(winId),
+        minimizeWindow: () => minimize(winId), // 스토어로 바꾸려면 여기서 toggleMinimize(winId)
+        focusWindow: () => focus(winId),
+        moveHeader: onMouseDownHeader,
+        ref,
+      }),
+      [
+        state,
+        isFull,
+        onFullSizeToggle,
+        winId,
+        close,
+        minimize,
+        focus,
+        onMouseDownHeader,
+      ]
+    );
+
+    return (
+      <WindowContext.Provider value={ctxValue}>
+        <div
+          tabIndex={0}
+          ref={ref}
+          // onClick={() => focus(winId)}
+          onMouseMove={!isFull ? setMouseCursor : undefined}
+          onMouseDown={
+            !isFull
+              ? (e) => {
+                  focus(winId);
+                  onMouseDownBorder(e);
+                }
+              : () => focus(winId)
+          }
+          className="window flex flex-col absolute"
+          style={{ zIndex }}
+        >
+          {children}
+        </div>
+      </WindowContext.Provider>
+    );
+  }
+);
 
 // ---------- Header ----------
 const WindowResizeHeader = () => {

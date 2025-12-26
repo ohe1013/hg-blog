@@ -3,4 +3,6 @@ export const iconDict = {
   notepad: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
   img: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
   notion: "/assets/img/notion-logo-no-background.png",
+  github: "/assets/img/github-mark.png",
+  linkedIn: "/assets/img/linkedIn.png",
 };
