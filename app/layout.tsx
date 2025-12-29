@@ -5,6 +5,34 @@ import SvgDefs from "@lib/components/SvgDefs";
 import GlobalDesktopShell from "./GlobalDesktopShell";
 import { GlobalWindowsHub } from "./GlobalWindowsHub";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    default: "HG Blog",
+    template: "%s | HG Blog",
+  },
+  description:
+    "A Windows 98-style personal blog sharing development journey and thoughts.",
+  openGraph: {
+    title: "HG Blog",
+    description:
+      "A Windows 98-style personal blog sharing development journey and thoughts.",
+    url:
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    siteName: "HG Blog",
+    locale: "ko_KR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HG Blog",
+    description:
+      "A Windows 98-style personal blog sharing development journey and thoughts.",
+  },
+};
+
 export default function RootLayout({
   children,
 }: {

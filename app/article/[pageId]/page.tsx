@@ -23,9 +23,31 @@ export async function generateMetadata({ params }: fetchEachPagesProps) {
     Object.values(recordMap.block)[0]?.value?.properties?.title?.[0]?.[0] ||
     "Article Post";
 
+  // Attempt to extract a summary or use a default one
+  const blocks = Object.values(recordMap.block);
+  const introText = blocks
+    .filter((b) => b.value?.type === "text")
+    .slice(0, 3)
+    .map((b) => b.value?.properties?.title?.[0]?.[0])
+    .filter(Boolean)
+    .join(" ")
+    .slice(0, 160);
+
+  const description = introText || `Read more about ${title} on HG Article.`;
+
   return {
-    title: `${title} | HG Article`,
-    description: `Read more about ${title} on HG Article.`,
+    title: title,
+    description: description,
+    openGraph: {
+      title: title,
+      description: description,
+      type: "article",
+    },
+    twitter: {
+      card: "summary",
+      title: title,
+      description: description,
+    },
   };
 }
 
@@ -51,7 +73,10 @@ const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
     .slice(0, 5)
     .map((b) => b.value?.properties?.title?.[0]?.[0])
     .filter(Boolean)
+    .filter(Boolean)
     .join(" ");
+
+  const description = introText || `Read more about ${title} on HG Article.`;
 
   return (
     <>
@@ -63,6 +88,24 @@ const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
           <p>Read the full post in the article viewer window.</p>
         </article>
       </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: title,
+            description: description,
+            datePublished: new Date(
+              Object.values(recordMap.block)[0]?.value?.created_time
+            ).toISOString(),
+            author: {
+              "@type": "Person",
+              name: "HG",
+            },
+          }),
+        }}
+      />
 
       {/* Client-side logic to open the desktop windows */}
       <ArticleViewerStateInitializer pageId={pageId} initialPosts={allPosts} />

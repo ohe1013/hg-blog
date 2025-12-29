@@ -92,7 +92,6 @@ const Window = memo(
 
     if (!win) return null; // 이미 닫혔을 수 있음
 
-    const appMeta = apps[win.app];
     const zIndex = win.zIndex ?? 0;
     const ctxValue = useMemo<WindowCtx>(
       () => ({
@@ -134,7 +133,9 @@ const Window = memo(
               : () => focus(winId)
           }
           className="window flex flex-col absolute"
-          style={{ zIndex }}
+          style={{
+            zIndex,
+          }}
         >
           {children}
         </div>

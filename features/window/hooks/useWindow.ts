@@ -2,6 +2,7 @@ import React, {
   MouseEventHandler,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useState,
 } from "react";
 
@@ -84,7 +85,7 @@ export function useWindow({
   const [isFull, setIsFull] = useState<boolean>(false);
 
   // Initial positioning logic
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (ref.current && (initialX !== undefined || initialY !== undefined)) {
       const rect = ref.current.getBoundingClientRect();
       const parentWidth = window.innerWidth;
@@ -406,11 +407,7 @@ export function useWindow({
     }
   };
 
-  const addEventListener = (type: string, fn: any) => {
-    ref.current?.addEventListener(type, fn);
-  };
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (state.resizeDirection === null) {
       ref.current!.style.cursor = "auto";
     } else {
@@ -418,12 +415,12 @@ export function useWindow({
     }
   }, [state.resizeDirection]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (ref.current) {
       ref.current.style.transform = `translate(${state.translation.x}px, ${state.translation.y}px)`;
     }
   }, [ref, state.translation.x, state.translation.y]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (ref.current) {
       ref.current.style.width = state.size.width;
       ref.current.style.height = state.size.height;
