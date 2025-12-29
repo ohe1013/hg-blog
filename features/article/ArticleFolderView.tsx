@@ -41,9 +41,6 @@ export default function ArticleFolderView({
       <ExplorerGrid
         containerRef={containerRef}
         onMouseDown={bindMouseDown}
-        itemRefs={itemRefs}
-        selectedIds={selectedIds}
-        setSelectedIds={setSelectedIds}
         flow="row"
         className="relative w-full h-full p-4"
         gapX={16}

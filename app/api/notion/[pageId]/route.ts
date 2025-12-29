@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  context: { params: { pageId: string } }
+  context: { params: Promise<{ pageId: string }> }
 ) {
   const notion = new NotionAPI();
   try {
