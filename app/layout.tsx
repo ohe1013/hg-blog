@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     description:
       "A Windows 98-style personal blog sharing development journey and thoughts.",
   },
+  verification: {
+    google: "3vB4YZZHREtyC6RM2feda_NGjdxJsHUl6BYvMKUiGlY",
+  },
 };
 
 export default function RootLayout({
