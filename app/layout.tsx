@@ -32,7 +32,7 @@ export const metadata: Metadata = {
       "A Windows 98-style personal blog sharing development journey and thoughts.",
   },
   verification: {
-    google: "3vB4YZZHREtyC6RM2feda_NGjdxJsHUl6BYvMKUiGlY",
+    google: "NZkIQWgMM6RC0fCX1PcdfmNinajsC837Lsa3qXzFoeA",
   },
 };
 
@@ -49,6 +49,10 @@ export default function RootLayout({
         <link
           rel="icon"
           href="https://win98icons.alexmeub.com/icons/png/msie1-0.png"
+        />
+        <meta
+          name="google-site-verification"
+          content="NZkIQWgMM6RC0fCX1PcdfmNinajsC837Lsa3qXzFoeA"
         />
       </head>
       <body>
