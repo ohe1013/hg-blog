@@ -62,16 +62,17 @@ export const StartBarApplications = () => {
     <div className="StartBar__applications">
       {taskWindows.map((w) => (
         <Fragment key={w.id}>
-          <button
-            onClick={() => {
-              if (w.minimized) {
-                restore(w.id);
-              } else if (w.zIndex === topZ) {
-                minimize(w.id);
-              } else {
-                focus(w.id);
-              }
-            }}
+          {w.icon ? (
+            <button
+              onClick={() => {
+                if (w.minimized) {
+                  restore(w.id);
+                } else if (w.zIndex === topZ) {
+                  minimize(w.id);
+                } else {
+                  focus(w.id);
+                }
+              }}
             style={{ backgroundImage: `url(${w.icon})` }}
             className={`btn StartBar__icon ${
               w.zIndex === topZ && !w.minimized ? "actived" : ""
@@ -79,7 +80,27 @@ export const StartBarApplications = () => {
             title={w.title}
           >
             {w.label}
-          </button>
+          </button> 
+          ) : (
+            <button
+              onClick={() => {
+                if (w.minimized) {
+                  restore(w.id);
+                } else if (w.zIndex === topZ) {
+                  minimize(w.id);
+                } else {
+                  focus(w.id);
+                }
+              }}
+            className={`btn StartBar__icon ${
+              w.zIndex === topZ && !w.minimized ? "actived" : ""
+            }`}
+            style={{paddingLeft:'10px'}}
+            title={w.title}
+          >
+            {w.label}
+          </button> 
+          )}
         </Fragment>
       ))}
     </div>

@@ -61,7 +61,7 @@ export default function ExternalLinkConfirmWindow({
                 <p>Do you want to continue?</p>
               </div>
             </div>
-            <div className="flex gap-2 justify-center mt-2 w-full">
+            <div className="flex gap-2 justify-end mt-2 w-full">
               <Button onClick={handleConfirm} style={{ minWidth: "80px" }}>
                 OK
               </Button>
