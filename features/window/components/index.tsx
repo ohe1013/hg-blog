@@ -171,10 +171,12 @@ const WindowResizeHeader = () => {
       onDoubleClick={onFullSizeToggle}
     >
       <div className="title-bar-text">
-        <div
-          style={{ backgroundImage: `url(${appMeta?.miniIconUrl ?? ""})` }}
-          className="WindowHeader__icon"
-        />
+        {appMeta?.miniIconUrl && (
+          <div
+            style={{ backgroundImage: `url(${appMeta?.miniIconUrl ?? ""})` }}
+            className="WindowHeader__icon"
+          />
+        )}
         {win.title}
       </div>
       <div className="title-bar-controls">
@@ -612,7 +614,7 @@ const WindowMainBody = ({
     <div
       className="WindowMainBody"
       onMouseDown={(e) => {
-        e.stopPropagation();
+        // e.stopPropagation();
         e.preventDefault();
         onMouseDown?.(e);
       }}

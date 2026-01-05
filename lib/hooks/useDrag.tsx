@@ -133,6 +133,36 @@ export function useDragSelect<T extends string>() {
     );
   };
 
+  // Focus/Blur handle: Clear selection when focus leaves the container or window
+  useEffect(() => {
+    const handleWindowBlur = () => {
+      setSelectedIds(new Set());
+    };
+
+    const handleFocusOut = (e: FocusEvent) => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const nextFocus = e.relatedTarget as Node | null;
+      if (!nextFocus || !container.contains(nextFocus)) {
+        setSelectedIds(new Set());
+      }
+    };
+
+    const container = containerRef.current;
+    if (container) {
+      container.addEventListener("focusout", handleFocusOut);
+    }
+    window.addEventListener("blur", handleWindowBlur);
+
+    return () => {
+      if (container) {
+        container.removeEventListener("focusout", handleFocusOut);
+      }
+      window.removeEventListener("blur", handleWindowBlur);
+    };
+  }, []);
+
   return {
     containerRef,
     itemRefs,
