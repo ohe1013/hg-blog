@@ -12,10 +12,11 @@ export const useItemInteraction = () => {
     if (node.kind === "folder") {
       open(id);
     } else {
+      console.log(node);
       // 파일이면 앱 실행
 
       const appKey = node.app;
-
+      console.log(appKey);
       if (appKey === "notepad") {
         openApp("notepad", { fileId: id });
       } else if (appKey === "article-viewer") {

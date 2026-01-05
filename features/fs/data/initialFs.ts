@@ -71,6 +71,7 @@ export const initialFs: FileSystem = {
 이 블로그는 Windows 98의 향수를 담아 제작된 개인 공간입니다.
 단순히 정보를 전달하는 것을 넘어, 인터랙티브한 경험을 통해
 저의 개발 여정과 생각들을 공유하고자 합니다.
+notepad의 데이터는 sessionStorage에 저장됩니다.
 폴더 안내:
 - [article]: react-notion-x를 활용하여 Notion에 작성된 기술 관련 글들을 게시합니다.
 - [about me]: 저의 포트폴리오와 개인적인 생각, 철학 등을 담은 글들을 게시합니다.

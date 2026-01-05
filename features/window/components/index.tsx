@@ -54,7 +54,7 @@ interface WindowProps {
   children: ReactNode;
   initialWidth?: string;
   initialHeight?: string;
-  initialX?: number | "center";
+  initialX?: number | "center" | string;
   initialY?: number | string;
 }
 

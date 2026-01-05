@@ -72,7 +72,7 @@ export default function NotepadWindow({ winId }: NotepadWindowProps) {
   ];
 
   return (
-    <Window winId={winId}>
+    <Window winId={winId} initialX={"5%"} initialY={"5%"}>
       <WindowResizeHeader />
       <WindowMenuBar menus={menus} />
       <WindowBody style={{ display: "flex", flexDirection: "column" }}>

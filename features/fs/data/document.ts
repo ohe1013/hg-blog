@@ -4,19 +4,19 @@ import { iconDict } from "./icon";
 export const document: FileData = {
   // level 1 folders
   // root files
-  file_readme: {
-    id: "file_readme",
+  document_file_readme: {
+    id: "document_file_readme",
     name: "Readme.txt",
     kind: "file",
     parentId: "document",
     iconUrl: iconDict.notepad,
-    type: "notepad",
-    app: "markdown-viewer",
+    type: "file",
+    app: "notepad",
     payload:
       "Welcome\nThis is a demo filesystem. it's saved in sessionStorage.",
   },
-  f_projects: {
-    id: "f_projects",
+  document_f_projects: {
+    id: "document_f_projects",
     name: "Projects",
     kind: "folder",
     parentId: "document",
@@ -24,8 +24,8 @@ export const document: FileData = {
     iconUrl: iconDict.folder,
     type: "folder",
   },
-  f_docs: {
-    id: "f_docs",
+  document_f_docs: {
+    id: "document_f_docs",
     name: "Docs",
     kind: "folder",
     parentId: "document",
@@ -33,21 +33,21 @@ export const document: FileData = {
     iconUrl: iconDict.folder,
     type: "folder",
   },
-  file_spec: {
-    id: "file_spec",
+  document_file_spec: {
+    id: "document_file_spec",
     name: "spec.txt",
     kind: "file",
-    parentId: "f_projects",
+    parentId: "document_f_projects",
     iconUrl: iconDict.notepad,
     type: "notepad",
     app: "text-viewer",
     payload: "Feature spec v1.0",
   },
-  img_app: {
-    id: "img_app",
+  document_img_app: {
+    id: "document_img_app",
     name: "app.png",
     kind: "file",
-    parentId: "f_projects",
+    parentId: "document_f_projects",
     iconUrl: iconDict.notepad,
     type: "notepad",
     app: "image-viewer",
@@ -55,34 +55,34 @@ export const document: FileData = {
   },
 
   // level 3 folder
-  f_2025: {
-    id: "f_2025",
+  document_f_2025: {
+    id: "document_f_2025",
     name: "2025",
     kind: "folder",
-    parentId: "f_photos",
+    parentId: "document_f_photos",
     children: ["file_trip", "img_cat"],
     iconUrl: iconDict.folder,
     type: "folder",
   },
 
   // level 3 files
-  file_trip: {
-    id: "file_trip",
+  document_file_trip: {
+    id: "document_file_trip",
     name: "trip.md",
     kind: "file",
-    parentId: "f_2025",
+    parentId: "document_f_2025",
     iconUrl: iconDict.notepad,
-    type: "notepad",
-    app: "markdown-viewer",
+    type: "file",
+    app: "notepad",
     payload: "### Spring Trip 2025\n- Seoul → Jeju",
   },
-  img_cat: {
-    id: "img_cat",
+  document_img_cat: {
+    id: "document_img_cat",
     name: "cat.png",
     kind: "file",
-    parentId: "f_2025",
+    parentId: "document_f_2025",
     iconUrl: iconDict.notepad,
-    type: "notepad",
+    type: "file",
     app: "image-viewer",
     payload: "/assets/demo/cat.png",
   },

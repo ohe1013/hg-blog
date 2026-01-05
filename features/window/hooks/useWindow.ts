@@ -13,7 +13,7 @@ export interface UseDragProps {
   ref: React.RefObject<HTMLElement>;
   initialWidth?: string;
   initialHeight?: string;
-  initialX?: number | "center";
+  initialX?: number | "center" | string;
   initialY?: number | string; // e.g. 100 or "20%"
   minimized?: boolean;
 }
@@ -96,6 +96,9 @@ export function useWindow({
 
       if (initialX === "center") {
         x = (parentWidth - rect.width) / 2;
+      } else if (typeof initialX === "string" && initialX.endsWith("%")) {
+        const percent = parseFloat(initialX) / 100;
+        x = parentWidth * percent;
       } else if (typeof initialX === "number") {
         x = initialX;
       }
