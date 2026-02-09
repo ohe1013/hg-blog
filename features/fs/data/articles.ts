@@ -2,6 +2,16 @@ import { FileData } from "../types";
 import { iconDict } from "./icon";
 
 export const articles: FileData = {
+  articles_budget_app: {
+    id: "articles_budget_app",
+    name: "가계부앱 개발 후기 (토스 왜 부부통장 없애냐고!)",
+    kind: "file",
+    parentId: "articles",
+    iconUrl: iconDict.notion,
+    type: "notion",
+    app: "article-viewer",
+    pageId: "2f5145eb576b806db310ffae54659a96",
+  },
   articles_react_study: {
     id: "articles_react_study",
     name: "리액트_공식문서_분석",

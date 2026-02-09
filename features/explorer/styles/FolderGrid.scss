@@ -37,11 +37,17 @@
     font-family: "Pixelated MS Sans Serif", Arial;
     position: relative;
     user-select: none;
+    white-space: nowrap; /* 줄바꿈 금지 */
+    overflow: hidden; /* 넘치는 부분 숨김 */
+    text-overflow: ellipsis; /* ... 처리 */
   }
   &__text.actived {
     background-color: #000080;
-    opacity: 0.5;
+    opacity: 0.8;
     color: #ffffff;
+    white-space: wrap; /* 줄바꿈 금지 */
+    overflow: hidden; /* 넘치는 부분 숨김 */
+    z-index: 100;
   }
   &__text.actived::after {
     content: "";
