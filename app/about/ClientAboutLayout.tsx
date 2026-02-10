@@ -5,7 +5,7 @@ import { useApplicationStore } from "../../zustand/application/applicationProvid
 import SharedExplorerLayout from "@features/explorer/components/SharedExplorerLayout";
 
 export default function AboutWindow({ winId }: { winId: string }) {
-  const { getById, updateParams } = useApplicationStore((s) => s);
+  const { getById } = useApplicationStore((s) => s);
   const win = getById(winId);
   if (!win) return null;
 
@@ -21,7 +21,7 @@ export default function AboutWindow({ winId }: { winId: string }) {
         defaultInfo: "Information about me.",
         iconStyle: { width: 32, height: 32 },
       }}
-      initialPosts={initialPosts}
+      // initialPosts={initialPosts}
     />
   );
 }

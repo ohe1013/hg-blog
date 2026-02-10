@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { getArticlePosts } from "@features/notion/api";
+import { getAboutPosts, getArticlePosts } from "@features/notion/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,16 +15,21 @@ function getBaseUrl() {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getBaseUrl();
 
-  const routes = ["", "/article"].map((route) => ({
+  const routes = ["", "/article", "/about"].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
   }));
 
-  const posts = await getArticlePosts();
-  const articleRoutes = posts.map((post) => ({
+  const articlePosts = await getArticlePosts();
+  const aboutPosts = await getAboutPosts();
+  const articleRoutes = articlePosts.map((post) => ({
     url: `${baseUrl}/article/${post.pageId}`,
     lastModified: new Date(post.createdTime),
   }));
+  const aboutRoutes = aboutPosts.map((post) => ({
+    url: `${baseUrl}/about/${post.pageId}`,
+    lastModified: new Date(post.createdTime),
+  }));
 
-  return [...routes, ...articleRoutes];
+  return [...routes, ...articleRoutes, ...aboutRoutes];
 }

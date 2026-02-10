@@ -1,4 +1,4 @@
-import ClientAboutLayout from "./ClientAboutLayout";
-export default async function About() {
-  return <ClientAboutLayout winId="about"></ClientAboutLayout>;
+import { ReactNode } from "react";
+export default function AboutLayout({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }

@@ -29,8 +29,9 @@ export const createExplorerStore = (
   let fs = { ...initialFs };
 
   if (initialPosts && initialPosts.length > 0) {
-    const articleFolder = fs.byId["articles"];
-    if (articleFolder && articleFolder.kind === "folder") {
+    const targetFolderId = initialRootId;
+    const targetFolder = fs.byId[targetFolderId];
+    if (targetFolder && targetFolder.kind === "folder") {
       // Create file nodes for each post
       const postNodes: Record<FileId, FsNode> = {};
       const postIds: FileId[] = [];
@@ -45,7 +46,7 @@ export const createExplorerStore = (
           kind: "file",
           type: "notepad", // Using notepad type for now to reuse icon/viewer
           app: "article-viewer",
-          parentId: "articles",
+          parentId: targetFolderId,
           iconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
           payload: { pageId: id, slug: post.slug },
         };
@@ -57,9 +58,10 @@ export const createExplorerStore = (
         byId: {
           ...fs.byId,
           ...postNodes,
-          articles: {
-            ...articleFolder,
-            children: [...articleFolder.children, ...postIds],
+          [targetFolderId]: {
+            // Use dynamic key
+            ...targetFolder,
+            children: [...targetFolder.children, ...postIds],
           },
         },
       };

@@ -1,14 +1,33 @@
-import { NotionAPI } from "notion-client";
-import Renderer from "../../features/notion/Renderer";
-import { rootDir } from "@features/notion/data";
-export default function About() {
-  const notion = new NotionAPI();
-  const recordMap = notion.getPage(rootDir.about);
+import { getAboutPosts } from "@features/notion/api";
+import AboutStateInitializer from "./AboutStateInitializer";
+import { Metadata } from "next";
+import Link from "next/link";
+
+export const revalidate = 3600; // 1 hour
+
+export const metadata: Metadata = {
+  title: "HG About",
+  description: "HG's About",
+};
+
+export default async function AboutPage() {
+  const posts = await getAboutPosts();
   return (
-    <Renderer
-      recordMap={recordMap}
-      rootPageId={rootDir.about}
-      rootUrl={"about"}
-    />
+    <>
+      <div className="sr-only">
+        <h1>HG About</h1>
+        <ul>
+          {posts.map((post) => (
+            <li key={post.pageId}>
+              <Link href={`/about/${post.pageId}`}>{post.title}</Link>
+              <time dateTime={new Date(post.createdTime).toISOString()}>
+                {new Date(post.createdTime).toLocaleDateString()}
+              </time>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <AboutStateInitializer initialPosts={posts} />
+    </>
   );
 }
