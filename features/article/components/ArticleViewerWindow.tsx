@@ -10,7 +10,6 @@ import {
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import Renderer from "@features/notion/Renderer";
 import { initialFs } from "@features/fs/data/initialFs";
-import { FileNode } from "@features/fs/types";
 
 interface ArticleViewerWindowProps {
   winId: string;
@@ -30,7 +29,7 @@ export default function ArticleViewerWindow({
     (initialNode?.kind === "file" ? initialNode.pageId : null) ?? paramPageId;
 
   const [activePageId, setActivePageId] = useState<string | null>(
-    initialPageId ?? null
+    initialPageId ?? null,
   );
 
   const handleNavigate = useCallback((id: string) => {

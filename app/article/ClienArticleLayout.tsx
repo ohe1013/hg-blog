@@ -21,7 +21,7 @@ export default function ArticleWindow({ winId }: { winId: string }) {
           "Welcome to my tech articles. Here you can find my latest posts and thoughts.",
         iconStyle: { width: 32, height: 32 },
       }}
-      initialPosts={initialPosts}
+      // initialPosts={initialPosts}
     />
   );
 }

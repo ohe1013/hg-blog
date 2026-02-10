@@ -24,7 +24,7 @@ import { ArticlePost } from "@features/notion/api";
 
 export const createExplorerStore = (
   initialRootId: FileId,
-  initialPosts?: ArticlePost[]
+  initialPosts?: ArticlePost[],
 ) => {
   let fs = { ...initialFs };
 
@@ -37,6 +37,7 @@ export const createExplorerStore = (
 
       initialPosts.forEach((post) => {
         const id = post.pageId;
+        if (!id) return;
         postIds.push(id);
         postNodes[id] = {
           id,
@@ -46,7 +47,7 @@ export const createExplorerStore = (
           app: "article-viewer",
           parentId: "articles",
           iconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-2.png",
-          payload: { pageId: post.pageId, slug: post.slug },
+          payload: { pageId: id, slug: post.slug },
         };
       });
 
@@ -182,7 +183,7 @@ export const ExplorerProvider = ({
 };
 
 export const useExplorerContext = <T,>(
-  selector: (state: ExplorerState) => T
+  selector: (state: ExplorerState) => T,
 ): T => {
   const store = useContext(ExplorerContext);
   if (!store) {

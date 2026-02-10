@@ -13,9 +13,11 @@ export type FolderNode = FsNodeBase & {
   iconUrl: string;
 };
 
+type FileType = "file" | "image" | "notepad" | "notion" | "external-link";
+
 export type FileNode = FsNodeBase & {
   kind: "file";
-  type: "file" | "image" | "notepad" | "notion" | "external-link";
+  type: FileType;
   app: string; // 'markdown-viewer' | 'image-viewer' | ...
   iconUrl: string;
   payload?: { url: string } | string | { pageId: string; slug: string }; // 파일 데이터/경로 등
@@ -24,7 +26,9 @@ export type FileNode = FsNodeBase & {
 
 export type FsNode = FolderNode | FileNode;
 
-export type FileData = Record<FileId, FsNode>;
+export type FileData = {
+  [key: string]: FsNode;
+};
 
 export type FileSystem = {
   rootIds: FileId[]; // rootId -> rootIds

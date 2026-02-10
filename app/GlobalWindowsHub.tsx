@@ -1,11 +1,6 @@
 "use client";
 
-import { ComponentType, memo, useMemo, useRef } from "react";
 import { useApplicationStore } from "../zustand/application/applicationProvider";
-import {
-  AppsType,
-  WindowInstance,
-} from "../zustand/application/applicationStore";
 import ArticleWindow from "./article/ClienArticleLayout";
 import AboutWindow from "./about/ClientAboutLayout";
 import ComputerWindow from "./computer/ClientComputerLayout";
