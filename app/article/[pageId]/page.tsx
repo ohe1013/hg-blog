@@ -53,7 +53,6 @@ export async function generateMetadata({ params }: fetchEachPagesProps) {
 
 const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
   const { pageId } = await params;
-  console.log(pageId);
   const notion = new NotionAPI();
 
   // Fetch both the specific post and the list of all posts
@@ -61,7 +60,7 @@ const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
     notion.getPage(pageId),
     getArticlePosts(),
   ]);
-
+  console.log("pageId", pageId);
   const title =
     Object.values(recordMap.block)[0]?.value?.properties?.title?.[0]?.[0] ||
     "Article Post";
@@ -97,7 +96,7 @@ const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
             headline: title,
             description: description,
             datePublished: new Date(
-              Object.values(recordMap.block)[0]?.value?.created_time
+              Object.values(recordMap.block)[0]?.value?.created_time,
             ).toISOString(),
             author: {
               "@type": "Person",

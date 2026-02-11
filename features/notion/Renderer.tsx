@@ -8,6 +8,58 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { forwardRef, memo, ReactNode, useCallback, useMemo } from "react";
 
+/**
+ * Notion API (notion-client) sometimes returns blocks in a nested format:
+ * block[id] = { spaceId, value: { role, value: Block } }
+ * react-notion-x expects the standard format:
+ * block[id] = { role, value: Block }
+ * This function flattens the nested structure to prevent crashes.
+ */
+function normalizeRecordMap(recordMap: any) {
+  if (!recordMap || typeof recordMap !== "object" || Array.isArray(recordMap))
+    return recordMap;
+
+  // Categories that typically have the { value, role } structure
+  const categories = [
+    "block",
+    "collection",
+    "collection_view",
+    "notion_user",
+    "space",
+  ];
+  let hasOverallChange = false;
+  const newRecordMap = { ...recordMap };
+
+  categories.forEach((cat) => {
+    if (!recordMap[cat] || typeof recordMap[cat] !== "object") return;
+
+    const items = recordMap[cat];
+    const newItems = { ...items };
+    let hasCatChange = false;
+
+    Object.keys(items).forEach((id) => {
+      const itemRecord = items[id];
+      // Standard structure: { value: { id, ... }, role: '...' }
+      // Abnormal structure: { value: { value: { id, ... }, role: '...' }, ... }
+      if (itemRecord?.value?.value && !itemRecord.value.id) {
+        newItems[id] = {
+          ...itemRecord.value,
+          value: itemRecord.value.value,
+          role: itemRecord.value.role || itemRecord.role,
+        };
+        hasCatChange = true;
+      }
+    });
+
+    if (hasCatChange) {
+      newRecordMap[cat] = newItems;
+      hasOverallChange = true;
+    }
+  });
+
+  return hasOverallChange ? newRecordMap : recordMap;
+}
+
 interface RendererProps {
   recordMap: any;
   rootPageId: string;
@@ -24,32 +76,33 @@ type PageLinkProps = {
 
 // Renderer.tsx 최상단(컴포넌트 바깥)
 const Code = dynamic(() =>
-  import("react-notion-x/build/third-party/code").then((m) => m.Code)
+  import("react-notion-x/build/third-party/code").then((m) => m.Code),
 );
 const Collection = dynamic(() =>
   import("react-notion-x/build/third-party/collection").then(
-    (m) => m.Collection
-  )
+    (m) => m.Collection,
+  ),
 );
 const Equation = dynamic(() =>
-  import("react-notion-x/build/third-party/equation").then((m) => m.Equation)
+  import("react-notion-x/build/third-party/equation").then((m) => m.Equation),
 );
 const Pdf = dynamic(
   () => import("react-notion-x/build/third-party/pdf").then((m) => m.Pdf),
-  { ssr: false }
+  { ssr: false },
 );
 const Modal = dynamic(
   () => import("react-notion-x/build/third-party/modal").then((m) => m.Modal),
-  { ssr: false }
+  { ssr: false },
 );
 
 const PageLink = memo(
   forwardRef<HTMLAnchorElement, PageLinkProps>(function PageLink(
     { onNavigate, rootUrl, href, id, children, ...rest },
-    ref
+    ref,
   ) {
     const raw = href ?? id ?? "";
-    const next = String(raw).split("/").pop()?.replace(/-/g, "");
+    const next =
+      typeof raw === "string" ? raw.split("/").pop()?.replace(/-/g, "") : "";
 
     // onNavigate 없으면 원래대로 링크 이동: Notion이 준 className 등 그대로 전달
     if (!onNavigate || !next) {
@@ -79,7 +132,7 @@ const PageLink = memo(
         {children}
       </a>
     );
-  })
+  }),
 );
 
 export const Renderer = memo(function Renderer({
@@ -93,7 +146,7 @@ export const Renderer = memo(function Renderer({
       const base = rootUrl ? `/${rootUrl}` : "";
       return `${pageId}`;
     },
-    [rootUrl]
+    [rootUrl],
   );
 
   const components = useMemo(
@@ -112,18 +165,23 @@ export const Renderer = memo(function Renderer({
       },
       nextLink: Link,
     }),
-    [onNavigate, rootUrl]
+    [onNavigate, rootUrl],
+  );
+
+  const normalizedRecordMap = useMemo(
+    () => normalizeRecordMap(recordMap),
+    [recordMap],
   );
 
   return (
     <div className="notion__container">
       <NotionRenderer
-        recordMap={recordMap}
+        recordMap={normalizedRecordMap}
         fullPage
         darkMode={false}
         rootPageId={rootPageId}
         mapPageUrl={mapPageUrl}
-        previewImages
+        previewImages={false}
         components={components}
       />
     </div>
