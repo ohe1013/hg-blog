@@ -1,6 +1,7 @@
 "use client";
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
 import SharedExplorerLayout from "@features/explorer/components/SharedExplorerLayout";
+import { EXPLORER_ROOT } from "@features/explorer/data";
 
 export default function DocumentWindow({ winId }: { winId: string }) {
   const { getById } = useApplicationStore((s) => s);
@@ -10,7 +11,7 @@ export default function DocumentWindow({ winId }: { winId: string }) {
   return (
     <SharedExplorerLayout
       winId={winId}
-      explorerId="document"
+      explorerId={EXPLORER_ROOT.document}
       sidebarConfig={{
         iconUrl:
           "https://win98icons.alexmeub.com/icons/png/directory_open_file_mydocs-1.png",

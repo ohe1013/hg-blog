@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Renderer from "@features/notion/Renderer";
+import { fetchNotionRecordMap } from "@features/notion/api";
 
 export default function AboutView({
   pageId,
@@ -16,17 +17,15 @@ export default function AboutView({
 
   useEffect(() => {
     let cancelled = false;
+
     async function load() {
       try {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(`/api/notion/page/${pageId}`);
-        if (!res.ok) throw new Error(await res.text());
-
-        const data = await res.json();
+        const map = await fetchNotionRecordMap(pageId);
         if (!cancelled) {
-          setRecordMap(data.recordMap);
+          setRecordMap(map);
         }
       } catch (err: any) {
         if (!cancelled) setError(err.message ?? "Unknown error");
@@ -42,7 +41,7 @@ export default function AboutView({
     };
   }, [pageId]);
 
-  if (loading) return <div style={{ padding: 8 }}>Loading…</div>;
+  if (loading) return <div style={{ padding: 8 }}>Loading...</div>;
   if (error) return <div style={{ padding: 8, color: "red" }}>{error}</div>;
   if (!recordMap) return null;
 

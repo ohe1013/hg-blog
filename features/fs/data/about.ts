@@ -1,5 +1,6 @@
 import { FileData } from "../types";
 import { iconDict } from "./icon";
+import { EXTERNAL_LINKS } from "@features/explorer/data";
 
 export const about: FileData = {
   about_me: {
@@ -21,7 +22,7 @@ export const about: FileData = {
     type: "external-link",
     app: "external-link-confirm",
     payload: {
-      url: "https://github.com/ohe1013",
+      url: EXTERNAL_LINKS.github,
     },
   },
   about_linkedin: {
@@ -33,7 +34,7 @@ export const about: FileData = {
     type: "external-link",
     app: "external-link-confirm",
     payload: {
-      url: "https://www.linkedin.com/in/%ED%98%84%EA%B7%BC-%EC%98%A4-737066254/",
+      url: EXTERNAL_LINKS.linkedIn,
     },
   },
 };

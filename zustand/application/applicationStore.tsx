@@ -1,21 +1,17 @@
-import { iconDict } from "@features/fs/data/icon";
 import { create } from "zustand";
+import {
+  APP_CATALOG,
+  APP_KEYS,
+  SystemAppKey,
+  TITLED_PAGE_APPS,
+} from "@features/explorer/data";
 
-export type SystemApps =
-  | "articles"
-  | "about"
-  | "computer"
-  | "document"
-  | "notepad"
-  | "blog-viewer"
-  | "external-link-confirm"
-  | "linkedIn"
-  | "readme";
+export type SystemApps = SystemAppKey;
 
 export type AppsType = SystemApps | (string & {});
 
 type AppCatalogItem = {
-  key: AppsType;
+  key: SystemAppKey;
   label: string;
   iconUrl: string;
   miniIconUrl: string;
@@ -47,7 +43,7 @@ type ApplicationMethod = {
   open: (
     app: AppsType,
     params?: Record<string, any>,
-    initialData?: any
+    initialData?: any,
   ) => string;
   close: (id: string) => void;
   focus: (id: string) => void;
@@ -62,120 +58,22 @@ type ApplicationMethod = {
 export type ApplicationStore = ApplicationState & ApplicationMethod;
 
 const defaultInitState: ApplicationState = {
-  apps: {
-    computer: {
-      key: "computer",
-      label: "Computer",
-      iconUrl: "https://win98icons.alexmeub.com/images/computer_explorer-2.png",
-      miniIconUrl:
-        "https://win98icons.alexmeub.com/icons/png/computer_explorer-0.png",
-      showOnDesktop: true,
-      singleton: true,
-    },
-    document: {
-      key: "document",
-      label: "Documents",
-      iconUrl: "https://win98icons.alexmeub.com/images/directory_closed-3.png",
-      miniIconUrl:
-        "https://win98icons.alexmeub.com/icons/png/directory_closed-1.png",
-      showOnDesktop: true,
-      singleton: true,
-    },
-    articles: {
-      key: "articles",
-      label: "Articles",
-      iconUrl: "/assets/img/notion-logo-no-background.png",
-      miniIconUrl: "/assets/img/notion-logo-no-background.png",
-      showOnDesktop: true,
-      singleton: false,
-    },
-    about: {
-      key: "about",
-      label: "About Me",
-      iconUrl: "/assets/img/notion-logo-no-background.png",
-      miniIconUrl: "/assets/img/notion-logo-no-background.png",
-      showOnDesktop: true,
-      singleton: false,
-    },
-    notepad: {
-      key: "notepad",
-      label: "Notepad",
-      iconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-1.png",
-      miniIconUrl: "https://win98icons.alexmeub.com/icons/png/notepad-0.png",
-      showOnDesktop: false,
-      singleton: false,
-    },
-    "article-viewer": {
-      key: "article-viewer",
-      label: "Article Post",
-      iconUrl: "/assets/img/notion-logo-no-background.png",
-      miniIconUrl: "/assets/img/notion-logo-no-background.png",
-      showOnDesktop: false,
-      singleton: false,
-    },
-    "blog-viewer": {
-      // Fix for lint: missing property
-      key: "blog-viewer",
-      label: "Blog Viewer",
-      iconUrl: "/assets/img/notion-logo-no-background.png",
-      miniIconUrl: "/assets/img/notion-logo-no-background.png",
-      showOnDesktop: false,
-      singleton: false,
-    },
-    github: {
-      key: "github",
-      label: "GitHub",
-      iconUrl: iconDict.github,
-      miniIconUrl: iconDict.github,
-      showOnDesktop: true,
-      singleton: true,
-      externalUrl: "https://github.com/ohe1013",
-    },
-    linkedIn: {
-      key: "linkedIn",
-      label: "LinkedIn",
-      iconUrl: iconDict.linkedIn,
-      miniIconUrl: iconDict.linkedIn,
-      showOnDesktop: true,
-      singleton: true,
-      externalUrl:
-        "https://www.linkedin.com/in/%ED%98%84%EA%B7%BC-%EC%98%A4-737066254/",
-    },
-    "external-link-confirm": {
-      key: "external-link-confirm",
-      label: "Link Confirmation",
-      iconUrl: "https://win98icons.alexmeub.com/icons/png/msg_warning-0.png",
-      miniIconUrl: "",
-      showOnDesktop: false,
-      singleton: false,
-    },
-    readme: {
-      key: "readme",
-      label: "readme.txt",
-      iconUrl: iconDict.notepad,
-      miniIconUrl: iconDict.notepad,
-      showOnDesktop: true,
-      singleton: false,
-    },
-  },
+  apps: APP_CATALOG as Record<AppsType, AppCatalogItem>,
   windows: [],
   topZ: 1,
 };
 function computeTitle(
   base: string,
   app: AppsType,
-  params?: Record<string, any>
+  params?: Record<string, any>,
 ) {
-  if (
-    (app === "articles" || app === "about" || app === "article-viewer") &&
-    params?.pageId
-  ) {
+  if (TITLED_PAGE_APPS.has(app as SystemAppKey) && params?.pageId) {
     return `${base} - ${String(params.pageId).slice(0, 6)}`;
   }
   return base;
 }
 export const createApplicationStore = (
-  initState: ApplicationState = defaultInitState
+  initState: ApplicationState = defaultInitState,
 ) =>
   create<ApplicationStore>()((set, get) => ({
     ...initState,
@@ -222,7 +120,7 @@ export const createApplicationStore = (
     updateParams: (id, patch) =>
       set((s) => ({
         windows: s.windows.map((w) =>
-          w.id === id ? { ...w, params: { ...(w.params ?? {}), ...patch } } : w
+          w.id === id ? { ...w, params: { ...(w.params ?? {}), ...patch } } : w,
         ),
       })),
     rename: (id, title) =>
@@ -237,7 +135,7 @@ export const createApplicationStore = (
         const newTop = s.topZ + 1;
         return {
           windows: s.windows.map((w) =>
-            w.id === id ? { ...w, zIndex: newTop } : w
+            w.id === id ? { ...w, zIndex: newTop } : w,
           ),
           topZ: newTop,
         };
@@ -245,7 +143,7 @@ export const createApplicationStore = (
     minimize: (id) =>
       set((s) => ({
         windows: s.windows.map((w) =>
-          w.id === id ? { ...w, minimized: true } : w
+          w.id === id ? { ...w, minimized: true } : w,
         ),
       })),
     restore: (id) =>
@@ -253,12 +151,12 @@ export const createApplicationStore = (
         const newTop = s.topZ + 1;
         return {
           windows: s.windows.map((w) =>
-            w.id === id ? { ...w, minimized: false, zIndex: newTop } : w
+            w.id === id ? { ...w, minimized: false, zIndex: newTop } : w,
           ),
           topZ: newTop,
         };
       }),
     getById: (id) => get().windows.find((w) => w.id === id),
 
-    getApplicationKeys: () => Object.keys(get().apps) as AppsType[],
+    getApplicationKeys: () => [...APP_KEYS],
   }));

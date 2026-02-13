@@ -66,3 +66,12 @@ export async function getAboutPosts(): Promise<AboutPost[]> {
       .filter((p) => Boolean(p.pageId))
   );
 }
+
+export async function fetchNotionRecordMap(pageId: string) {
+  const res = await fetch(`/api/notion/page/${pageId}`);
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+  const data = await res.json();
+  return data.recordMap;
+}

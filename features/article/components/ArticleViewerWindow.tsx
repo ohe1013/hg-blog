@@ -10,6 +10,7 @@ import {
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import Renderer from "@features/notion/Renderer";
 import { initialFs } from "@features/fs/data/initialFs";
+import { fetchNotionRecordMap } from "@features/notion/api";
 
 interface ArticleViewerWindowProps {
   winId: string;
@@ -40,13 +41,9 @@ export default function ArticleViewerWindow({
     if (activePageId) {
       setLoading(true);
 
-      fetch(`/api/notion/page/${activePageId}`)
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to fetch");
-          return res.json();
-        })
-        .then((data) => {
-          setRecordMap(data.recordMap);
+      fetchNotionRecordMap(activePageId)
+        .then((recordMap) => {
+          setRecordMap(recordMap);
           setLoading(false);
         })
         .catch((err) => {

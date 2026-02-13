@@ -2,6 +2,8 @@
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
 import SharedExplorerLayout from "@features/explorer/components/SharedExplorerLayout";
 import { ArticlePost } from "@features/notion/api";
+import { EXPLORER_ROOT } from "@features/explorer/data";
+import { iconDict } from "@features/fs/data/icon";
 
 export default function ArticleWindow({ winId }: { winId: string }) {
   const { getById } = useApplicationStore((s) => s);
@@ -13,9 +15,9 @@ export default function ArticleWindow({ winId }: { winId: string }) {
   return (
     <SharedExplorerLayout
       winId={winId}
-      explorerId="articles"
+      explorerId={EXPLORER_ROOT.articles}
       sidebarConfig={{
-        iconUrl: "/assets/img/notion-logo-no-background.png",
+        iconUrl: iconDict.notion,
         title: "Articles",
         defaultInfo:
           "Welcome to my tech articles. Here you can find my latest posts and thoughts.",

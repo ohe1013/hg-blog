@@ -1,6 +1,7 @@
 "use client";
 import { useApplicationStore } from "../../zustand/application/applicationProvider";
 import SharedExplorerLayout from "@features/explorer/components/SharedExplorerLayout";
+import { EXPLORER_ROOT } from "@features/explorer/data";
 
 export default function ComputerWindow({ winId }: { winId: string }) {
   const { getById } = useApplicationStore((s) => s);
@@ -10,7 +11,7 @@ export default function ComputerWindow({ winId }: { winId: string }) {
   return (
     <SharedExplorerLayout
       winId={winId}
-      explorerId="computer"
+      explorerId={EXPLORER_ROOT.computer}
       sidebarConfig={{
         iconUrl: "https://98.js.org/images/icons/hard-disk-drive-32x32.png",
         title: "(C:)",

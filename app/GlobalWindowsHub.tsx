@@ -12,26 +12,31 @@ import DocumentWindow from "./document/ClientDocumentLayout";
 import NotepadWindow from "@features/notepad/components/NotepadWindow";
 import ArticleViewerWindow from "@features/article/components/ArticleViewerWindow";
 import ExternalLinkConfirmWindow from "@features/desktop/components/ExternalLinkConfirmWindow";
+import type { SystemAppKey } from "@features/explorer/data";
+
+const WINDOW_RENDERERS: Partial<
+  Record<SystemAppKey, (winId: string) => JSX.Element>
+> = {
+  articles: (winId) => <ArticleWindow key={winId} winId={winId} />,
+  about: (winId) => <AboutWindow key={winId} winId={winId} />,
+  computer: (winId) => <ComputerWindow key={winId} winId={winId} />,
+  document: (winId) => <DocumentWindow key={winId} winId={winId} />,
+  notepad: (winId) => <NotepadWindow key={winId} winId={winId} />,
+  "article-viewer": (winId) => (
+    <ArticleViewerWindow key={winId} winId={winId} />
+  ),
+  "external-link-confirm": (winId) => (
+    <ExternalLinkConfirmWindow key={winId} winId={winId} />
+  ),
+};
 
 export function GlobalWindowsHub() {
   const { windows } = useApplicationStore((s) => s);
   return (
     <>
       {windows.map((w) => {
-        if (w.app === "articles")
-          return <ArticleWindow key={w.id} winId={w.id} />;
-        if (w.app === "about") return <AboutWindow key={w.id} winId={w.id} />;
-        if (w.app === "computer")
-          return <ComputerWindow key={w.id} winId={w.id} />;
-        if (w.app === "document")
-          return <DocumentWindow key={w.id} winId={w.id} />;
-        if (w.app === "notepad")
-          return <NotepadWindow key={w.id} winId={w.id} />;
-        if (w.app === "article-viewer")
-          return <ArticleViewerWindow key={w.id} winId={w.id} />;
-        if (w.app === "external-link-confirm")
-          return <ExternalLinkConfirmWindow key={w.id} winId={w.id} />;
-        return null;
+        const renderer = WINDOW_RENDERERS[w.app as SystemAppKey];
+        return renderer ? renderer(w.id) : null;
       })}
     </>
   );
