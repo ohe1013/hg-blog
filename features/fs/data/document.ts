@@ -15,6 +15,26 @@ export const document: FileData = {
     payload:
       "Welcome\nThis is a demo filesystem. it's saved in sessionStorage.",
   },
+  document_file_guestbook: {
+    id: "document_file_guestbook",
+    name: "Guestbook.txt",
+    kind: "file",
+    parentId: "document",
+    iconUrl: iconDict.notepad,
+    type: "file",
+    app: "guestbook",
+    payload: "Open this file to sign the guestbook.",
+  },
+  document_file_contact: {
+    id: "document_file_contact",
+    name: "Contact.msg",
+    kind: "file",
+    parentId: "document",
+    iconUrl: iconDict.notepad,
+    type: "file",
+    app: "contact",
+    payload: "Open this file to send a private message.",
+  },
   document_f_projects: {
     id: "document_f_projects",
     name: "Projects",

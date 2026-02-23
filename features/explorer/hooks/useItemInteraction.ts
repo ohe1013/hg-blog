@@ -11,29 +11,25 @@ export const useItemInteraction = () => {
 
     if (node.kind === "folder") {
       open(id);
-    } else {
-      console.log(node);
-      // 파일이면 앱 실행
+      return;
+    }
 
-      const appKey = node.app;
-      console.log(appKey);
-      if (appKey === "notepad") {
-        openApp("notepad", { fileId: id });
-      } else if (appKey === "article-viewer") {
-        // Open blog viewer window
-        openApp("article-viewer", {
-          fileId: id,
-        });
-      } else if (appKey === "external-link-confirm") {
-        const payload = node.payload as { url: string };
-        if (payload.url) {
-          openApp("external-link-confirm", {
-            url: payload.url,
-          });
-        }
-      } else {
-        console.warn("No app for", node.app);
+    const appKey = node.app;
+    if (appKey === "notepad") {
+      openApp("notepad", { fileId: id });
+    } else if (appKey === "article-viewer") {
+      openApp("article-viewer", { fileId: id });
+    } else if (appKey === "external-link-confirm") {
+      const payload = node.payload as { url: string };
+      if (payload.url) {
+        openApp("external-link-confirm", { url: payload.url });
       }
+    } else if (appKey === "guestbook") {
+      openApp("guestbook");
+    } else if (appKey === "contact") {
+      openApp("contact");
+    } else {
+      console.warn("No app for", node.app);
     }
   };
 

@@ -12,6 +12,8 @@ import DocumentWindow from "./document/ClientDocumentLayout";
 import NotepadWindow from "@features/notepad/components/NotepadWindow";
 import ArticleViewerWindow from "@features/article/components/ArticleViewerWindow";
 import ExternalLinkConfirmWindow from "@features/desktop/components/ExternalLinkConfirmWindow";
+import GuestbookWindow from "@features/guestbook/components/GuestbookWindow";
+import ContactWindow from "@features/contact/components/ContactWindow";
 import type { SystemAppKey } from "@features/explorer/data";
 
 const WINDOW_RENDERERS: Partial<
@@ -28,6 +30,8 @@ const WINDOW_RENDERERS: Partial<
   "external-link-confirm": (winId) => (
     <ExternalLinkConfirmWindow key={winId} winId={winId} />
   ),
+  guestbook: (winId) => <GuestbookWindow key={winId} winId={winId} />,
+  contact: (winId) => <ContactWindow key={winId} winId={winId} />,
 };
 
 export function GlobalWindowsHub() {
