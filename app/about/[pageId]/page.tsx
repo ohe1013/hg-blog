@@ -10,6 +10,31 @@ interface fetchEachPagesProps {
 
 export const revalidate = 3600; // 1 hour
 
+type NotionBlockLike = {
+  type?: string;
+  properties?: {
+    title?: string[][];
+  };
+  created_time?: number;
+};
+
+function unwrapBlock(entry: unknown): NotionBlockLike | null {
+  if (!entry || typeof entry !== "object") return null;
+  const value = (entry as { value?: unknown }).value;
+  if (!value || typeof value !== "object") return null;
+
+  if ("type" in value) {
+    return value as NotionBlockLike;
+  }
+
+  const nested = (value as { value?: unknown }).value;
+  if (nested && typeof nested === "object" && "type" in nested) {
+    return nested as NotionBlockLike;
+  }
+
+  return null;
+}
+
 export async function generateStaticParams() {
   const posts = await getAboutPosts();
   return posts.map((post) => ({ pageId: post.pageId }));
@@ -19,16 +44,16 @@ export async function generateMetadata({ params }: fetchEachPagesProps) {
   const { pageId } = await params;
   const notion = new NotionAPI();
   const recordMap = await notion.getPage(pageId);
-  const title =
-    Object.values(recordMap.block)[0]?.value?.properties?.title?.[0]?.[0] ||
-    "About Post";
+  const blocks = Object.values(recordMap.block)
+    .map(unwrapBlock)
+    .filter((block): block is NotionBlockLike => Boolean(block));
+  const title = blocks[0]?.properties?.title?.[0]?.[0] || "About Post";
 
   // Attempt to extract a summary or use a default one
-  const blocks = Object.values(recordMap.block);
   const introText = blocks
-    .filter((b) => b.value?.type === "text")
+    .filter((b) => b.type === "text")
     .slice(0, 3)
-    .map((b) => b.value?.properties?.title?.[0]?.[0])
+    .map((b) => b.properties?.title?.[0]?.[0])
     .filter(Boolean)
     .join(" ")
     .slice(0, 160);
@@ -60,22 +85,22 @@ const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
     notion.getPage(pageId),
     getAboutPosts(),
   ]);
-  const title =
-    Object.values(recordMap.block)[0]?.value?.properties?.title?.[0]?.[0] ||
-    "About Post";
+  const blocks = Object.values(recordMap.block)
+    .map(unwrapBlock)
+    .filter((block): block is NotionBlockLike => Boolean(block));
+  const title = blocks[0]?.properties?.title?.[0]?.[0] || "About Post";
 
   // Simple text extraction for SEO (first few blocks)
-  const blocks = Object.values(recordMap.block);
   const introText = blocks
-    .filter((b) => b.value?.type === "text")
+    .filter((b) => b.type === "text")
     .slice(0, 5)
-    .map((b) => b.value?.properties?.title?.[0]?.[0])
+    .map((b) => b.properties?.title?.[0]?.[0])
     .filter(Boolean)
     .filter(Boolean)
     .join(" ");
 
   const description = introText || `Read more about ${title} on HG About.`;
-  const time = Object.values(recordMap.block)[0]?.value?.created_time;
+  const time = blocks[0]?.created_time;
   const datePublished = time ? new Date(time).toISOString() : "";
   return (
     <>
