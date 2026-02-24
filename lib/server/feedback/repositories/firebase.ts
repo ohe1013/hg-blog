@@ -3,7 +3,11 @@ import { Timestamp } from "firebase-admin/firestore";
 import { getFirebaseFirestore } from "@lib/server/firebaseAdmin";
 import { ConfigurationError } from "../errors";
 import {
+  ArticleComment,
+  ArticleCommentListOptions,
+  ArticleCommentListResult,
   ContactMessage,
+  CreateArticleCommentInput,
   CreateContactMessageInput,
   CreateGuestbookEntryInput,
   GuestbookEntry,
@@ -13,9 +17,11 @@ import {
 import { FeedbackRepository } from "./types";
 
 const COLLECTIONS = {
+  comments: "article_comments",
   guestbook: "guestbook_entries",
   contact: "contact_messages",
 } as const;
+const HIDDEN_COMMENT_MESSAGE = "hidden comment";
 const HIDDEN_MESSAGE = "비밀처리 된 글입니다.";
 
 function isMissingIndexError(error: unknown): boolean {
@@ -73,6 +79,31 @@ function toGuestbookEntry(doc: {
   };
 }
 
+function toArticleComment(doc: {
+  id: string;
+  data: () => Record<string, unknown>;
+}): ArticleComment {
+  const data = doc.data();
+  return {
+    id: doc.id,
+    articlePageId: String(data.articlePageId ?? ""),
+    nickname: String(data.nickname ?? ""),
+    message: String(data.message ?? ""),
+    createdAt: toIsoTimestamp(data.createdAt),
+    status: (data.status ?? "published") as ArticleComment["status"],
+  };
+}
+
+function toPublicArticleComment(entry: ArticleComment): ArticleComment {
+  if (entry.status !== "hidden") {
+    return entry;
+  }
+  return {
+    ...entry,
+    message: HIDDEN_COMMENT_MESSAGE,
+  };
+}
+
 function toPublicGuestbookEntry(entry: GuestbookEntry): GuestbookEntry {
   if (entry.status !== "hidden") {
     return entry;
@@ -98,6 +129,173 @@ function toIsoTimestamp(value: unknown): string {
 
 export class FirebaseFeedbackRepository implements FeedbackRepository {
   private readonly db = getFirebaseFirestore();
+
+  private async listVisibleArticleCommentsWithIndex(
+    options: ArticleCommentListOptions,
+  ): Promise<ArticleCommentListResult> {
+    const baseCollection = this.db.collection(COLLECTIONS.comments);
+    let query = baseCollection
+      .where("articlePageId", "==", options.articlePageId)
+      .where("status", "in", ["published", "hidden"])
+      .orderBy("createdAt", "desc")
+      .limit(options.limit + 1);
+
+    if (options.cursor) {
+      const cursorSnapshot = await baseCollection.doc(options.cursor).get();
+      if (cursorSnapshot.exists) {
+        query = query.startAfter(cursorSnapshot);
+      }
+    }
+
+    const snapshot = await query.get();
+    const docs = snapshot.docs;
+    const hasNext = docs.length > options.limit;
+    const pageDocs = hasNext ? docs.slice(0, options.limit) : docs;
+    const items = pageDocs.map((doc) =>
+      toPublicArticleComment(toArticleComment(doc)),
+    );
+
+    return {
+      items,
+      nextCursor:
+        hasNext && items.length > 0 ? items[items.length - 1]!.id : null,
+    };
+  }
+
+  // Fallback path for projects that haven't created the composite index yet.
+  private async listVisibleArticleCommentsWithoutCompositeIndex(
+    options: ArticleCommentListOptions,
+  ): Promise<ArticleCommentListResult> {
+    const baseCollection = this.db.collection(COLLECTIONS.comments);
+    const fetchLimit = Math.min(options.limit * 20 + 20, 400);
+
+    let query = baseCollection.orderBy("createdAt", "desc").limit(fetchLimit);
+    if (options.cursor) {
+      const cursorSnapshot = await baseCollection.doc(options.cursor).get();
+      if (cursorSnapshot.exists) {
+        query = query.startAfter(cursorSnapshot);
+      }
+    }
+
+    const snapshot = await query.get();
+    const visibleEntries = snapshot.docs
+      .map(toArticleComment)
+      .filter(
+        (entry) =>
+          entry.articlePageId === options.articlePageId &&
+          entry.status !== "spam",
+      )
+      .map(toPublicArticleComment);
+
+    const hasNext = visibleEntries.length > options.limit;
+    const pageItems = hasNext
+      ? visibleEntries.slice(0, options.limit)
+      : visibleEntries;
+
+    return {
+      items: pageItems,
+      nextCursor:
+        hasNext && pageItems.length > 0
+          ? pageItems[pageItems.length - 1]!.id
+          : null,
+    };
+  }
+
+  async listArticleComments(
+    options: ArticleCommentListOptions,
+  ): Promise<ArticleCommentListResult> {
+    try {
+      return await this.listVisibleArticleCommentsWithIndex(options);
+    } catch (error) {
+      if (isMissingIndexError(error)) {
+        return this.listVisibleArticleCommentsWithoutCompositeIndex(options);
+      }
+      throw mapFirestoreError(error) ?? error;
+    }
+  }
+
+  async createArticleComment(
+    input: CreateArticleCommentInput,
+  ): Promise<ArticleComment> {
+    try {
+      const docRef = this.db.collection(COLLECTIONS.comments).doc();
+      const createdAt = Timestamp.now();
+
+      await docRef.set({
+        articlePageId: input.articlePageId,
+        nickname: input.nickname,
+        passwordHash: input.passwordHash,
+        message: input.message,
+        status: input.status,
+        createdAt,
+        ipHash: input.ipHash,
+        userAgent: input.userAgent,
+      });
+
+      return {
+        id: docRef.id,
+        articlePageId: input.articlePageId,
+        nickname: input.nickname,
+        message: input.message,
+        status: input.status,
+        createdAt: createdAt.toDate().toISOString(),
+      };
+    } catch (error) {
+      throw mapFirestoreError(error) ?? error;
+    }
+  }
+
+  async updateArticleCommentStatus(
+    id: string,
+    status: "hidden" | "published",
+    passwordHash: string,
+  ): Promise<ArticleComment | null> {
+    try {
+      const docRef = this.db.collection(COLLECTIONS.comments).doc(id);
+      const currentSnapshot = await docRef.get();
+      if (!currentSnapshot.exists) {
+        return null;
+      }
+      const currentData = (currentSnapshot.data() ?? {}) as Record<string, unknown>;
+      if (String(currentData.passwordHash ?? "") !== passwordHash) {
+        return null;
+      }
+
+      await docRef.update({
+        status,
+      });
+
+      const updatedSnapshot = await docRef.get();
+      if (!updatedSnapshot.exists) {
+        return null;
+      }
+      return toArticleComment({
+        id: updatedSnapshot.id,
+        data: () => (updatedSnapshot.data() ?? {}) as Record<string, unknown>,
+      });
+    } catch (error) {
+      throw mapFirestoreError(error) ?? error;
+    }
+  }
+
+  async deleteArticleComment(id: string, passwordHash: string): Promise<boolean> {
+    try {
+      const docRef = this.db.collection(COLLECTIONS.comments).doc(id);
+      const snapshot = await docRef.get();
+      if (!snapshot.exists) {
+        return false;
+      }
+      const data = (snapshot.data() ?? {}) as Record<string, unknown>;
+      if (String(data.passwordHash ?? "") !== passwordHash) {
+        return false;
+      }
+
+      await docRef.delete();
+      return true;
+    } catch (error) {
+      throw mapFirestoreError(error) ?? error;
+    }
+  }
 
   private async listVisibleGuestbookWithIndex(
     options: GuestbookListOptions,

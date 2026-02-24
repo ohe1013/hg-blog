@@ -1,4 +1,6 @@
 import {
+  ArticleCommentCreatePayload,
+  ArticleCommentListOptions,
   ContactCreatePayload,
   GuestbookCreatePayload,
   GuestbookListOptions,
@@ -75,6 +77,35 @@ export function parseGuestbookListOptions(
   return { limit, cursor: cursor || null };
 }
 
+export function parseArticleCommentListOptions(
+  searchParams: URLSearchParams,
+): ArticleCommentListOptions {
+  const rawArticlePageId = searchParams.get("articlePageId");
+  const articlePageId = rawArticlePageId?.trim();
+  if (!articlePageId) {
+    throw new ValidationError("articlePageId is required.");
+  }
+
+  const rawLimit = searchParams.get("limit");
+  const rawCursor = searchParams.get("cursor");
+
+  let limit = DEFAULT_LIMIT;
+  if (rawLimit !== null) {
+    const parsed = Number.parseInt(rawLimit, 10);
+    if (!Number.isFinite(parsed) || parsed < 1) {
+      throw new ValidationError("limit must be a positive integer.");
+    }
+    limit = Math.min(parsed, MAX_LIMIT);
+  }
+
+  const cursor = rawCursor?.trim();
+  return {
+    articlePageId,
+    limit,
+    cursor: cursor || null,
+  };
+}
+
 export function validateGuestbookPayload(
   input: unknown,
 ): GuestbookCreatePayload {
@@ -119,6 +150,112 @@ export function validateGuestbookPayload(
     message: message!,
     isSecret,
     website,
+  };
+}
+
+export function validateArticleCommentPayload(
+  input: unknown,
+): ArticleCommentCreatePayload {
+  const body = asRecord(input);
+  const errors: string[] = [];
+
+  const articlePageId = normalizeField(
+    body.articlePageId,
+    "articlePageId",
+    errors,
+    {
+      required: true,
+      min: 1,
+      max: 120,
+    },
+  );
+  const nickname = normalizeField(body.nickname, "nickname", errors, {
+    required: true,
+    min: 2,
+    max: 24,
+  });
+  const password = normalizeField(body.password, "password", errors, {
+    required: true,
+    min: 4,
+    max: 64,
+  });
+  const message = normalizeField(body.message, "message", errors, {
+    required: true,
+    min: 1,
+    max: 500,
+  });
+  const website = normalizeField(body.website, "website", errors, {
+    max: 300,
+  });
+
+  if (errors.length > 0) {
+    throw new ValidationError("Article comment payload validation failed.", errors);
+  }
+
+  return {
+    articlePageId: articlePageId!,
+    nickname: nickname!,
+    password: password!,
+    message: message!,
+    website,
+  };
+}
+
+export function validateArticleCommentActionPayload(input: unknown): {
+  status: "hidden" | "published";
+  password: string;
+} {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new ValidationError("Request body must be a JSON object.");
+  }
+
+  const errors: string[] = [];
+  const body = input as Record<string, unknown>;
+
+  const status = String(body.status ?? "")
+    .trim()
+    .toLowerCase();
+  const password = normalizeField(body.password, "password", errors, {
+    required: true,
+    min: 4,
+    max: 64,
+  });
+
+  if (!(status === "hidden" || status === "published")) {
+    errors.push('status must be one of: "hidden", "published".');
+  }
+
+  if (errors.length > 0) {
+    throw new ValidationError("Article comment action payload validation failed.", errors);
+  }
+
+  return {
+    status: status as "hidden" | "published",
+    password: password!,
+  };
+}
+
+export function validateArticleCommentPasswordPayload(input: unknown): {
+  password: string;
+} {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    throw new ValidationError("Request body must be a JSON object.");
+  }
+
+  const errors: string[] = [];
+  const body = input as Record<string, unknown>;
+  const password = normalizeField(body.password, "password", errors, {
+    required: true,
+    min: 4,
+    max: 64,
+  });
+
+  if (errors.length > 0) {
+    throw new ValidationError("Article comment password payload validation failed.", errors);
+  }
+
+  return {
+    password: password!,
   };
 }
 

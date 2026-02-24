@@ -45,6 +45,7 @@ export default function ExternalLinkConfirmWindow({
       <WindowResizeHeader />
       <WindowBody
         style={{
+          marginTop: "2px",
           display: "flex",
           flexDirection: "column",
           backgroundColor: "#c0c0c0",

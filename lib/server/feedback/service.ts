@@ -1,5 +1,10 @@
 import { createHash } from "crypto";
-import { ContactCreatePayload, GuestbookCreatePayload, RequestContext } from "./types";
+import {
+  ArticleCommentCreatePayload,
+  ContactCreatePayload,
+  GuestbookCreatePayload,
+  RequestContext,
+} from "./types";
 import { FeedbackRepository } from "./repositories/types";
 import { hashGuestbookPassword } from "./security";
 
@@ -29,6 +34,24 @@ export async function createGuestbookEntry(
     passwordHash: hashGuestbookPassword(payload.password.trim()),
     message: payload.message.trim(),
     status: initialStatus,
+    ipHash: hashIp(context.ip),
+    userAgent: context.userAgent,
+  });
+}
+
+export async function createArticleComment(
+  repository: FeedbackRepository,
+  payload: ArticleCommentCreatePayload,
+  context: RequestContext,
+) {
+  const spam = hasHoneypotValue(payload.website);
+
+  return repository.createArticleComment({
+    articlePageId: payload.articlePageId.trim(),
+    nickname: payload.nickname.trim(),
+    passwordHash: hashGuestbookPassword(payload.password.trim()),
+    message: payload.message.trim(),
+    status: spam ? "spam" : "published",
     ipHash: hashIp(context.ip),
     userAgent: context.userAgent,
   });

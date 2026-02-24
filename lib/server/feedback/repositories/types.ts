@@ -1,5 +1,9 @@
 import {
+  ArticleComment,
+  ArticleCommentListOptions,
+  ArticleCommentListResult,
   ContactMessage,
+  CreateArticleCommentInput,
   CreateContactMessageInput,
   CreateGuestbookEntryInput,
   GuestbookEntry,
@@ -8,6 +12,18 @@ import {
 } from "../types";
 
 export interface FeedbackRepository {
+  listArticleComments(
+    options: ArticleCommentListOptions,
+  ): Promise<ArticleCommentListResult>;
+  createArticleComment(
+    input: CreateArticleCommentInput,
+  ): Promise<ArticleComment>;
+  updateArticleCommentStatus(
+    id: string,
+    status: "hidden" | "published",
+    passwordHash: string,
+  ): Promise<ArticleComment | null>;
+  deleteArticleComment(id: string, passwordHash: string): Promise<boolean>;
   listGuestbook(options: GuestbookListOptions): Promise<GuestbookListResult>;
   createGuestbookEntry(
     input: CreateGuestbookEntryInput,

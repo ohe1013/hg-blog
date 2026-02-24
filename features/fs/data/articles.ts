@@ -20,7 +20,7 @@ export const articles: FileData = {
     iconUrl: iconDict.notion,
     type: "notion",
     app: "article-viewer",
-    pageId: "study-react-732f1b8600004f14bae67e6d115df05c",
+    pageId: "732f1b8600004f14bae67e6d115df05c",
   },
   articles_vanilla_to_vue: {
     id: "articles_vanilla_to_vue",

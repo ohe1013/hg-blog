@@ -6,8 +6,22 @@ export type GuestbookEntry = {
   status: "published" | "hidden" | "spam";
 };
 
+export type ArticleComment = {
+  id: string;
+  articlePageId: string;
+  nickname: string;
+  message: string;
+  createdAt: string;
+  status: "published" | "hidden" | "spam";
+};
+
 export type GuestbookListResponse = {
   items: GuestbookEntry[];
+  nextCursor: string | null;
+};
+
+export type ArticleCommentListResponse = {
+  items: ArticleComment[];
   nextCursor: string | null;
 };
 
@@ -23,6 +37,14 @@ export type ContactCreatePayload = {
   name: string;
   email: string;
   subject: string;
+  message: string;
+  website?: string;
+};
+
+export type ArticleCommentCreatePayload = {
+  articlePageId: string;
+  nickname: string;
+  password: string;
   message: string;
   website?: string;
 };
@@ -62,6 +84,25 @@ export async function fetchGuestbookEntries(
   return (await res.json()) as GuestbookListResponse;
 }
 
+export async function fetchArticleComments(
+  articlePageId: string,
+  limit = 20,
+  cursor?: string | null,
+): Promise<ArticleCommentListResponse> {
+  const params = new URLSearchParams();
+  params.set("articlePageId", articlePageId);
+  params.set("limit", String(limit));
+  if (cursor) params.set("cursor", cursor);
+
+  const res = await fetch(`/api/comments?${params.toString()}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) {
+    throw new Error(await parseError(res));
+  }
+  return (await res.json()) as ArticleCommentListResponse;
+}
+
 export async function submitGuestbookEntry(
   payload: GuestbookCreatePayload,
 ): Promise<{ id: string; createdAt: string }> {
@@ -76,6 +117,57 @@ export async function submitGuestbookEntry(
     throw new Error(await parseError(res));
   }
   return (await res.json()) as { id: string; createdAt: string };
+}
+
+export async function submitArticleComment(
+  payload: ArticleCommentCreatePayload,
+): Promise<{ id: string; createdAt: string }> {
+  const res = await fetch("/api/comments", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    throw new Error(await parseError(res));
+  }
+  return (await res.json()) as { id: string; createdAt: string };
+}
+
+export async function updateArticleCommentStatus(
+  id: string,
+  status: "hidden" | "published",
+  password: string,
+): Promise<{ id: string; status: "published" | "hidden" | "spam" }> {
+  const res = await fetch(`/api/comments/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status, password }),
+  });
+  if (!res.ok) {
+    throw new Error(await parseError(res));
+  }
+  return (await res.json()) as { id: string; status: "published" | "hidden" | "spam" };
+}
+
+export async function deleteArticleComment(
+  id: string,
+  password: string,
+): Promise<{ id: string; deleted: boolean }> {
+  const res = await fetch(`/api/comments/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ password }),
+  });
+  if (!res.ok) {
+    throw new Error(await parseError(res));
+  }
+  return (await res.json()) as { id: string; deleted: boolean };
 }
 
 export async function updateGuestbookEntryStatus(

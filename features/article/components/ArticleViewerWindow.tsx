@@ -11,6 +11,7 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import Renderer from "@features/notion/Renderer";
 import { initialFs } from "@features/fs/data/initialFs";
 import { fetchNotionRecordMap } from "@features/notion/api";
+import ArticleCommentsPanel from "./ArticleCommentsPanel";
 
 interface ArticleViewerWindowProps {
   winId: string;
@@ -75,6 +76,7 @@ export default function ArticleViewerWindow({
               rootUrl="article"
               onNavigate={handleNavigate}
             />
+            <ArticleCommentsPanel pageId={activePageId} />
           </div>
         )}
       </WindowBody>

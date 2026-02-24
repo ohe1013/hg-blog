@@ -1,4 +1,5 @@
 export type GuestbookStatus = "published" | "hidden" | "spam";
+export type ArticleCommentStatus = "published" | "hidden" | "spam";
 
 export type ContactStatus =
   | "new"
@@ -13,6 +14,15 @@ export type GuestbookEntry = {
   message: string;
   createdAt: string;
   status: GuestbookStatus;
+};
+
+export type ArticleComment = {
+  id: string;
+  articlePageId: string;
+  nickname: string;
+  message: string;
+  createdAt: string;
+  status: ArticleCommentStatus;
 };
 
 export type ContactMessage = {
@@ -33,6 +43,14 @@ export type GuestbookCreatePayload = {
   website?: string;
 };
 
+export type ArticleCommentCreatePayload = {
+  articlePageId: string;
+  nickname: string;
+  password: string;
+  message: string;
+  website?: string;
+};
+
 export type ContactCreatePayload = {
   name: string;
   email: string;
@@ -46,8 +64,19 @@ export type GuestbookListOptions = {
   cursor?: string | null;
 };
 
+export type ArticleCommentListOptions = {
+  articlePageId: string;
+  limit: number;
+  cursor?: string | null;
+};
+
 export type GuestbookListResult = {
   items: GuestbookEntry[];
+  nextCursor: string | null;
+};
+
+export type ArticleCommentListResult = {
+  items: ArticleComment[];
   nextCursor: string | null;
 };
 
@@ -56,6 +85,16 @@ export type CreateGuestbookEntryInput = {
   passwordHash: string;
   message: string;
   status: GuestbookStatus;
+  ipHash: string;
+  userAgent: string | null;
+};
+
+export type CreateArticleCommentInput = {
+  articlePageId: string;
+  nickname: string;
+  passwordHash: string;
+  message: string;
+  status: ArticleCommentStatus;
   ipHash: string;
   userAgent: string | null;
 };
