@@ -45,5 +45,10 @@
     "postcss": "^8.5.6",
     "sass": "^1.77.4",
     "typescript": "^5.4.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "immutable": ">=4.3.8"
+    }
   }
 }
