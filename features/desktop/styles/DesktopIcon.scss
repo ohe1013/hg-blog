@@ -53,3 +53,55 @@
     mix-blend-mode: exclusion;
   }
 }
+
+.DesktopContextMenu {
+  position: fixed;
+  min-width: 178px;
+  background: $grey;
+  border: 2px solid;
+  border-color: $white $black $black $white;
+  box-shadow:
+    inset -1px -1px 0px $darkgrey,
+    inset 1px 1px 0px $white,
+    1px 1px 0px rgba(0, 0, 0, 0.45);
+  z-index: 200000;
+  padding: 3px;
+  font-family: "Pixelated MS Sans Serif", "MS Sans Serif", Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.DesktopContextMenu__item {
+  width: 100%;
+  display: block;
+  text-align: left;
+  min-height: 20px;
+  padding: 3px 22px 3px 26px;
+  font-size: 11px;
+  line-height: 1.2;
+  color: $black;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  white-space: nowrap;
+  text-shadow: none;
+}
+
+.DesktopContextMenu__item:hover:not(:disabled),
+.DesktopContextMenu__item:focus-visible:not(:disabled) {
+  background: $blue;
+  color: $white;
+  outline: none;
+}
+
+.DesktopContextMenu__item:disabled {
+  color: $darkgrey;
+  text-shadow: 1px 1px 0 $white;
+}
+
+.DesktopContextMenu__divider {
+  height: 1px;
+  margin: 3px 3px 3px 24px;
+  background: $darkgrey;
+  box-shadow: 0 1px 0 $white;
+}

@@ -31,10 +31,17 @@ export type WindowInstance = {
   initialData?: any; // SSR hydration data
 };
 
+export type RecycleBinItem = {
+  app: AppsType;
+  deletedAt: number;
+};
+
 type ApplicationState = {
   apps: Record<AppsType, AppCatalogItem>;
   windows: WindowInstance[];
   topZ: number;
+  hiddenDesktopApps: AppsType[];
+  recycleBinItems: RecycleBinItem[];
 
   // actions
 };
@@ -51,9 +58,13 @@ type ApplicationMethod = {
   restore: (id: string) => void;
   updateParams: (id: string, path: Record<string, any>) => void;
   rename: (id: string, title: string) => void;
+  moveToRecycleBin: (app: AppsType) => void;
+  restoreFromRecycleBin: (app: AppsType) => void;
+  emptyRecycleBin: () => void;
 
   getById: (id: string) => WindowInstance | undefined;
   getApplicationKeys: () => AppsType[];
+  getDesktopKeys: () => AppsType[];
 };
 export type ApplicationStore = ApplicationState & ApplicationMethod;
 
@@ -61,6 +72,8 @@ const defaultInitState: ApplicationState = {
   apps: APP_CATALOG as Record<AppsType, AppCatalogItem>,
   windows: [],
   topZ: 1,
+  hiddenDesktopApps: [],
+  recycleBinItems: [],
 };
 function computeTitle(
   base: string,
@@ -94,7 +107,11 @@ export const createApplicationStore = (
             });
             get().rename(ex.id, nextTitle);
           }
-          get().focus(ex.id);
+          if (ex.minimized) {
+            get().restore(ex.id);
+          } else {
+            get().focus(ex.id);
+          }
           return ex.id;
         }
       }
@@ -126,6 +143,31 @@ export const createApplicationStore = (
     rename: (id, title) =>
       set((s) => ({
         windows: s.windows.map((w) => (w.id === id ? { ...w, title } : w)),
+      })),
+    moveToRecycleBin: (app) =>
+      set((s) => {
+        if (app === "recycle-bin") return {};
+        if (s.hiddenDesktopApps.includes(app)) return {};
+
+        const existingIndex = s.recycleBinItems.findIndex((i) => i.app === app);
+        const nextItems =
+          existingIndex >= 0
+            ? s.recycleBinItems.filter((i) => i.app !== app)
+            : s.recycleBinItems;
+
+        return {
+          hiddenDesktopApps: [...s.hiddenDesktopApps, app],
+          recycleBinItems: [{ app, deletedAt: Date.now() }, ...nextItems],
+        };
+      }),
+    restoreFromRecycleBin: (app) =>
+      set((s) => ({
+        hiddenDesktopApps: s.hiddenDesktopApps.filter((value) => value !== app),
+        recycleBinItems: s.recycleBinItems.filter((item) => item.app !== app),
+      })),
+    emptyRecycleBin: () =>
+      set((s) => ({
+        recycleBinItems: [],
       })),
 
     close: (id) =>
@@ -159,4 +201,10 @@ export const createApplicationStore = (
     getById: (id) => get().windows.find((w) => w.id === id),
 
     getApplicationKeys: () => [...APP_KEYS],
+    getDesktopKeys: () => {
+      const { apps, hiddenDesktopApps } = get();
+      return [...APP_KEYS].filter(
+        (key) => apps[key]?.showOnDesktop && !hiddenDesktopApps.includes(key),
+      ) as AppsType[];
+    },
   }));

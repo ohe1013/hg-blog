@@ -1,5 +1,5 @@
-@import "./DesktopIcon.scss";
+@use "./DesktopIcon.scss" as desktopIcon;
 
 .DesktopIcon {
-  @include desktop-icon;
+  @include desktopIcon.desktop-icon;
 }

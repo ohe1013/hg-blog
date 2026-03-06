@@ -1,9 +1,10 @@
 "use client";
-import { Ref, useLayoutEffect, useRef, useState } from "react";
+import { Ref, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import "../styles/index.scss";
 import { AppsType } from "../../../zustand/application/applicationStore";
 import { useGridNavigation } from "@lib/hooks/useGridNavigation";
+import { launchDesktopAppKey } from "@lib/utils/launcher";
 
 type DesktopGridProps = {
   containerRef: Ref<HTMLDivElement>;
@@ -19,6 +20,7 @@ type DesktopGridProps = {
   gapY?: number; // 8  (Tailwind gap-y-2 기준)
   onRowsChange?: (rows: number) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
 };
 
 function DesktopGrid({
@@ -33,6 +35,7 @@ function DesktopGrid({
   gapY = 8,
   onRowsChange,
   onKeyDown,
+  onContextMenu,
 }: DesktopGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState(1); // 세로 우선일 때 필요한 행 수
@@ -81,6 +84,7 @@ function DesktopGrid({
         }
       }}
       onKeyDown={onKeyDown}
+      onContextMenu={onContextMenu}
       tabIndex={0}
       className={
         className ?? "absolute inset-0 h-dvh w-full overflow-hidden bg-teal-600"
@@ -179,6 +183,13 @@ type DesktopIconGridProps = {
   setSelectedIds?: (ids: Set<AppsType>) => void;
 };
 
+type ContextMenuState = {
+  visible: boolean;
+  x: number;
+  y: number;
+  targetKey?: AppsType;
+};
+
 function DesktopIconGrid({
   itemRefs,
   selectedIds,
@@ -187,24 +198,71 @@ function DesktopIconGrid({
   setSelectedIds,
 }: DesktopIconGridProps) {
   const [rows, setRows] = useState(1);
+  const [menu, setMenu] = useState<ContextMenuState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    targetKey: undefined,
+  });
   const appStore = useApplicationStore((s) => s);
   // 앱 키들 중 바탕화면에 표시할 것만
-  const keys = appStore
-    .getApplicationKeys()
-    .filter((k) => appStore.apps[k]?.showOnDesktop);
+  const keys = appStore.getDesktopKeys();
 
   const handleOpen = (key: AppsType) => {
     const app = appStore.apps[key];
-    if (app.externalUrl) {
-      appStore.open("external-link-confirm", { url: app.externalUrl });
-      return;
+    launchDesktopAppKey(key, app, { open: appStore.open });
+  };
+
+  useEffect(() => {
+    if (!menu.visible) return;
+
+    const closeMenu = () =>
+      setMenu({ visible: false, x: 0, y: 0, targetKey: undefined });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    };
+
+    window.addEventListener("mousedown", closeMenu);
+    window.addEventListener("resize", closeMenu);
+    window.addEventListener("scroll", closeMenu, true);
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("mousedown", closeMenu);
+      window.removeEventListener("resize", closeMenu);
+      window.removeEventListener("scroll", closeMenu, true);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menu.visible]);
+
+  const closeMenu = () =>
+    setMenu({ visible: false, x: 0, y: 0, targetKey: undefined });
+
+  const handleDesktopContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    const target = event.target as HTMLElement;
+    const icon = target.closest("[data-key]") as HTMLElement | null;
+    const targetKey = icon?.dataset.key as AppsType | undefined;
+
+    if (targetKey) {
+      setSelectedIds?.(new Set([targetKey]));
     }
-    if (key === "readme") {
-      appStore.open("notepad", { fileId: "readme" });
-      return;
-    }
-    // 필요하면 params 넘기기: appStore.open('blog', { pageId: '...' })
-    appStore.open(key);
+
+    setMenu({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      targetKey,
+    });
+  };
+
+  const handleDeleteApp = () => {
+    if (!menu.targetKey || menu.targetKey === "recycle-bin") return;
+    appStore.moveToRecycleBin(menu.targetKey);
+    setSelectedIds?.(new Set());
+    closeMenu();
   };
 
   const { handleContainerKeyDown } = useGridNavigation({
@@ -223,6 +281,7 @@ function DesktopIconGrid({
       onMouseDown={onMouseDown}
       onRowsChange={setRows}
       onKeyDown={handleContainerKeyDown}
+      onContextMenu={handleDesktopContextMenu}
     >
       {keys.map((key, index) => {
         const app = appStore.apps[key];
@@ -243,6 +302,63 @@ function DesktopIconGrid({
           </div>
         );
       })}
+
+      {menu.visible && (
+        <div
+          className="DesktopContextMenu"
+          style={{ left: menu.x, top: menu.y }}
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          {menu.targetKey ? (
+            <>
+              <button
+                className="DesktopContextMenu__item"
+                onClick={() => {
+                  if (menu.targetKey) handleOpen(menu.targetKey);
+                  closeMenu();
+                }}
+              >
+                Open
+              </button>
+              <button
+                className="DesktopContextMenu__item"
+                disabled={menu.targetKey === "recycle-bin"}
+                onClick={handleDeleteApp}
+              >
+                Delete
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="DesktopContextMenu__item"
+                onClick={closeMenu}
+              >
+                Refresh
+              </button>
+              <div className="DesktopContextMenu__divider" />
+              <button
+                className="DesktopContextMenu__item"
+                onClick={() => {
+                  appStore.open("run-dialog");
+                  closeMenu();
+                }}
+              >
+                Run...
+              </button>
+              <button
+                className="DesktopContextMenu__item"
+                onClick={() => {
+                  appStore.open("dos-prompt");
+                  closeMenu();
+                }}
+              >
+                Command Prompt
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </DesktopGrid>
   );
 }

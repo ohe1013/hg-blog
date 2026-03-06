@@ -4,10 +4,13 @@ import React from "react";
 import { useDragSelect } from "@lib/hooks/useDrag";
 import { DesktopIconGrid } from "@features/desktop/components";
 import { StartBar } from "@features/startBar/components";
+import { useRunShortcut } from "@lib/hooks/useRunShortcut";
 import { AppsType } from "../zustand/application/applicationStore";
 
 // 전역 데스크톱 Background & 아이콘 & 시작바만 담당
 export default function GlobalDesktopShell() {
+  useRunShortcut();
+
   const {
     containerRef,
     itemRefs,

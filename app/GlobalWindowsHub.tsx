@@ -14,6 +14,9 @@ import ArticleViewerWindow from "@features/article/components/ArticleViewerWindo
 import ExternalLinkConfirmWindow from "@features/desktop/components/ExternalLinkConfirmWindow";
 import GuestbookWindow from "@features/guestbook/components/GuestbookWindow";
 import ContactWindow from "@features/contact/components/ContactWindow";
+import RunDialogWindow from "@features/startBar/components/RunDialogWindow";
+import DosPromptWindow from "@features/startBar/components/DosPromptWindow";
+import RecycleBinWindow from "@features/startBar/components/RecycleBinWindow";
 import type { SystemAppKey } from "@features/explorer/data";
 
 const WINDOW_RENDERERS: Partial<
@@ -32,6 +35,9 @@ const WINDOW_RENDERERS: Partial<
   ),
   guestbook: (winId) => <GuestbookWindow key={winId} winId={winId} />,
   contact: (winId) => <ContactWindow key={winId} winId={winId} />,
+  "run-dialog": (winId) => <RunDialogWindow key={winId} winId={winId} />,
+  "dos-prompt": (winId) => <DosPromptWindow key={winId} winId={winId} />,
+  "recycle-bin": (winId) => <RecycleBinWindow key={winId} winId={winId} />,
 };
 
 export function GlobalWindowsHub() {

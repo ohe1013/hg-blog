@@ -93,6 +93,8 @@ export function useDragSelect<T extends string>() {
 
   // 드래그 시작 핸들러
   const bindMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+
     const targetEl = e.target as HTMLElement;
     const iconEl = targetEl.closest("[data-key]") as HTMLElement | null;
 

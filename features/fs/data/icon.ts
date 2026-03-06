@@ -7,4 +7,5 @@ export const iconDict = {
   linkedIn: "/assets/img/linkedIn.png",
   contact: "https://win98icons.alexmeub.com/icons/png/modem-0.png",
   guestbook: "https://win98icons.alexmeub.com/icons/png/signature-0.png",
+  recycleBinFull: "https://win98icons.alexmeub.com/icons/png/recycle_bin_full-2.png",
 };
