@@ -92,7 +92,8 @@ $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmc
           width: 20px;
           background: $blue;
           background: linear-gradient($blue, #126fc2);
-          background: url($w98-text) no-repeat bottom 3px center,
+          background:
+            url($w98-text) no-repeat bottom 3px center,
             linear-gradient($blue, #126fc2);
         }
         > div {
@@ -109,8 +110,8 @@ $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmc
             background-color: $grey;
             appearance: none;
             padding: 0px 8px 0px 34px;
-            font-family: "Pixelated MS Sans Serif", "MS Sans Serif", Arial,
-              sans-serif;
+            font-family:
+              "Pixelated MS Sans Serif", "MS Sans Serif", Arial, sans-serif;
             font-size: 12px;
             text-align: left;
             line-height: 1.2;
@@ -214,8 +215,11 @@ $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmc
     background-size: 16px;
     background-repeat: no-repeat;
     background-position: 4px 4px;
-    box-shadow: inset -1px -1px 0px #0c0c0c, inset 1px 1px 0px #ffffff,
-      inset -2px -2px 0px #808088, inset 2px 2px 0px #bbc3c4;
+    box-shadow:
+      inset -1px -1px 0px #0c0c0c,
+      inset 1px 1px 0px #ffffff,
+      inset -2px -2px 0px #808088,
+      inset 2px 2px 0px #bbc3c4;
 
     &::before {
       content: "";
@@ -235,13 +239,92 @@ $w98-text: "data:image/gif;base64,R0lGODlhDgBkALMAAAAAAP///wIAsZKSmZKTmpGSmZKTmc
       background-color: transparent;
       font-weight: bold;
       background-position: 5px 5px;
-      box-shadow: inset -1px -1px 0px #ffffff, inset 1px 1px 0px #0c0c0c,
-        inset -2px -2px 0px #bbc3c4, inset 2px 2px 0px #808088;
+      box-shadow:
+        inset -1px -1px 0px #ffffff,
+        inset 1px 1px 0px #0c0c0c,
+        inset -2px -2px 0px #bbc3c4,
+        inset 2px 2px 0px #808088;
       padding-top: 3px;
       padding-left: 23px;
       padding-right: 2px;
     }
   }
+}
+
+@keyframes DosPromptWindow__caretBlink {
+  0%,
+  49% {
+    caret-color: #c0c0c0;
+  }
+  50%,
+  100% {
+    caret-color: transparent;
+  }
+}
+
+.DosPromptWindow__terminal {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: #000000;
+  color: #c0c0c0;
+  font-family:
+    "Perfect DOS VGA 437", "Fixedsys Excelsior 3.01", "Px437 IBM VGA8",
+    "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.35;
+  box-shadow:
+    inset -1px -1px 0px $white,
+    inset 1px 1px 0px $darkgrey,
+    inset -2px -2px 0px #bbc3c4,
+    inset 2px 2px 0px $black;
+  overflow: hidden;
+}
+
+.DosPromptWindow__output {
+  flex: 1;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  scrollbar-width: none;
+}
+
+.DosPromptWindow__output::-webkit-scrollbar {
+  display: none;
+}
+
+.DosPromptWindow__inputRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.DosPromptWindow__prompt {
+  flex: none;
+  color: #c0c0c0;
+}
+
+.DosPromptWindow__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
+  outline: none;
+  background-color: black !important;
+  box-shadow: none;
+  color: #c0c0c0;
+  font: inherit;
+  caret-color: #c0c0c0;
+  animation: DosPromptWindow__caretBlink 1s step-end infinite;
+  box-shadow: none !important;
+}
+
+.DosPromptWindow__input::selection {
+  background: $blue;
+  color: $white;
 }
 
 .RecycleBinWindow__hint {

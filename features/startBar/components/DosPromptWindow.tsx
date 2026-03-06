@@ -19,7 +19,34 @@ type CwdId = string | null;
 
 const VERSION_TEXT = "Microsoft(R) Windows 98 [Version 4.10.2222]";
 const HELP_TEXT =
-  "Supported commands: help, cls, ver, date, time, dir, cd, start, open, exit";
+  "Supported commands: help, cls, ver, date, time, dir, cd, start, open, exit (Tab autocomplete supported)";
+const DOS_COMMANDS = [
+  "help",
+  "cls",
+  "ver",
+  "date",
+  "time",
+  "dir",
+  "cd",
+  "start",
+  "open",
+  "exit",
+] as const;
+const START_TARGETS = [
+  "computer",
+  "document",
+  "articles",
+  "about",
+  "guestbook",
+  "contact",
+  "notepad",
+  "cmd",
+  "run",
+  "recyclebin",
+  "readme",
+  "github",
+  "linkedin",
+] as const;
 
 const isFolderNode = (value: unknown): value is FolderNode =>
   !!value &&
@@ -96,6 +123,55 @@ const resolveFolderId = (cwdId: CwdId, token: string): CwdId | null => {
     folderMatches(folderId, normalized),
   );
   return matched ?? null;
+};
+
+type TabCompletionResult = {
+  matches: string[];
+  completion: string | null;
+};
+
+const getLongestCommonPrefix = (values: string[]): string => {
+  if (values.length === 0) return "";
+
+  let prefix = values[0];
+  for (let i = 1; i < values.length; i += 1) {
+    while (
+      prefix.length > 0 &&
+      !values[i].toLowerCase().startsWith(prefix.toLowerCase())
+    ) {
+      prefix = prefix.slice(0, -1);
+    }
+
+    if (prefix.length === 0) {
+      return "";
+    }
+  }
+
+  return prefix;
+};
+
+const resolveTabCompletion = (
+  inputValue: string,
+  candidates: readonly string[],
+): TabCompletionResult => {
+  const normalized = inputValue.toLowerCase();
+  const matches = candidates.filter((candidate) =>
+    candidate.toLowerCase().startsWith(normalized),
+  );
+
+  if (matches.length === 0) {
+    return { matches, completion: null };
+  }
+
+  if (matches.length === 1) {
+    return { matches, completion: matches[0] };
+  }
+
+  const prefix = getLongestCommonPrefix(matches);
+  return {
+    matches,
+    completion: prefix.length > inputValue.length ? prefix : null,
+  };
 };
 
 export default function DosPromptWindow({ winId }: DosPromptWindowProps) {
@@ -238,6 +314,74 @@ export default function DosPromptWindow({ winId }: DosPromptWindowProps) {
 
   const handleInputKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Tab") {
+        event.preventDefault();
+
+        const hasTrailingSpace = /\s$/.test(input);
+        const trimmedInput = input.trim();
+        const tokens = trimmedInput ? trimmedInput.split(/\s+/) : [];
+
+        if (tokens.length === 0) {
+          const completion = resolveTabCompletion("", DOS_COMMANDS);
+          if (completion.completion) {
+            setInput(`${completion.completion} `);
+          }
+          return;
+        }
+
+        const commandToken = tokens[0];
+        const commandLower = commandToken.toLowerCase();
+
+        if (tokens.length === 1 && !hasTrailingSpace) {
+          const completion = resolveTabCompletion(commandToken, DOS_COMMANDS);
+          if (completion.completion) {
+            const shouldAppendSpace = completion.matches.length === 1;
+            setInput(
+              `${completion.completion}${shouldAppendSpace ? " " : ""}`,
+            );
+            return;
+          }
+
+          if (completion.matches.length > 1) {
+            appendLines([completion.matches.join("  ")]);
+          }
+          return;
+        }
+
+        if (
+          commandLower !== "cd" &&
+          commandLower !== "dir" &&
+          commandLower !== "start" &&
+          commandLower !== "open"
+        ) {
+          return;
+        }
+
+        const currentArg = hasTrailingSpace ? "" : (tokens[tokens.length - 1] ?? "");
+        const candidates =
+          commandLower === "cd" || commandLower === "dir"
+            ? [
+                "..",
+                ...getChildFolderIds(cwdId).map((folderId) => {
+                  const folder = getFolderById(folderId);
+                  return folder?.name ?? folderId;
+                }),
+              ]
+            : [...START_TARGETS];
+        const dedupedCandidates = Array.from(new Set(candidates));
+        const completion = resolveTabCompletion(currentArg, dedupedCandidates);
+
+        if (completion.completion) {
+          setInput(`${commandToken} ${completion.completion}`);
+          return;
+        }
+
+        if (completion.matches.length > 1) {
+          appendLines([completion.matches.join("  ")]);
+        }
+        return;
+      }
+
       if (event.key === "ArrowUp") {
         event.preventDefault();
         if (history.length === 0) return;
@@ -264,7 +408,7 @@ export default function DosPromptWindow({ winId }: DosPromptWindowProps) {
         setInput(history[nextIndex] ?? "");
       }
     },
-    [history, historyIndex],
+    [appendLines, cwdId, history, historyIndex, input],
   );
 
   if (!win) return null;
