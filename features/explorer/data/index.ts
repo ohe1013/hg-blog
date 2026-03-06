@@ -47,19 +47,19 @@ export const EXTERNAL_LINKS = {
 export const APP_KEYS = [
   "computer",
   "document",
+  "recycle-bin",
+  "dos-prompt",
   "articles",
   "about",
-  "guestbook",
-  "contact",
   "notepad",
   "run-dialog",
-  "dos-prompt",
-  "recycle-bin",
   "article-viewer",
   "external-link-confirm",
   "github",
   "linkedIn",
   "readme",
+  "guestbook",
+  "contact",
 ] as const;
 
 export type SystemAppKey = (typeof APP_KEYS)[number];
