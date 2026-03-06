@@ -8,6 +8,7 @@ import {
 } from "../../window/components";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import Button from "@lib/components/Button";
+import { toSafeHttpUrl } from "@lib/utils/launcher";
 
 interface ExternalLinkConfirmWindowProps {
   winId: string;
@@ -21,11 +22,11 @@ export default function ExternalLinkConfirmWindow({
 
   if (!win) return null;
 
-  const url = win.params?.url;
+  const safeUrl = toSafeHttpUrl(win.params?.url);
 
   const handleConfirm = () => {
-    if (url) {
-      window.open(url, "_blank");
+    if (safeUrl) {
+      window.open(safeUrl, "_blank", "noopener,noreferrer");
     }
     close(winId);
   };
@@ -59,6 +60,7 @@ export default function ExternalLinkConfirmWindow({
             <div className="flex items-start gap-4 w-full">
               <div className="flex flex-col gap-2 flex-1">
                 <p>You are about to visit an external website:</p>
+                {safeUrl ? <p>{safeUrl}</p> : <p>Invalid external URL.</p>}
                 <p>Do you want to continue?</p>
               </div>
             </div>

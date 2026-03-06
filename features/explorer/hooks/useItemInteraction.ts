@@ -1,5 +1,6 @@
 import { useExplorerContext } from "../stores/ExplorerContext";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
+import { launchFileNode } from "@lib/utils/launcher";
 
 export const useItemInteraction = () => {
   const { fs, open } = useExplorerContext((s) => s);
@@ -14,22 +15,9 @@ export const useItemInteraction = () => {
       return;
     }
 
-    const appKey = node.app;
-    if (appKey === "notepad") {
-      openApp("notepad", { fileId: id });
-    } else if (appKey === "article-viewer") {
-      openApp("article-viewer", { fileId: id });
-    } else if (appKey === "external-link-confirm") {
-      const payload = node.payload as { url: string };
-      if (payload.url) {
-        openApp("external-link-confirm", { url: payload.url });
-      }
-    } else if (appKey === "guestbook") {
-      openApp("guestbook");
-    } else if (appKey === "contact") {
-      openApp("contact");
-    } else {
-      console.warn("No app for", node.app);
+    const result = launchFileNode(node, id, { open: openApp });
+    if (!result.ok) {
+      console.warn(result.message);
     }
   };
 

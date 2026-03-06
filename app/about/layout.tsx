@@ -1,4 +1,4 @@
 import { ReactNode } from "react";
-export default function AboutLayout({ children }: { children: ReactNode }) {
+export default function ArticleLayout({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
