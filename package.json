@@ -9,6 +9,7 @@
     "build:ssg": "next build && next export",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "Write-Host 'this is only a test'",
+    "test:notion": "pnpm dlx tsx --test tests/notion-route.integration.test.ts",
     "load-nvmrc": "powershell -File load-nvmrc.ps1",
     "dododo": "pnpm run load-nvmrc nvmu"
   },
