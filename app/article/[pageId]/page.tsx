@@ -1,5 +1,5 @@
-import { NotionAPI } from "notion-client";
 import { getArticlePosts } from "@features/notion/api";
+import { getNotionPage } from "@lib/server/notion";
 import ArticleViewerStateInitializer from "./ArticleViewerStateInitializer";
 
 interface fetchEachPagesProps {
@@ -42,8 +42,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: fetchEachPagesProps) {
   const { pageId } = await params;
-  const notion = new NotionAPI();
-  const recordMap = await notion.getPage(pageId);
+  const recordMap = await getNotionPage(pageId);
   const blocks = Object.values(recordMap.block)
     .map(unwrapBlock)
     .filter((block): block is NotionBlockLike => Boolean(block));
@@ -78,11 +77,10 @@ export async function generateMetadata({ params }: fetchEachPagesProps) {
 
 const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
   const { pageId } = await params;
-  const notion = new NotionAPI();
 
   // Fetch both the specific post and the list of all posts
   const [recordMap, allPosts] = await Promise.all([
-    notion.getPage(pageId),
+    getNotionPage(pageId),
     getArticlePosts(),
   ]);
   console.log("pageId", pageId);

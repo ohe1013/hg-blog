@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { NotionAPI } from "notion-client";
+import { getNotionPage } from "@lib/server/notion";
 
 type RouteContext = {
   params: Promise<{ pageId: string }>;
@@ -9,15 +9,7 @@ export async function GET(_req: NextRequest, context: RouteContext) {
   try {
     const { pageId } = await context.params; // 🔹 여기서 await 필요
 
-    const notion = new NotionAPI({
-      apiBaseUrl: "https://app.notion.com/api/v3",
-      ofetchOptions: {
-        headers: {
-          "User-Agent": "notion-client (+https://github.com/NotionX/react-notion-x)",
-        },
-      },
-    });
-    const recordMap = await notion.getPage(pageId);
+    const recordMap = await getNotionPage(pageId);
 
     return NextResponse.json(
       { recordMap },

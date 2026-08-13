@@ -63,3 +63,22 @@ The final audit metadata is 0 critical, 0 high, 2 moderate, and 0 low across 522
 - Vercel project runtime must use Node 22 or later.
 - Deploy the commit containing `package.json` and `pnpm-lock.yaml` together.
 - After deployment, verify `/api/notion/page/2f5145eb576b806db310ffae54659a96` and the Firebase-backed comments endpoint.
+
+## Fix round 1 final verification - 2026-08-13
+
+- The earlier clean-build Notion 403 is resolved by one shared `lib/server/notion.ts` reader using `https://app.notion.com/api/v3` and the NotionX User-Agent. The API route and both About and Article server pages now use that reader; no default `NotionAPI` construction remains in those consumers.
+- TDD evidence: the new focused helper integration test first exited 1 because `../lib/server/notion` did not exist, then passed 1/1 after the helper was implemented.
+- `pnpm test:notion` exits 0 with 2/2 integration tests passing. Extending this script is a narrowly justified Task 4 follow-up: it removes the former `pnpm dlx` registry dependency and runs both the preserved route test and new helper test through the existing project-pinned `pnpm exec tsx` runner.
+- `pnpm test:security` exits 0 with 2/2 tests passing; `pnpm lint` exits 0; `pnpm exec tsc --noEmit --incremental false` exits 0 with no diagnostics.
+- After resolving and removing only `E:\github\hg-blog\.next`, clean `pnpm build` exits 0 under Next.js 16.3.0 Turbopack. Compilation, TypeScript, page-data collection, and 17/17 static pages complete; no webpack fallback is used. Existing Sass `@import` deprecation and stale Browserslist-data warnings remain non-blocking.
+- `next-env.d.ts` is an intentionally tracked, Next-generated file documented by `AGENTS.md`, not a newly created Task 4 artifact. The clean build updated its generated type paths; it was not hand-edited.
+- The already deployed `cdac1af` history is an external historical commit-boundary limitation and was not rewritten. Fix-round changes remain unstaged for controller review.
+
+## Final fix wave verification - 2026-08-13
+
+- `lib/server/notion.ts` now imports `server-only` before `notion-client`, so Next enforces the shared reader's server boundary. The Notion endpoint base URL and NotionX User-Agent are unchanged.
+- The project does not install a top-level `server-only` package. Direct `tsx` resolution therefore produced `ERR_MODULE_NOT_FOUND`; a probe using the same conditional export map as Next's bundled marker confirmed that the default condition throws and `react-server` resolves the empty server entry.
+- `test:notion` now runs under `--conditions=react-server` with a test-only tsconfig mapping the marker to Next's bundled empty server entry. This leaves the application tsconfig and Next's client-side enforcement untouched. Both real, unmocked Notion reads pass: the shared helper and API route (2/2).
+- The dependency contract now guards Tailwind `^3.4.19`, the generic `immutable` override `>=4.3.8`, both project-pinned `pnpm exec tsx` runners, and the absence of `pnpm dlx`. `pnpm test:security` passes 3/3.
+- Final `pnpm lint`, `pnpm exec tsc --noEmit --incremental false`, and the clean bounded `pnpm build` all exit 0. The build compiled, checked TypeScript, and generated 17/17 static pages. Existing Sass `@import` deprecation and stale Browserslist-data warnings remain non-blocking.
+- The build did not add to the existing generated `next-env.d.ts` diff; it remains unedited by hand. No dependency, lockfile, Node contract, audit override, Firebase, Tailwind implementation, or Git-state change was made in this wave.
