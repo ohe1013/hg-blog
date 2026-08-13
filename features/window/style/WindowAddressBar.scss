@@ -1,6 +1,6 @@
-@import "../../../styles/var/colors.scss";
-@import "../../../styles/var/imageUrls.scss";
-@import "../../../styles/functions/box-shadows.scss";
+@use "../../../styles/var/colors" as *;
+@use "../../../styles/var/imageUrls" as *;
+@use "../../../styles/functions/box-shadows" as *;
 $windowPadding: 3px;
 
 @mixin window-addressbar {

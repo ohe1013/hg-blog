@@ -1,9 +1,9 @@
-@import "./StartBar.scss";
-@import "./StartButton.scss";
+@use "./StartBar" as startBar;
+@use "./StartButton" as startButton;
 
 .StartBar {
-  @include start-bar;
+  @include startBar.start-bar;
 }
 .StartButton {
-  @include start-button;
+  @include startButton.start-button;
 }

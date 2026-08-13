@@ -1,5 +1,5 @@
-@import "../../../styles/var/colors";
-@import "../../../styles/functions/box-shadows";
+@use "../../../styles/var/colors" as *;
+@use "../../../styles/functions/box-shadows" as *;
 $start: "https://win98icons.alexmeub.com/images/start-button.png";
 
 @mixin start-button {

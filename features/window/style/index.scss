@@ -1,29 +1,29 @@
-@import "./WindowHeader.scss";
-@import "./WindowSideBar.scss";
-@import "./WindowMenuBar.scss";
-@import "./WindowBody.scss";
-@import "./WindowAddressBar.scss";
+@use "./WindowHeader" as windowHeader;
+@use "./WindowSideBar" as windowSideBar;
+@use "./WindowMenuBar" as windowMenuBar;
+@use "./WindowBody" as windowBody;
+@use "./WindowAddressBar" as windowAddressBar;
 
 .WindowHeader {
-  @include window-header;
+  @include windowHeader.window-header;
 }
 .WindowSideBar {
-  @include window-sidebar;
+  @include windowSideBar.window-sidebar;
 }
 .WindowMenuBar {
-  @include window-menubar;
+  @include windowMenuBar.window-menubar;
 }
 .WindowBody {
-  @include window-body;
+  @include windowBody.window-body;
 }
 .WindowMainBody {
-  @include window-main-body;
+  @include windowBody.window-main-body;
 }
 .WindowAddressBar {
-  @include window-addressbar;
+  @include windowAddressBar.window-addressbar;
 }
 .StandardMenu {
-  @include standard-menu(".standard-menu");
+  @include windowMenuBar.standard-menu(".standard-menu");
 
-  @include standard-menu-css(".standard-menu");
+  @include windowMenuBar.standard-menu-css(".standard-menu");
 }

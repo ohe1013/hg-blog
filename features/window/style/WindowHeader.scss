@@ -1,5 +1,5 @@
-@import "../../../styles/var/colors";
-@import "../../../styles/functions/box-shadows";
+@use "../../../styles/var/colors" as *;
+@use "../../../styles/functions/box-shadows" as *;
 
 @mixin window-header {
   &__icon {

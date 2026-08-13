@@ -1,4 +1,4 @@
-@import "../var/colors";
+@use "../var/colors" as *;
 
 @function shadow($color, $px1, $px2: "") {
   @if ($px2 == "") {

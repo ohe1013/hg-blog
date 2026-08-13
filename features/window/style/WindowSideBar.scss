@@ -1,4 +1,4 @@
-@import "../../../styles/var/colors";
+@use "../../../styles/var/colors" as *;
 
 @mixin window-sidebar {
   // position: absolute;
