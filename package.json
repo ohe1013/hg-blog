@@ -9,23 +9,26 @@
     "build:ssg": "next build && next export",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "Write-Host 'this is only a test'",
-    "test:notion": "pnpm dlx tsx --test tests/notion-route.integration.test.ts",
+    "test:notion": "pnpm exec tsx --test tests/notion-route.integration.test.ts",
+    "test:security": "pnpm exec tsx --test tests/dependency-security-contract.test.ts tests/firebase-admin-import.contract.test.ts",
     "load-nvmrc": "powershell -File load-nvmrc.ps1",
     "dododo": "pnpm run load-nvmrc nvmu"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "dependencies": {
     "98.css": "^0.1.20",
     "@babel/runtime": "^7.28.6",
     "autoprefixer": "^10.4.24",
-    "axios": "^1.13.5",
     "clsx": "^2.1.1",
-    "firebase-admin": "^13.6.1",
+    "firebase-admin": "^14.2.0",
     "katex": "^0.16.33",
     "keyv": "4.5.4",
-    "next": "^16.1.6",
+    "next": "^16.3.0",
     "notion-client": "^7.8.2",
     "prismjs": "^1.30.0",
     "react": "^19.2.1",
@@ -36,20 +39,34 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@types/node": "^20.12.13",
+    "@types/node": "^22",
     "@types/prismjs": "^1.26.4",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
     "eslint": "^10.0.2",
-    "postcss": "^8.5.6",
-    "sass": "^1.77.4",
+    "postcss": "^8.5.22",
+    "sass": "^1.101.7",
+    "tsx": "^4.23.1",
     "typescript": "^5.4.5"
   },
   "pnpm": {
     "overrides": {
-      "immutable": ">=4.3.8"
+      "@grpc/grpc-js@>=1.14.0 <1.14.4": "1.14.4",
+      "@protobufjs/utf8@<=1.1.0": "1.1.1",
+      "@tootallnate/once@>=2.0.0 <2.0.1": "2.0.1",
+      "brace-expansion@>=5.0.0 <5.0.9": "5.0.9",
+      "fast-xml-parser@>=5.0.0 <5.7.0": "5.7.0",
+      "flatted@>=3.0.0 <3.4.2": "3.4.2",
+      "form-data@>=2.0.0 <2.5.6": "2.5.6",
+      "immutable": ">=4.3.8",
+      "immutable@>=5.0.0-beta.1 <5.1.8": "5.1.8",
+      "minimatch@>=10.0.0 <10.2.3": "10.2.3",
+      "picomatch@>=2.0.0 <2.3.2": "2.3.2",
+      "picomatch@>=4.0.0 <4.0.4": "4.0.4",
+      "protobufjs@>=7.0.0 <7.6.5": "7.6.5",
+      "websocket-driver@>=0.5.0 <0.7.5": "0.7.5"
     }
   }
 }
