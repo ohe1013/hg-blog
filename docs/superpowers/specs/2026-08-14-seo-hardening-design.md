@@ -194,8 +194,9 @@ before production code is added:
 - publication/modification timestamp omission and fallback behavior;
 - safe JSON-LD serialization;
 - sitemap entries staying canonical and free of request-time timestamps;
-- source contracts preventing a manual root `<title>` and preventing
-  mount-time refetch when initial record-map data is present.
+- viewer-state behavior preventing a mount-time refetch when initial
+  record-map data is present;
+- built HTTP output containing one title and deterministic sitemap values.
 
 Verification after focused tests includes the existing full test suite,
 TypeScript without incremental output, ESLint, a Next production build, and

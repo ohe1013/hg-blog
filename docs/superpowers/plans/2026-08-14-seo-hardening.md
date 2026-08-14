@@ -31,7 +31,7 @@
 - Create `lib/server/contentRoute.ts`: adapt pure route results to `notFound()`/`permanentRedirect()` and load Notion once.
 - Create `features/notion/viewerState.ts`: expose the tested decision for whether a viewer page requires a fetch.
 - Create `app/opengraph-image.tsx` and `app/twitter-image.tsx`: Next file-based image routes.
-- Create `tests/seo-site-route.test.ts`, `tests/seo-notion-metadata.test.ts`, and `tests/seo-app-contract.test.ts`.
+- Create `tests/seo-site-route.test.ts`, `tests/seo-notion-metadata.test.ts`, `tests/seo-content-flow.test.ts`, and `tests/seo-sitemap-social.test.ts`.
 - Modify `lib/server/notion.ts`, root/list/detail routes, viewer initializers, `ArticleViewerWindow.tsx`, `features/notion/api.ts`, `app/sitemap.ts`, `app/robots.ts`, `.env.example`, and `package.json`.
 
 ---
@@ -56,7 +56,7 @@ Create `tests/seo-site-route.test.ts` with existence assertions before dynamic i
 
 ```ts
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import test from "node:test";
 
 const siteModuleUrl = new URL("../lib/seo/site.ts", import.meta.url);
@@ -115,17 +115,6 @@ test("resolves exact IDs, UUID aliases, and unknown IDs", async () => {
   });
 });
 
-test("declares the focused SEO test script", () => {
-  const manifest = JSON.parse(
-    readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-  ) as { scripts?: Record<string, string> };
-
-  assert.match(
-    manifest.scripts?.["test:seo"] ?? "",
-    /tests\/seo-site-route\.test\.ts/,
-  );
-  assert.match(manifest.scripts?.test ?? "", /pnpm test:seo/);
-});
 ```
 
 - [ ] **Step 2: Run the focused test and verify RED**
@@ -136,7 +125,8 @@ Run:
 npx --yes pnpm@10.14.0 exec tsx --tsconfig tests/tsconfig.react-server.json --conditions=react-server --test tests/seo-site-route.test.ts
 ```
 
-Expected: FAIL with `lib/seo/site.ts should exist`, `lib/seo/routes.ts should exist`, and the missing `test:seo` script assertion.
+Expected: FAIL with `lib/seo/site.ts should exist` and
+`lib/seo/routes.ts should exist`.
 
 - [ ] **Step 3: Implement the site-origin helper**
 
@@ -716,7 +706,7 @@ git commit -m "feat: extract complete Notion SEO metadata"
 **Files:**
 - Create: `lib/server/contentRoute.ts`
 - Create: `features/notion/viewerState.ts`
-- Create: `tests/seo-app-contract.test.ts`
+- Create: `tests/seo-content-flow.test.ts`
 - Modify: `lib/server/notion.ts`
 - Modify: `features/notion/api.ts`
 - Modify: `app/article/[pageId]/page.tsx`
@@ -731,21 +721,18 @@ git commit -m "feat: extract complete Notion SEO metadata"
 **Interfaces:**
 - Consumes: Task 1 route resolution and Task 2 SEO extraction/metadata.
 - Produces: `loadCanonicalNotionPage()` returning canonical ID, record map, and SEO document or throwing a Next redirect/404 interrupt.
-- Produces: `shouldFetchNotionPage(activePageId, loadedPageId): boolean`.
+- Produces: `shouldFetchNotionPage(activePageId, loadedPageId): boolean` and
+  `createNotionViewerParams(pageId, initialRecordMap, rootUrl)`.
 - The viewer initializer receives `initialRecordMap`; the viewer consumes it without a duplicate mount fetch.
 
-- [ ] **Step 1: Write failing application contracts before route edits**
+- [ ] **Step 1: Write failing content-flow behavior tests before route edits**
 
-Create `tests/seo-app-contract.test.ts` with these initial tests:
+Create `tests/seo-content-flow.test.ts` with these initial tests:
 
 ```ts
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import test from "node:test";
-
-function source(relativePath: string): string {
-  return readFileSync(new URL(`../${relativePath}`, import.meta.url), "utf8");
-}
 
 const viewerStateUrl = new URL(
   "../features/notion/viewerState.ts",
@@ -763,36 +750,30 @@ test("viewer fetches only when the active page is not already loaded", async () 
   assert.equal(shouldFetchNotionPage("page-b", "page-a"), true);
 });
 
-test("detail routes use canonical loading and pass the initial record map", () => {
-  const articlePage = source("app/article/[pageId]/page.tsx");
-  const aboutPage = source("app/about/[pageId]/page.tsx");
-  const articleInitializer = source(
-    "app/article/[pageId]/ArticleViewerStateInitializer.tsx",
+test("builds route-correct viewer parameters with the initial record map", async () => {
+  assert.ok(
+    existsSync(viewerStateUrl),
+    "features/notion/viewerState.ts should exist",
   );
-  const aboutInitializer = source(
-    "app/about/[pageId]/AboutViewerStateInitializer.tsx",
-  );
-  const viewer = source(
-    "features/article/components/ArticleViewerWindow.tsx",
-  );
+  const { createNotionViewerParams } = await import(viewerStateUrl.href);
+  const initialRecordMap = { block: { page: { value: { type: "page" } } } };
 
-  for (const page of [articlePage, aboutPage]) {
-    assert.match(page, /loadCanonicalNotionPage/);
-    assert.match(page, /initialRecordMap=\{recordMap\}/);
-    assert.match(page, /createBlogPostingJsonLd/);
-    assert.doesNotMatch(page, /function unwrapBlock/);
-  }
-  assert.match(articleInitializer, /initialRecordMap/);
-  assert.match(articleInitializer, /rootUrl:\s*"article"/);
-  assert.match(aboutInitializer, /initialRecordMap/);
-  assert.match(aboutInitializer, /rootUrl:\s*"about"/);
-  assert.match(viewer, /initialRecordMap/);
-  assert.match(
-    viewer,
-    /shouldFetchNotionPage\(activePageId,\s*loadedPageId\)/,
+  assert.deepEqual(
+    createNotionViewerParams("article-page", initialRecordMap, "article"),
+    {
+      pageId: "article-page",
+      initialRecordMap,
+      rootUrl: "article",
+    },
   );
-  const notionServer = source("lib/server/notion.ts");
-  assert.match(notionServer, /cache\(\(pageId:\s*string\)/);
+  assert.deepEqual(
+    createNotionViewerParams("about-page", initialRecordMap, "about"),
+    {
+      pageId: "about-page",
+      initialRecordMap,
+      rootUrl: "about",
+    },
+  );
 });
 
 test("post registries do not invent current timestamps", async () => {
@@ -805,11 +786,11 @@ test("post registries do not invent current timestamps", async () => {
 });
 ```
 
-Extend `test:seo` in `package.json` before running RED so this new contract is
+Extend `test:seo` in `package.json` before running RED so this behavior suite is
 part of every subsequent focused run:
 
 ```json
-"test:seo": "pnpm exec tsx --tsconfig tests/tsconfig.react-server.json --conditions=react-server --test tests/seo-site-route.test.ts tests/seo-notion-metadata.test.ts tests/seo-app-contract.test.ts"
+"test:seo": "pnpm exec tsx --tsconfig tests/tsconfig.react-server.json --conditions=react-server --test tests/seo-site-route.test.ts tests/seo-notion-metadata.test.ts tests/seo-content-flow.test.ts"
 ```
 
 - [ ] **Step 2: Run the application contract and verify RED**
@@ -820,8 +801,7 @@ Run:
 npx --yes pnpm@10.14.0 test:seo
 ```
 
-Expected: FAIL because `viewerState.ts` is absent, detail pages still contain
-`unwrapBlock`, initializers do not carry `initialRecordMap`, and posts include
+Expected: FAIL because `viewerState.ts` is absent and posts still include
 synthetic `createdTime`.
 
 - [ ] **Step 3: Memoize Notion reads and add the server route adapter**
@@ -1072,32 +1052,41 @@ export function shouldFetchNotionPage(
 ): boolean {
   return Boolean(activePageId && activePageId !== loadedPageId);
 }
+
+export type NotionViewerRootUrl = "article" | "about";
+
+export function createNotionViewerParams(
+  pageId: string,
+  initialRecordMap: unknown,
+  rootUrl: NotionViewerRootUrl,
+) {
+  return { pageId, initialRecordMap, rootUrl };
+}
 ```
 
-Import it into `ArticleViewerWindow.tsx`:
+Import the fetch decision into `ArticleViewerWindow.tsx`:
 
 ```ts
 import { shouldFetchNotionPage } from "@features/notion/viewerState";
 ```
 
-Add `initialRecordMap: unknown` to both initializer props. Article opens:
+Import `createNotionViewerParams` into both route initializers, and add
+`initialRecordMap: unknown` to both initializer props. Article opens:
 
 ```ts
-open("article-viewer", {
-  pageId,
-  initialRecordMap,
-  rootUrl: "article",
-});
+open(
+  "article-viewer",
+  createNotionViewerParams(pageId, initialRecordMap, "article"),
+);
 ```
 
 About opens:
 
 ```ts
-open("article-viewer", {
-  pageId,
-  initialRecordMap,
-  rootUrl: "about",
-});
+open(
+  "article-viewer",
+  createNotionViewerParams(pageId, initialRecordMap, "about"),
+);
 ```
 
 In `ArticleViewerWindow.tsx`, initialize these values from `win.params`:
@@ -1136,12 +1125,12 @@ npx --yes pnpm@10.14.0 test:seo
 npx --yes pnpm@10.14.0 test:notion
 ```
 
-Expected: all SEO contracts and both live Notion integration tests PASS.
+Expected: all SEO behavior tests and both live Notion integration tests PASS.
 
 - [ ] **Step 8: Commit Task 3**
 
 ```powershell
-git add package.json lib/server/notion.ts lib/server/contentRoute.ts features/notion/api.ts features/notion/viewerState.ts app/article app/about features/article/components/ArticleViewerWindow.tsx tests/seo-app-contract.test.ts
+git add package.json lib/server/notion.ts lib/server/contentRoute.ts features/notion/api.ts features/notion/viewerState.ts app/article app/about features/article/components/ArticleViewerWindow.tsx tests/seo-content-flow.test.ts
 git commit -m "fix: canonicalize Notion detail routes"
 ```
 
@@ -1154,7 +1143,7 @@ git commit -m "fix: canonicalize Notion detail routes"
 - Create: `lib/seo/socialCard.tsx`
 - Create: `app/opengraph-image.tsx`
 - Create: `app/twitter-image.tsx`
-- Modify: `tests/seo-app-contract.test.ts`
+- Create: `tests/seo-sitemap-social.test.ts`
 - Modify: `app/layout.tsx`
 - Modify: `app/page.tsx`
 - Modify: `app/article/page.tsx`
@@ -1162,31 +1151,21 @@ git commit -m "fix: canonicalize Notion detail routes"
 - Modify: `app/sitemap.ts`
 - Modify: `app/robots.ts`
 - Modify: `.env.example`
+- Modify: `package.json`
 
 **Interfaces:**
 - Consumes: site URL, Notion SEO timestamps, and metadata builders from Tasks 1-2.
 - Produces: deterministic `buildSitemapEntries()` and two 1200x630 PNG metadata routes.
 - Root and list pages emit one title, canonical URLs, route-correct OG metadata, and common file-based images.
 
-- [ ] **Step 1: Extend application contracts and verify RED**
+- [ ] **Step 1: Write sitemap and social-image behavior tests and verify RED**
 
-Append these tests to `tests/seo-app-contract.test.ts` before application edits:
+Create `tests/seo-sitemap-social.test.ts` before application edits:
 
 ```ts
-test("root delegates all head tags to the Metadata API", () => {
-  const layout = source("app/layout.tsx");
-  assert.match(layout, /createRootMetadata/);
-  assert.doesNotMatch(layout, /<head>/);
-  assert.doesNotMatch(layout, /<title>/);
-  assert.equal((layout.match(/google-site-verification/g) ?? []).length, 0);
-});
-
-test("sitemap is deterministic and does not force request-time dates", () => {
-  const sitemapSource = source("app/sitemap.ts");
-  assert.doesNotMatch(sitemapSource, /Date\.now|new Date\(\)/);
-  assert.doesNotMatch(sitemapSource, /force-dynamic/);
-  assert.match(sitemapSource, /buildSitemapEntries/);
-});
+import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
+import test from "node:test";
 
 test("defines generated Open Graph and Twitter image routes", async () => {
   const ogUrl = new URL("../app/opengraph-image.tsx", import.meta.url);
@@ -1236,10 +1215,19 @@ test("builds canonical sitemap entries without invented dates", async () => {
 });
 ```
 
-Run `npx --yes pnpm@10.14.0 test:seo`.
+Extend `test:seo` in `package.json` with the new behavior test:
 
-Expected: FAIL because root still has a manual `<head>`, sitemap uses the
-current clock and `force-dynamic`, and the image/sitemap modules do not exist.
+```json
+"test:seo": "pnpm exec tsx --tsconfig tests/tsconfig.react-server.json --conditions=react-server --test tests/seo-site-route.test.ts tests/seo-notion-metadata.test.ts tests/seo-content-flow.test.ts tests/seo-sitemap-social.test.ts"
+```
+
+Run:
+
+```powershell
+npx --yes pnpm@10.14.0 test:seo
+```
+
+Expected: FAIL because the image and pure sitemap modules do not exist.
 
 - [ ] **Step 2: Implement deterministic sitemap construction**
 
@@ -1523,13 +1511,13 @@ Run:
 npx --yes pnpm@10.14.0 test:seo
 ```
 
-Expected: every SEO unit and source-contract test PASS, including construction
+Expected: every SEO behavior test PASS, including construction
 of both PNG responses.
 
 - [ ] **Step 6: Commit Task 4**
 
 ```powershell
-git add .env.example app/layout.tsx app/page.tsx app/article/page.tsx app/about/page.tsx app/sitemap.ts app/robots.ts app/opengraph-image.tsx app/twitter-image.tsx lib/seo/sitemap.ts lib/seo/socialCard.tsx tests/seo-app-contract.test.ts
+git add package.json .env.example app/layout.tsx app/page.tsx app/article/page.tsx app/about/page.tsx app/sitemap.ts app/robots.ts app/opengraph-image.tsx app/twitter-image.tsx lib/seo/sitemap.ts lib/seo/socialCard.tsx tests/seo-sitemap-social.test.ts
 git commit -m "feat: complete SEO metadata and sitemap"
 ```
 
