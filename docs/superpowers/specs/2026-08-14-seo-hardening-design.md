@@ -1,7 +1,7 @@
 # SEO hardening design
 
 **Date:** 2026-08-14
-**Status:** Approved direction; pending written-spec review
+**Status:** Approved
 
 ## Objective
 
