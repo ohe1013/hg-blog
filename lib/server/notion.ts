@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { NotionAPI } from "notion-client";
 
 const notion = new NotionAPI({
@@ -11,6 +12,4 @@ const notion = new NotionAPI({
   },
 });
 
-export function getNotionPage(pageId: string) {
-  return notion.getPage(pageId);
-}
+export const getNotionPage = cache((pageId: string) => notion.getPage(pageId));

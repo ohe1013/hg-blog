@@ -11,6 +11,7 @@ import { useApplicationStore } from "../../../zustand/application/applicationPro
 import Renderer from "@features/notion/Renderer";
 import { initialFs } from "@features/fs/data/initialFs";
 import { fetchNotionRecordMap } from "@features/notion/api";
+import { shouldFetchNotionPage } from "@features/notion/viewerState";
 import ArticleCommentsPanel from "./ArticleCommentsPanel";
 
 interface ArticleViewerWindowProps {
@@ -21,14 +22,19 @@ export default function ArticleViewerWindow({
   winId,
 }: ArticleViewerWindowProps) {
   const win = useApplicationStore((s) => s.getById(winId));
-  const [recordMap, setRecordMap] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
 
   const fileId = win?.params?.fileId;
   const paramPageId = win?.params?.pageId;
   const initialNode = fileId ? initialFs.byId[fileId] : null;
   const initialPageId =
     (initialNode?.kind === "file" ? initialNode.pageId : null) ?? paramPageId;
+  const initialRecordMap = win?.params?.initialRecordMap;
+  const rootUrl = win?.params?.rootUrl === "about" ? "about" : "article";
+  const [recordMap, setRecordMap] = useState<any>(initialRecordMap ?? null);
+  const [loadedPageId, setLoadedPageId] = useState<string | null>(
+    initialRecordMap ? (initialPageId ?? null) : null,
+  );
+  const [loading, setLoading] = useState(false);
 
   const [activePageId, setActivePageId] = useState<string | null>(
     initialPageId ?? null,
@@ -39,20 +45,20 @@ export default function ArticleViewerWindow({
   }, []);
 
   useEffect(() => {
-    if (activePageId) {
-      setLoading(true);
-
-      fetchNotionRecordMap(activePageId)
-        .then((recordMap) => {
-          setRecordMap(recordMap);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setLoading(false);
-        });
-    }
-  }, [activePageId]);
+    if (
+      !activePageId ||
+      !shouldFetchNotionPage(activePageId, loadedPageId)
+    )
+      return;
+    setLoading(true);
+    fetchNotionRecordMap(activePageId)
+      .then((nextRecordMap) => {
+        setRecordMap(nextRecordMap);
+        setLoadedPageId(activePageId);
+      })
+      .catch((error) => console.error(error))
+      .finally(() => setLoading(false));
+  }, [activePageId, loadedPageId]);
 
   if (!win || !activePageId) return null;
 
@@ -73,7 +79,7 @@ export default function ArticleViewerWindow({
             <Renderer
               recordMap={recordMap}
               rootPageId={activePageId}
-              rootUrl="article"
+              rootUrl={rootUrl}
               onNavigate={handleNavigate}
             />
             <ArticleCommentsPanel pageId={activePageId} />

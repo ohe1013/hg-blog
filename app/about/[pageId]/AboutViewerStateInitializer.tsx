@@ -3,15 +3,18 @@
 import { useEffect, useRef } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import { AboutPost } from "@features/notion/api";
+import { createNotionViewerParams } from "@features/notion/viewerState";
 
 interface AboutViewerStateInitializerProps {
   pageId: string;
   initialPosts: AboutPost[];
+  initialRecordMap: unknown;
 }
 
 export default function AboutViewerStateInitializer({
   pageId,
   initialPosts,
+  initialRecordMap,
 }: AboutViewerStateInitializerProps) {
   const { open } = useApplicationStore((s) => s);
   const initialized = useRef(false);
@@ -24,8 +27,11 @@ export default function AboutViewerStateInitializer({
     open("about", { initialPosts });
 
     // 2. Open the specific about viewer window
-    open("article-viewer", { pageId });
-  }, [pageId, initialPosts, open]);
+    open(
+      "article-viewer",
+      createNotionViewerParams(pageId, initialRecordMap, "about"),
+    );
+  }, [pageId, initialPosts, initialRecordMap, open]);
 
   return null;
 }

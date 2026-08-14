@@ -4,7 +4,6 @@ import { initialFs } from "@features/fs/data/initialFs";
 import { FileNode } from "@features/fs/types";
 export type ArticlePost = FileNode & {
   title: string;
-  createdTime: number;
   slug: string;
 };
 
@@ -22,7 +21,6 @@ export async function getArticlePosts(): Promise<ArticlePost[]> {
         title: a.name, // 이미 사람이 읽을 타이틀이 있음
         type: "notion",
         iconUrl: a.iconUrl,
-        createdTime: new Date().getTime(),
         id: a.id,
         name: a.name,
         kind: a.kind,
@@ -37,7 +35,6 @@ export async function getArticlePosts(): Promise<ArticlePost[]> {
 
 export type AboutPost = FileNode & {
   title: string;
-  createdTime: number;
   slug: string;
 };
 export async function getAboutPosts(): Promise<AboutPost[]> {
@@ -54,7 +51,6 @@ export async function getAboutPosts(): Promise<AboutPost[]> {
         title: a.name, // 이미 사람이 읽을 타이틀이 있음
         type: "notion",
         iconUrl: a.iconUrl,
-        createdTime: new Date().getTime(),
         id: a.id,
         name: a.name,
         kind: a.kind,

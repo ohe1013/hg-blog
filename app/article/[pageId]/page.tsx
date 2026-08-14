@@ -1,138 +1,70 @@
+import type { Metadata } from "next";
 import { getArticlePosts } from "@features/notion/api";
-import { getNotionPage } from "@lib/server/notion";
+import { loadCanonicalNotionPage } from "@lib/server/contentRoute";
+import {
+  createBlogPostingJsonLd,
+  createPageMetadata,
+  serializeJsonLd,
+} from "@lib/seo/metadata";
 import ArticleViewerStateInitializer from "./ArticleViewerStateInitializer";
 
-interface fetchEachPagesProps {
-  params: Promise<{
-    pageId: string;
-  }>;
-}
-
-export const revalidate = 3600; // 1 hour
-
-type NotionBlockLike = {
-  type?: string;
-  properties?: {
-    title?: string[][];
-  };
-  created_time?: number;
-};
-
-function unwrapBlock(entry: unknown): NotionBlockLike | null {
-  if (!entry || typeof entry !== "object") return null;
-  const value = (entry as { value?: unknown }).value;
-  if (!value || typeof value !== "object") return null;
-
-  if ("type" in value) {
-    return value as NotionBlockLike;
-  }
-
-  const nested = (value as { value?: unknown }).value;
-  if (nested && typeof nested === "object" && "type" in nested) {
-    return nested as NotionBlockLike;
-  }
-
-  return null;
-}
+type Props = { params: Promise<{ pageId: string }> };
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
+  return (await getArticlePosts()).map((post) => ({ pageId: post.pageId }));
+}
+
+async function loadArticle(requestedPageId: string) {
   const posts = await getArticlePosts();
-  return posts.map((post) => ({ pageId: post.pageId }));
+  const page = await loadCanonicalNotionPage({
+    requestedPageId,
+    entries: posts,
+    basePath: "/article",
+    fallbacks: {
+      title: "Article Post",
+      description: (title) => `Read more about ${title} on HG Article.`,
+    },
+  });
+  return { posts, ...page };
 }
 
-export async function generateMetadata({ params }: fetchEachPagesProps) {
-  const { pageId } = await params;
-  const recordMap = await getNotionPage(pageId);
-  const blocks = Object.values(recordMap.block)
-    .map(unwrapBlock)
-    .filter((block): block is NotionBlockLike => Boolean(block));
-  const title = blocks[0]?.properties?.title?.[0]?.[0] || "Article Post";
-
-  // Attempt to extract a summary or use a default one
-  const introText = blocks
-    .filter((b) => b.type === "text")
-    .slice(0, 3)
-    .map((b) => b.properties?.title?.[0]?.[0])
-    .filter(Boolean)
-    .join(" ")
-    .slice(0, 160);
-
-  const description = introText || `Read more about ${title} on HG Article.`;
-
-  return {
-    title: title,
-    description: description,
-    openGraph: {
-      title: title,
-      description: description,
-      type: "article",
-    },
-    twitter: {
-      card: "summary",
-      title: title,
-      description: description,
-    },
-  };
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { pageId: requestedPageId } = await params;
+  const { pageId, seo } = await loadArticle(requestedPageId);
+  return createPageMetadata({
+    title: seo.title,
+    description: seo.description,
+    path: `/article/${pageId}`,
+    kind: "article",
+    datePublished: seo.datePublished,
+    dateModified: seo.dateModified,
+  });
 }
 
-const fetchEachPages = async ({ params }: fetchEachPagesProps) => {
-  const { pageId } = await params;
-
-  // Fetch both the specific post and the list of all posts
-  const [recordMap, allPosts] = await Promise.all([
-    getNotionPage(pageId),
-    getArticlePosts(),
-  ]);
-  console.log("pageId", pageId);
-  const blocks = Object.values(recordMap.block)
-    .map(unwrapBlock)
-    .filter((block): block is NotionBlockLike => Boolean(block));
-  const title = blocks[0]?.properties?.title?.[0]?.[0] || "Article Post";
-
-  // Simple text extraction for SEO (first few blocks)
-  const introText = blocks
-    .filter((b) => b.type === "text")
-    .slice(0, 5)
-    .map((b) => b.properties?.title?.[0]?.[0])
-    .filter(Boolean)
-    .filter(Boolean)
-    .join(" ");
-
-  const description = introText || `Read more about ${title} on HG Article.`;
-  const time = blocks[0]?.created_time;
-  const datePublished = time ? new Date(time).toISOString() : "";
+export default async function ArticlePage({ params }: Props) {
+  const { pageId: requestedPageId } = await params;
+  const { pageId, recordMap, seo, posts } = await loadArticle(requestedPageId);
+  const jsonLd = createBlogPostingJsonLd({
+    document: seo,
+    path: `/article/${pageId}`,
+  });
 
   return (
     <>
-      {/* SEO Content: Hidden from visual users but visible to crawlers */}
       <div className="sr-only">
-        <h1>{title}</h1>
-        <article>
-          {introText}
-          <p>Read the full post in the article viewer window.</p>
-        </article>
+        <h1>{seo.title}</h1>
+        <article>{seo.description}</article>
       </div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: title,
-            description: description,
-            datePublished,
-            author: {
-              "@type": "Person",
-              name: "HG",
-            },
-          }),
-        }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-
-      {/* Client-side logic to open the desktop windows */}
-      <ArticleViewerStateInitializer pageId={pageId} initialPosts={allPosts} />
+      <ArticleViewerStateInitializer
+        pageId={pageId}
+        initialPosts={posts}
+        initialRecordMap={recordMap}
+      />
     </>
   );
-};
-
-export default fetchEachPages;
+}

@@ -21,9 +21,6 @@ export default async function ArticlePage() {
           {posts.map((post) => (
             <li key={post.pageId}>
               <Link href={`/article/${post.pageId}`}>{post.title}</Link>
-              <time dateTime={new Date(post.createdTime).toISOString()}>
-                {new Date(post.createdTime).toLocaleDateString()}
-              </time>
             </li>
           ))}
         </ul>

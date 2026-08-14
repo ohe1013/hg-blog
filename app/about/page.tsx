@@ -20,9 +20,6 @@ export default async function AboutPage() {
           {posts.map((post) => (
             <li key={post.pageId}>
               <Link href={`/about/${post.pageId}`}>{post.title}</Link>
-              <time dateTime={new Date(post.createdTime).toISOString()}>
-                {new Date(post.createdTime).toLocaleDateString()}
-              </time>
             </li>
           ))}
         </ul>

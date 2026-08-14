@@ -3,15 +3,18 @@
 import { useEffect, useRef } from "react";
 import { useApplicationStore } from "../../../zustand/application/applicationProvider";
 import { ArticlePost } from "@features/notion/api";
+import { createNotionViewerParams } from "@features/notion/viewerState";
 
 interface ArticleViewerStateInitializerProps {
   pageId: string;
   initialPosts: ArticlePost[];
+  initialRecordMap: unknown;
 }
 
 export default function ArticleViewerStateInitializer({
   pageId,
   initialPosts,
+  initialRecordMap,
 }: ArticleViewerStateInitializerProps) {
   const { open } = useApplicationStore((s) => s);
   const initialized = useRef(false);
@@ -24,8 +27,11 @@ export default function ArticleViewerStateInitializer({
     open("articles", { initialPosts });
 
     // 2. Open the specific blog viewer window
-    open("article-viewer", { pageId });
-  }, [pageId, initialPosts, open]);
+    open(
+      "article-viewer",
+      createNotionViewerParams(pageId, initialRecordMap, "article"),
+    );
+  }, [pageId, initialPosts, initialRecordMap, open]);
 
   return null;
 }
