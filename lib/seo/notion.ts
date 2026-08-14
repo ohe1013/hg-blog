@@ -93,7 +93,7 @@ export function extractNotionSeoDocument(
 
   return {
     title: resolvedTitle,
-    description: bodyText.slice(0, 160) || fallbackDescription,
+    description: (bodyText || fallbackDescription).slice(0, 160),
     bodyText,
     ...(datePublished ? { datePublished } : {}),
     ...(dateModified ? { dateModified } : {}),

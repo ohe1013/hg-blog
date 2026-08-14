@@ -88,6 +88,18 @@ test("uses deterministic fallbacks and omits invalid dates", async () => {
   });
 });
 
+test("limits an empty-body fallback description to 160 characters", async () => {
+  assert.ok(existsSync(notionModuleUrl), "lib/seo/notion.ts should exist");
+  const { extractNotionSeoDocument } = await import(notionModuleUrl.href);
+  const result = extractNotionSeoDocument(
+    { block: {} },
+    { title: "Fallback title", description: "f".repeat(161) },
+  );
+
+  assert.equal(result.description.length, 160);
+  assert.equal(result.description, "f".repeat(160));
+});
+
 test("normalizes body whitespace and limits descriptions to 160 characters", async () => {
   assert.ok(existsSync(notionModuleUrl), "lib/seo/notion.ts should exist");
   const { extractNotionSeoDocument } = await import(notionModuleUrl.href);
