@@ -2,6 +2,16 @@ import { FileData } from "../types";
 import { iconDict } from "./icon";
 
 export const articles: FileData = {
+  articles_codex_subgAgent_logging_hook: {
+    id: "articles_codex_subgAgent_logging_hook",
+    name: "Codex로 Agent를 분리하고 개발 과정을 기록하는 방법",
+    kind: "file",
+    parentId: "articles",
+    iconUrl: iconDict.notion,
+    type: "notion",
+    app: "article-viewer",
+    pageId: "Codex-Subagent-Logging-Hook-3bf145eb576b80309fd9c2506f0e1cc7",
+  },
   articles_budget_app: {
     id: "articles_budget_app",
     name: "가계부앱 개발 후기 (토스 왜 부부통장 없애냐고!)",

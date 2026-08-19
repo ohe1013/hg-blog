@@ -18,11 +18,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const aboutPosts = await getAboutPosts();
   const articleRoutes = articlePosts.map((post) => ({
     url: `${baseUrl}/article/${post.pageId}`,
-    lastModified: new Date(post.createdTime),
   }));
   const aboutRoutes = aboutPosts.map((post) => ({
     url: `${baseUrl}/about/${post.pageId}`,
-    lastModified: new Date(post.createdTime),
   }));
 
   return [...routes, ...articleRoutes, ...aboutRoutes];
